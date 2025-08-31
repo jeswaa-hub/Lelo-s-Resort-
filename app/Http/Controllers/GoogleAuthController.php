@@ -96,12 +96,7 @@ class GoogleAuthController extends Controller
         $user->update(['otp' => null, 'otp_expires_at' => null]);
         Auth::login($user);
         
-        // Check if address or mobile number is missing
-        if (empty($user->address) || empty($user->mobileNo)) {
-            return redirect()->route('profile')->with('info', 'Please complete your profile information.');
-        } else {
-            return redirect()->route('homepage')->with('success', 'Welcome ' . $user->name . '!');
-        }
+        return redirect()->route('homepage')->with('success', 'Welcome ' . $user->name . '!');
     }
 }
 

@@ -101,8 +101,8 @@
 </style>
 
 <body style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76)), url('{{ asset('images/DSCF2777.JPG') }}') no-repeat center center fixed; background-size: cover;">
-    @include('Alert.loginSucess')
     @include('Alert.errorLogin')
+    @include('Alert.loginSuccessUser')
     <div class="container-fluid min-vh-100 d-flex p-0">
         <!-- SIDEBAR -->
          @include('Navbar.sidenavbarStaff')
@@ -110,7 +110,7 @@
          <div id="mainContent" class="flex-grow-1 py-4 px-4 transition-width" style="transition: all 0.3s ease;">
             <!-- Heading and Logo -->
             <div class="d-flex justify-content-end align-items-end mb-2">
-                <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="100" class="rounded-pill me-3">
+                <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" width="100" class="rounded-pill me-3">
             </div>
 
             <hr class="border-5">
@@ -118,12 +118,8 @@
             <div class="d-flex gap-4 mb-4">
                 <!-- Total Reservations -->
                 <div class="flex-grow-1 p-4 rounded-4 shadow-lg position-relative overflow-hidden" 
-                     style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; transition: all 0.3s ease; transform: translateY(0);"
-                     onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 15px 35px rgba(102, 126, 234, 0.4)'"
-                     onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 25px rgba(0,0,0,0.15)'">
-                    <div class="position-absolute top-0 end-0 opacity-25">
-                        <i class="fas fa-calendar-check" style="font-size: 4rem; margin: -10px;"></i>
-                    </div>
+                     style="background: #0b573d; border: none;">
+
                     <div class="d-flex align-items-center position-relative">
                         <div>
                             <h2 class="fs-1 fw-bold text-white mb-2 position-relative" style="text-shadow: 0 2px 4px rgba(0,0,0,0.3);">{{ $totalCount ?? 0 }}</h2>
@@ -460,6 +456,9 @@
                         <option value="pending" {{ (!request('status') || request('status') == 'pending') ? 'selected' : '' }}>
                             📋 Pending ({{ $pendingCount ?? 0 }})
                         </option>
+                        <option value="on-hold" {{ request('status') == 'on-hold' ? 'selected' : '' }}>
+                            ⏸️ On-Hold ({{ $OnHoldCount ?? 0 }})
+                        </option>
                         <option value="reserved" {{ request('status') == 'reserved' ? 'selected' : '' }}>
                             📅 Reserved ({{ $reservedCount ?? 0 }})
                         </option>
@@ -505,10 +504,7 @@
                     <tr>
                         <th class="text-center align-middle">ResID</th>
                         <th class="text-center align-middle">Name</th>
-                        <th class="text-center align-middle">Email</th>
                         <th class="text-center align-middle">Phone Number</th>
-                        <th class="text-center align-middle">Date</th>
-                        <th class="text-center align-middle" >Check In-Out</th>
                         <th class="text-center align-middle">Room</th>
                         <th class="text-center align-middle">Room Qty</th>
                         <th class="text-center align-middle">Ref Num</th>
@@ -533,10 +529,7 @@
                                     <span class="fw-bold" style="color: #0b573d;">{{ $reservation->reservation_id }}</span>
                                 </td>
                                 <td class="text-center align-middle">{{ $reservation->name }}</td>
-                                <td class="text-center align-middle">{{ $reservation->email }}</td>
                                 <td class="text-center align-middle">{{ $reservation->mobileNo }}</td>
-                                <td class="text-center align-middle">{{ \Carbon\Carbon::parse($reservation->reservation_check_in_date)->format('M j, Y') }}</td>
-                                <td class="text-center align-middle">{{ \Carbon\Carbon::parse($reservation->reservation_check_in)->format('g:i A') }}-{{ \Carbon\Carbon::parse($reservation->reservation_check_out)->format('g:i A') }}</td>
                                 <td class="text-center align-middle">
                                 @php
                                     $accommodationNames = is_array($reservation->accommodations) ? $reservation->accommodations : [];
@@ -557,7 +550,7 @@
                                     <span class="badge rounded-pill py-2 px-2
                                         {{ $reservation->reservation_status == 'reserved' ? 'bg-primary' : 
                                         ($reservation->reservation_status == 'checked-in' ? 'bg-success' : 
-                                        ($reservation->reservation_status == 'checked-out' ? 'bg-secondary' : 
+                                        ($reservation->reservation_status == 'checked-out' ? 'bg-danger' :
                                         ($reservation->reservation_status == 'cancelled' ? 'bg-danger' : 'bg-warning'))) }}" style="font-size: .7rem;">
                                         {{ ucfirst($reservation->reservation_status) }}
                                         @if($reservation->reservation_status == 'pending')
@@ -569,7 +562,8 @@
                                     <span class="badge rounded-pill py-2 px-3
                                         {{ $reservation->payment_status == 'pending' ? 'bg-warning' : 
                                         ($reservation->payment_status == 'paid' ? 'bg-success' : 
-                                        ($reservation->payment_status == 'booked' ? 'bg-primary' : 'bg-danger')) }}" style="font-size: .7rem;">
+                                        ( $reservation->payment_status == 'on-hold' ? 'bg-warning' : 
+                                        ($reservation->payment_status == 'booked' ? 'bg-primary' : 'bg-danger'))) }}" style="font-size: .7rem;">
                                         {{ ucfirst($reservation->payment_status) }}
                                     </span>
                                 </td>
@@ -624,6 +618,7 @@
                                                     </label>
                                                     <select class="form-select form-select-lg border-2" name="payment_status" id="payment_status" style="border-color: #0b573d">
                                                         <option value="" disabled selected hidden>Choose payment status</option>
+                                                         <option value="on-hold" {{ old('payment_status', $reservation->payment_status) == 'on-hold' ? 'selected' : '' }}>On-Hold</option>
                                                         <option value="paid" {{ old('payment_status', $reservation->payment_status) == 'paid' ? 'selected' : '' }}>Paid</option>
                                                         <option value="partial" {{ old('payment_status', $reservation->payment_status) == 'partial' ? 'selected' : '' }}>Partial</option>
                                                         <option value="unpaid" {{ old('payment_status', $reservation->payment_status) == 'unpaid' ? 'selected' : '' }}>Unpaid</option>
@@ -636,6 +631,7 @@
                                                     </label>
                                                 <select class="form-select form-select-lg border-2" name="reservation_status" id="reservation_status" style="border-color: #0b573d">
                                                     <option value="" disabled selected hidden>Choose reservation status</option>
+                                                    <option value="on-hold" {{ $reservation->reservation_status == 'on-hold' ? 'selected' : '' }}>On-Hold</option>
                                                     <option value="reserved" {{ $reservation->reservation_status == 'reserved' ? 'selected' : '' }}>Reserved</option>
                                                     <option value="checked-in" {{ $reservation->reservation_status == 'checked-in' ? 'selected' : '' }}>Checked-In</option>
                                                     <option value="early-checked-out" {{ $reservation->reservation_status == 'early-checked-out' ? 'selected' : '' }}>Early Checked-Out</option>

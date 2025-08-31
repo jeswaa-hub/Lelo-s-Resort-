@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -15,9 +15,6 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <style>
-    .color-background8{
-        background-color: #0b573d;
-    }
     .transition-width {
         transition: all 0.3s ease;
     }
@@ -60,10 +57,10 @@
                                 <div class="col-6">
                                     <div class="color-background8 text-white rounded-4 p-3 d-flex justify-content-between align-items-center">
                                         <div>
-                                            <h3 class="fw-bold mb-0">{{$totalBookings ?? 0 }}</h3>
-                                            <small class="font-paragraph fs-5 fw-semibold">Total Reservation Today</small>
+                                            <h3 class="fw-bold mb-0 text-white text-color-2">{{$totalBookings ?? 0 }}</h3>
+                                            <small class="text-white font-paragraph fs-5 fw-semibold text-color-2">Total Reservation Today</small>
                                         </div>
-                                        <i class="fas fa-calendar-alt fs-4"></i>
+                                        <i class="fas fa-calendar-alt fs-4 text-white"></i>
                                     </div>
                                 </div>
 
@@ -155,7 +152,7 @@
                         <!-- Remove navigation buttons section and keep Chart Section 1 -->
                         <div id="chartSection1" class="chart-section">
                             <div class="d-flex justify-content-between align-items-center mt-5">
-                                <h1 class="text-color-1 font-paragraph fw-bold" style="font-size: 50px;">Reservation Overview</h1>
+                                <h1 class="text-color-1 font-paragraph fw-bold" style="font-size: 30px;">Reservation Overview</h1>
 
                                 <!-- Filter Dropdowns: labels beside select -->
                                 <div class="d-flex align-items-center">
@@ -163,14 +160,14 @@
                                     <div class="me-3 d-flex align-items-center gap-2">
                                         <label for="timeFilter" class="form-label font-paragraph fw-semibold mb-0" style="white-space: nowrap;">Filter By:</label>
                                         <select id="timeFilter" class="form-control" style="min-width: 100px; height: 50px;">
-                                            <option value="daily">Daily</option>
-                                            <option value="weekly">Weekly</option>
-                                            <option value="monthly">Monthly</option>
+                                        <option value="daily">Daily</option>
+                                        <option value="weekly">Weekly</option>
+                                        <option value="monthly">Monthly</option>
                                         </select>
                                     </div>
 
                                     <!-- Year -->
-                                    <div class="d-flex align-items-center">
+                                    <div class="d-flex align-items-center me-3">
                                         <label for="yearFilter" class="form-label mb-0 me-2 font-paragraph fw-semibold">Year:</label>
                                         <select id="yearFilter" class="form-control" style="min-width: 150px; height: 50px;">
                                         @foreach($availableYears as $year)
@@ -178,10 +175,20 @@
                                         @endforeach
                                         </select>
                                     </div>
+
+                                    <!-- Reservation Type -->
+                                    <div class="d-flex align-items-center">
+                                        <label for="reservationType" class="form-label font-paragraph fw-semibold mb-0 me-3" style="white-space: nowrap;">Reservation Type:</label>
+                                        <select id="reservationType" class="form-control" style="min-width: 100px; height: 50px;">
+                                            <option value="">All Reservations</option>
+                                            <option value="walkin">Walk-in</option>
+                                            <option value="online">Online</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
 
-                            <!-- Chart Container with Floating Effect and Side-by-Side Layout -->
+                            <!-- Online Reservation -->
                             <div class="row g-0 mt-4">
                                 <div class="col-md-6 p-0 w-25">
                                     <div class="shadow-lg rounded-4 p-3 bg-white floating-effect h-100 d-flex justify-content-center align-items-center">
@@ -194,7 +201,7 @@
                                         <canvas id="reservationChart" class="w-100"></canvas>
                                     </div>
                                 </div>
-                            </div>
+                            </div>                             
                         </div>
                     </div>
                 </div>
@@ -208,6 +215,11 @@
     const dailyData = @json($dailyReservations);
     const weeklyData = @json($weeklyReservations);
     const monthlyData = @json($monthlyReservations);
+    const yearlyData = @json($yearlyReservations);
+    const dailyWalkinData = @json($dailyWalkins);
+    const weeklyWalkinData = @json($weeklyWalkins);
+    const monthlyWalkinData = @json($monthlyWalkins);
+    const yearlyWalkinData = @json($yearlyWalkins);
 
     const ctx = document.getElementById('reservationChart').getContext('2d');
     let chart;
@@ -219,9 +231,9 @@
     });
 
     // Build Chart Function
-    function buildChart(data, label, labelKey) {
+    function buildChart(data, label, timeFilter) {
         if (chart) chart.destroy();
-    
+        
         if (data.labels.length === 0) {
             data = {
                 labels: ['No Data Available'],
@@ -229,18 +241,26 @@
                 rooms: ['No Rooms']
             };
         }
-    
+        
         // Format the labels based on the type of view
-        const formattedLabels = data.labels.map(dateStr => {
-            if (labelKey === 'date') {
+        const formattedLabels = data.labels.map((dateStr, index) => {
+            if (timeFilter === 'daily') {
+                // For daily view, show date in a readable format
                 const date = new Date(dateStr);
-                return date.toLocaleDateString('en-US', { weekday: 'long' });
-            } else if (labelKey === 'week') {
-                return `Week ${dateStr}`;
+                return date.toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric'
+                });
+            } else if (timeFilter === 'weekly') {
+                // For weekly view, show week start date
+                return dateStr; // Already formatted in generateAllWeeksData
+            } else if (timeFilter === 'monthly') {
+                // For monthly view, show month abbreviation
+                return dateStr; // Already formatted as 'Jan', 'Feb', etc.
             }
             return dateStr;
         });
-    
+        
         const datasets = [];
         
         // Dataset para sa total reservations
@@ -252,12 +272,12 @@
             borderWidth: 1,
             order: 1
         });
-    
+        
         // Datasets para sa bawat uri ng room
         if (data.rooms && data.rooms.length > 0) {
             const roomTypes = [...new Set(data.rooms.flat().filter(room => room !== 'No room information'))];
             const roomColors = @json($roomColors);
-        
+            
             roomTypes.forEach(roomType => {
                 const roomData = data.labels.map((_, index) => {
                     const rooms = data.rooms[index];
@@ -265,7 +285,7 @@
                         rooms.filter(room => room === roomType).length : 
                         0;
                 });
-        
+                
                 datasets.push({
                     label: roomType,
                     data: roomData,
@@ -276,7 +296,7 @@
                 });
             });
         }
-    
+        
         chart = new Chart(ctx, {
             type: 'bar',
             data: {
@@ -296,7 +316,9 @@
                     x: {
                         title: {
                             display: true,
-                            text: labelKey === 'date' ? 'Date' : labelKey === 'week' ? 'Week' : 'Months'
+                            text: timeFilter === 'daily' ? 'Date' : 
+                                  timeFilter === 'weekly' ? 'Week' : 
+                                  timeFilter === 'monthly' ? 'Month' : 'Time Period'
                         }
                     }
                 },
@@ -321,17 +343,17 @@
     }
 
     // Monthly Data Generator
-    function generateAllMonthsData(selectedYear) {
+    function generateAllMonthsData(selectedYear, monthData) {
         const allMonths = [];
         const allMonthLabels = [];
         const allRooms = [];
-
+        
         for (let month = 0; month < 12; month++) {
             const monthDate = new Date(selectedYear, month, 1);
             const monthLabel = monthDate.toLocaleString('default', { month: 'short' });
             allMonthLabels.push(monthLabel);
-
-            const foundMonth = monthlyData.find(item => {
+            
+            const foundMonth = monthData.find(item => {
                 try {
                     const dataDate = new Date(item.month + '-01');
                     return dataDate.getFullYear() === parseInt(selectedYear) && dataDate.getMonth() === month;
@@ -340,11 +362,11 @@
                     return false;
                 }
             });
-
+            
             allMonths.push(foundMonth ? foundMonth.total : 0);
             allRooms.push(foundMonth ? foundMonth.rooms : []);
         }
-
+        
         return {
             labels: allMonthLabels,
             data: allMonths,
@@ -393,13 +415,32 @@
         };
     }
 
-
     // Main Filter Function
     function filterData(selectedTimeFilter, selectedYear) {
         selectedYear = parseInt(selectedYear);
-
+        const reservationType = document.getElementById('reservationType').value;
+        
+        let selectedDaily, selectedWeekly, selectedMonthly, selectedYearly;
+        if (reservationType === 'walkin') {
+            selectedDaily = dailyWalkinData;
+            selectedWeekly = weeklyWalkinData;
+            selectedMonthly = monthlyWalkinData;
+            selectedYearly = yearlyWalkinData;
+        } else if (reservationType === 'online') {
+            selectedDaily = dailyData;
+            selectedWeekly = weeklyData;
+            selectedMonthly = monthlyData;
+            selectedYearly = yearlyData;
+        } else {
+            // All - default to online for simplicity
+            selectedDaily = dailyData;
+            selectedWeekly = weeklyData;
+            selectedMonthly = monthlyData;
+            selectedYearly = yearlyData;
+        }
+        
         if (selectedTimeFilter === 'daily') {
-            const filteredData = dailyData.filter(item => {
+            const filteredData = selectedDaily.filter(item => {
                 try {
                     const itemDate = new Date(item.date);
                     return itemDate.getFullYear() === selectedYear;
@@ -408,85 +449,84 @@
                     return false;
                 }
             });
-
+            
             filteredData.sort((a, b) => new Date(a.date) - new Date(b.date));
-
+            
             return {
                 labels: filteredData.map(item => new Date(item.date).toLocaleDateString()),
                 data: filteredData.map(item => item.total),
-                rooms: filteredData.map(item => item.rooms || 'No room information')
+                rooms: filteredData.map(item => item.rooms || [])
             };
-        } 
-        
-        else if (selectedTimeFilter === 'weekly') {
-            const filteredData = weeklyData.filter(item => {
+        } else if (selectedTimeFilter === 'weekly') {
+            const filteredData = selectedWeekly.filter(item => {
                 try {
                     const weekStr = String(item.week);
-                    let yearFromWeek;
-
-                    if (weekStr.includes('-')) {
-                        yearFromWeek = parseInt(weekStr.split('-')[0]);
-                    } else if (weekStr.length === 6) {
-                        yearFromWeek = parseInt(weekStr.substring(0, 4));
-                    } else {
-                        console.warn("Unrecognized week format:", item.week);
-                        return false;
-                    }
-
+                    let yearFromWeek = weekStr.length === 6 ? parseInt(weekStr.substring(0, 4)) : parseInt(weekStr.split('-')[0]);
                     return yearFromWeek === selectedYear;
                 } catch (e) {
                     console.error("Error parsing week:", item.week, e);
                     return false;
                 }
             });
-
-            filteredData.sort((a, b) => {
-                const weekA = parseInt(String(a.week).slice(-2));
-                const weekB = parseInt(String(b.week).slice(-2));
-                return weekA - weekB;
-            });
-
+            
+            filteredData.sort((a, b) => parseInt(String(a.week).slice(-2)) - parseInt(String(b.week).slice(-2)));
+            
             return generateAllWeeksData(selectedYear, filteredData);
-        } 
-        
-        else if (selectedTimeFilter === 'monthly') {
-            return generateAllMonthsData(selectedYear);
+        } else if (selectedTimeFilter === 'monthly') {
+            return generateAllMonthsData(selectedYear, selectedMonthly);
         }
+        
+        return { labels: [], data: [], rooms: [] };
     }
 
-    // Time Filter Event
     document.getElementById('timeFilter').addEventListener('change', function () {
         const selectedTimeFilter = this.value;
         const selectedYear = document.getElementById('yearFilter').value;
-
+        
         const chartData = filterData(selectedTimeFilter, selectedYear);
         const label = selectedTimeFilter === 'daily' ? 'Daily Reservations' :
-                    selectedTimeFilter === 'weekly' ? 'Weekly Reservations' : 'Monthly Reservations';
-
-        buildChart(chartData, label, selectedTimeFilter.slice(0, -2));
+                      selectedTimeFilter === 'weekly' ? 'Weekly Reservations' :
+                      selectedTimeFilter === 'monthly' ? 'Monthly Reservations' : '';
+        
+        buildChart(chartData, label, selectedTimeFilter);
+    });
+    
+    // Reservation Type Filter Event
+    document.getElementById('reservationType').addEventListener('change', function () {
+        const selectedTimeFilter = document.getElementById('timeFilter').value;
+        const selectedYear = document.getElementById('yearFilter').value;
+        
+        const chartData = filterData(selectedTimeFilter, selectedYear);
+        const label = selectedTimeFilter === 'daily' ? 'Daily Reservations' :
+                      selectedTimeFilter === 'weekly' ? 'Weekly Reservations' :
+                      selectedTimeFilter === 'monthly' ? 'Monthly Reservations' : '';
+        
+        buildChart(chartData, label, selectedTimeFilter);
     });
 
-    // Year Filter Event
     document.getElementById('yearFilter').addEventListener('change', function () {
         const selectedYear = this.value;
         const selectedTimeFilter = document.getElementById('timeFilter').value;
-        window.location.href = `?year=${selectedYear}&timeFilter=${selectedTimeFilter}`;
+        const selectedReservationType = document.getElementById('reservationType').value;
+        window.location.href = `?year=${selectedYear}&timeFilter=${selectedTimeFilter}&reservationType=${selectedReservationType}`;
     });
 
-    // Initial Load
     const currentYear = new Date().getFullYear();
     const urlParams = new URLSearchParams(window.location.search);
     const yearParam = urlParams.get('year') || currentYear;
     const timeFilterParam = urlParams.get('timeFilter') || 'daily';
-
+    const reservationTypeParam = urlParams.get('reservationType') || '';
+    
     document.getElementById('yearFilter').value = yearParam;
     document.getElementById('timeFilter').value = timeFilterParam;
-
+    document.getElementById('reservationType').value = reservationTypeParam;
+    
     const initialData = filterData(timeFilterParam, yearParam);
     const initialLabel = timeFilterParam === 'daily' ? 'Daily Reservations' :
-                        timeFilterParam === 'weekly' ? 'Weekly Reservations' : 'Monthly Reservations';
-
-    buildChart(initialData, initialLabel, timeFilterParam.slice(0, -2));
+                        timeFilterParam === 'weekly' ? 'Weekly Reservations' :
+                        timeFilterParam === 'monthly' ? 'Monthly Reservations' : '';
+    
+    buildChart(initialData, initialLabel, timeFilterParam);
 </script>
    
 <script>
@@ -495,12 +535,7 @@
     const statusLabels = Object.keys(statusCounts);
     const statusTotals = Object.values(statusCounts);
 
-    const statusColors = [
-        'rgba(75, 192, 192, 1)',  // Blue - Boooked
-        'rgba(255, 205, 86, 1)',  // Yellow - Pending
-        'rgba(255, 99, 132, 1)',  // Red - Cancelled
-        'rgba(153, 102, 255, 1)' // Purple - Checked-out
-    ];
+    const statusColors = @json(array_values($statusColors));
 
     const ctxStatus = document.getElementById('statusChart').getContext('2d');
     new Chart(ctxStatus, {
@@ -526,7 +561,7 @@
                 },
                 title: {
                     display: true,
-                    text: 'Payment Status Breakdown'
+                    text: 'Reservation Status Breakdown'
                 }
             }
         }

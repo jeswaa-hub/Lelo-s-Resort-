@@ -332,6 +332,9 @@
                             $checkOutDate = new DateTime($reservationDetails['reservation_check_out_date'] ?? '');
                             $stayDuration = $checkInDate && $checkOutDate ? $checkOutDate->diff($checkInDate)->days : 1;
                             if ($stayDuration < 1) $stayDuration = 1;
+                            
+                            // Check if it's a one-day stay (same check-in and check-out date)
+                            $isOneDayStay = $reservationDetails['reservation_check_in_date'] === $reservationDetails['reservation_check_out_date'];
                         @endphp
 
                         <div class="d-flex justify-content-between ">
@@ -339,7 +342,7 @@
                             <ul class="list-unstyled text-end" id="accommodation-list">
                                 @foreach ($accomodations as $accomodation)
                                 @php
-                                    $quantity = session('reservation_details.quantity') ?? 1;
+                                    $quantity = $reservationDetails['quantity'] ?? 1;
                                     $pricePerRoom = floatval($accomodation->accomodation_price) ?? 0;
                                     $roomTotalPrice = $pricePerRoom * $quantity;
                                     $totalPrice = $roomTotalPrice * $stayDuration;
@@ -350,7 +353,9 @@
                                 @endforeach
                             </ul>
                         </div>
-                        @if($totalEntranceFee > 0)
+                        
+                        {{-- Only show entrance fee for one-day stays --}}
+                        @if($isOneDayStay && $totalEntranceFee > 0)
                         <div class="d-flex justify-content-between">
                             <span class="fst-italic">Entrance Fee</span>
                             <input type="text" class="form-control text-end bg-secondary-subtle border-0 w-75" value="₱{{ number_format($totalEntranceFee, 2) }}" readonly>
@@ -378,14 +383,8 @@
                         <hr class="border-success my-2">
                         
                         @php
-                            // Calculate stay duration from check-in and check-out dates
-                            $checkInDate = new DateTime($reservationDetails['reservation_check_in_date'] ?? '');
-                            $checkOutDate = new DateTime($reservationDetails['reservation_check_out_date'] ?? '');
-                            $stayDuration = $checkInDate && $checkOutDate ? $checkOutDate->diff($checkInDate)->days : 1;
-                            if ($stayDuration < 1) $stayDuration = 1;
-                            
                             // Calculate total room price with correct duration
-                            $quantity = session('reservation_details.quantity') ?? 0;
+                            $quantity = $reservationDetails['quantity'] ?? 1;
                             $totalPrice = 0;
                             foreach ($accomodations as $accomodation) {
                                 $pricePerRoom = ($accomodation->accomodation_price);
@@ -393,8 +392,11 @@
                                 $totalPrice += $roomTotalPrice * $stayDuration;
                             }
                             
-                            // Calculate final amount including entrance fee
-                            $amount = $totalPrice + ($totalEntranceFee ?? 0);
+                            // Only add entrance fee for one-day stays
+                            $entranceFeeToAdd = $isOneDayStay ? ($totalEntranceFee ?? 0) : 0;
+                            
+                            // Calculate final amount
+                            $amount = $totalPrice + $entranceFeeToAdd;
                             
                             // Calculate downpayment (50% of total amount)
                             $downpayment = $amount * 0.50;
@@ -410,7 +412,7 @@
                         </div>
                         
                         <div class="d-flex justify-content-between align-items-center mt-3">
-                            <span class="fst-italic">Required 50% Downpayment</span>
+                            <span class="fst-italic">Required 20% Downpayment</span>
                             <input type="text" id="downpayment-display" class="form-control text-end bg-secondary-subtle border-0" 
                                    style="max-width: 150px;" value="₱ {{ number_format($downpayment, 2) }}" readonly>
                             <input type="hidden" name="downpayment" value="{{ $downpayment }}">
@@ -419,7 +421,7 @@
                         <div class="alert alert-info py-2 px-3 mt-1 mb-0" role="alert">
                             <small class="fst-italic d-block text-muted">
                                 <i class="fas fa-info-circle me-1"></i>
-                                The required 50% downpayment includes the security deposit.
+                                The required 20% downpayment includes the security deposit.
                             </small>
                         </div>
                             <!-- Hidden input for raw balance value -->
@@ -482,11 +484,12 @@
         });
         
         // Ensure GCash is selected by default
-        document.getElementById('gcash').checked = true;
+        document.getElementById('gcash1').checked = true;
 
         // Calculate proper stay duration
         const checkInDate = "{{ $reservationDetails['reservation_check_in_date'] ?? '' }}";
         const checkOutDate = "{{ $reservationDetails['reservation_check_out_date'] ?? '' }}";
+        const isOneDayStay = "{{ $isOneDayStay ? 'true' : 'false' }}" === 'true';
         
         let stayDuration = 1;
         if(checkInDate && checkOutDate) {
@@ -497,7 +500,11 @@
         }
 
         // Update duration display and hidden input
-        document.getElementById('duration-text').textContent = `Stay Duration: ${stayDuration} ${stayDuration > 1 ? 'days' : 'day'}`;
+        const durationText = isOneDayStay ? 
+            `Day Tour (${stayDuration} day)` : 
+            `Stay Duration: ${stayDuration} ${stayDuration > 1 ? 'nights' : 'night'}`;
+        
+        document.getElementById('duration-text').textContent = durationText;
         document.getElementById('stay_duration').value = stayDuration;
 
         // Update accommodation prices
@@ -512,16 +519,23 @@
         });
 
         // Update total accommodation price
-        document.getElementById('total-accommodation').value = `₱${totalAccommodation.toFixed(2)}`;
+        if(document.getElementById('total-accommodation')) {
+            document.getElementById('total-accommodation').value = `₱${totalAccommodation.toFixed(2)}`;
+        }
 
-        // Update total amount (if needed)
-        const entranceFee = parseFloat("{{ $totalEntranceFee ?? 0 }}");
+        // Update total amount (entrance fee only for one-day stays)
+        const entranceFee = isOneDayStay ? parseFloat("{{ $totalEntranceFee ?? 0 }}") : 0;
         const totalAmount = totalAccommodation + entranceFee;
-        document.querySelector('input[name="amount"]').value = `₱ ${totalAmount.toFixed(2)}`;
         
-        // Update downpayment (15% of total)
-        const downpayment = totalAmount * 0.15;
-        document.querySelector('input[name="downpayment"]').value = `₱${downpayment.toFixed(2)}`;
+        if(document.querySelector('input[name="amount"]')) {
+            document.querySelector('input[name="amount"]').value = totalAmount;
+        }
+        
+        // Update downpayment (50% of total)
+        const downpayment = totalAmount * 0.20;
+        if(document.querySelector('input[name="downpayment"]')) {
+            document.querySelector('input[name="downpayment"]').value = downpayment;
+        }
     });
     </script>
 </body>

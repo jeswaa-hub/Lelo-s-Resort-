@@ -14,161 +14,229 @@
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
-    <title>Dashboard</title>
+    <title>Staff Dashboard</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
 <style>
-    .transition-width {
-        transition: all 0.3s ease;
-    }
-    #mainContent.full-width {
-        width: 100% !important;
-        flex: 0 0 100% !important;
-        max-width: 100% !important;
-    }
+    
 </style>
-<body style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76)), url('{{ asset('images/DSCF2777.JPG') }}') no-repeat center center fixed; background-size: cover;">
+<body style="margin: 0; padding: 0; height: 100vh; background-color: white; overflow-x: hidden;">
     @include('Alert.loginSucess')
     @include('Alert.notification')
-    <div class="container-fluid min-vh-100 d-flex p-0">
-        <!-- SIDEBAR -->
+        <!-- NAVBAR -->
         @include('Navbar.sidenavbarStaff')
+
         <!-- Main Content -->
-        <div id="mainContent" class="flex-grow-1 py-4 px-4 transition-width" style="transition: all 0.3s ease;">
-            <!-- Heading and Logo -->
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <div class="ms-auto">
-                    <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" width="100" class="rounded-pill">
+        <div id="mainContent" class="flex-grow-1 py-4 px-4 transition-width">
+            
+
+            <!-- After the Pending Bookings Section -->
+            <div class="row">
+                <div class="col-11  mx-auto">
+                    <div class="hero-banner" style="background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(34, 34, 34, 0.5)), url('{{ asset('images/DSCF2777.JPG') }}'); background-size: cover; background-position: center; height: 450px; border-radius: 15px;">
+                    </div>
                 </div>
             </div>
-            
 
-            <hr class="border-5">
             
-            <!-- Welcome Message -->
-            <div class="d-flex align-items-center">
-                <p class="text-color-1 me-3" style="font-family: 'Anton', sans-serif;  font-size: 5rem; letter-spacing: 10px;">Hello</p>
-                <h1 class="text-capitalize" style="font-family: 'Anton', sans-serif; font-size: 5rem; color: #0b573d; letter-spacing: 15px;">{{ $staffCredentials->username }}!</h1>
+            <div class="position-absolute d-flex flex-column align-items-start align-items-sm-start text-center text-sm-start" 
+                style="top:250px; left:200px; width:100%;">
+                <p class="text-white me-3" style="font-family: 'Poppins', sans-serif; font-size: 3rem; letter-spacing: 5px;">
+                    Hello
+                </p>
+                <h1 class="text-capitalize" 
+                    style="font-family: 'Montserrat', sans-serif; font-size: 5rem; color:#ffffff; letter-spacing: 15px; white-space: nowrap;">
+                    {{ $staffCredentials->username }}!
+                </h1>
             </div>
-
-            <!-- Dashboard Cards -->
+            <div class="position-absolute w-100" style="top: 450px; left: 0;">
+                <div class="d-flex justify-content-center">
+                    <div class="w-75">
+                        <div class="card border-2 shadow-lg" style="background-color: rgba(255, 255, 255, 0.95);">
+                            <div class="card-header bg-white py-3">
+                                <h2 class="font-heading mb-0 fs-3 fw-bold" style="color: #0b573d;">Today's Reservations</h2>
+                            </div>
+                            <div style="height: 150px; overflow-y: auto;">
+                            <div class="card-body">
+                                @if($todayReservations->count() > 0)
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Room</th>
+                                                    <th>Room Type</th>
+                                                    <th>Guest Name</th>
+                                                    <th>Arrival Time</th>
+                                                    <th>Status</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($todayReservations as $reservation)
+                                                    <tr>
+                                                        <td>{{ $reservation->room_numbers }}</td>
+                                                        <td>{{ $reservation->accomodation_name}}</td>
+                                                        <td>{{ $reservation->guest_name }}</td>
+                                                        <td>{{ \Carbon\Carbon::parse($reservation->reservation_check_in)->format('h:i A') }}</td>
+                                                        <td>
+                                                            <span class="badge text-capitalize" style="background-color: {{ $reservation->reservation_status === 'checked-in' ? '#0b573d' : ($reservation->reservation_status === 'pending' ? '#ffc107' : '#dc3545') }}">
+                                                                {{ $reservation->reservation_status }}
+                                                            </span>
+                                                        </td>
+                                                        <td>
+                                                            @if($reservation->reservation_status !== 'checked-in')
+                                                                <a href="{{ route('staff.reservation') }}" 
+                                                                class="btn btn-sm color-background8 text-white"
+                                                                style="transition: all 0.3s ease;">
+                                                                    <i class="fas fa-eye"></i>
+                                                                </a>
+                                                            @endif
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                @else
+                                    <p class="text-secondary font-paragraph fst-italic opacity-50 fs-5">No reservations for today.</p>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="my-5"></div>
+        
+        <!-- Dashboard Cards -->
+        <div class="col-11 mx-auto my-4" style="margin-top: 120px !important;">
             <div class="row g-4">
                 <!-- Column 1: Total Reservations and Checked-in Guests -->
-                <div class="col-md-4">
+                <div class="col-12 col-sm-6 col-lg-2">
                     <!-- Total Reservations -->
-                    <div class="p-3 rounded-4 d-flex align-items-center gap-3 mb-4" style="background-color: #0b573d;">
-                        <div class="d-flex flex-column">
-                            <h1 class="fs-1 fw-bold text-white mb-0">{{$pendingReservations ?? 0}}</h1>
-                            <p class="text-white mb-0 font-paragraph">Pending<br>Reservations</p>
+                    <div class="flex-grow-1 p-4 rounded-4 shadow-lg position-relative overflow-hidden mb-4" 
+                        style="background: linear-gradient(135deg,rgb(75, 96, 7) 0%,rgb(129, 235, 48) 100%); border: none;">
+                        
+                        <div class="position-absolute top-0 end-0 opacity-25">
+                            <i class="fas fa-clock" style="font-size: 4rem; margin: -10px;"></i>
                         </div>
-                        <i class="fas fa-clock fs-1 text-white ms-auto"></i>
+
+                        <div class="d-flex align-items-center position-relative">
+                            <div>
+                                <h2 class="fs-1 fw-bold text-white mb-2 position-relative" 
+                                    style="text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+                                    {{$pendingReservations ?? 0}}
+                                </h2>
+                                <p class="text-white text-uppercase mb-0 font-paragraph fw-bold position-relative" 
+                                style="font-size: 0.85rem; opacity: 0.95;">
+                                    Pending<br>Reservations
+                                </p>
+                            </div>
+                        </div>
                     </div>
-                
+
                     <!-- Checked-in Guests -->
-                    <div class="p-3 rounded-4 d-flex align-items-center gap-3" style="background-color: #0b573d;">
-                        <div class="d-flex flex-column">
-                            <h1 class="fs-1 fw-bold text-white mb-0">{{ $checkedInGuests ?? 0}}</h1>
-                            <p class="text-white mb-0 font-paragraph">Checked-in<br>Guests</p>
+                    <div class="flex-grow-1 p-4 rounded-4 shadow-lg position-relative overflow-hidden" 
+                    style="background: linear-gradient(135deg, #43cea2 0%, #385E3C 100%); border: none;">
+                        
+                        <div class="position-absolute top-0 end-0 opacity-25">
+                            <i class="fas fa-user-check" style="font-size: 4rem; margin: -10px;"></i>
                         </div>
-                        <i class="fas fa-user-check fs-1 text-white ms-auto"></i>
+
+                        <div class="d-flex align-items-center position-relative">
+                            <div>
+                                <h2 class="fs-1 fw-bold text-white mb-2 position-relative" 
+                                    style="text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+                                    {{ $checkedInGuests ?? 0}}
+                                </h2>
+                                <p class="text-white text-uppercase mb-0 font-paragraph fw-bold position-relative" 
+                                style="font-size: 0.85rem; opacity: 0.95;">
+                                    Checked-in<br>Guests
+                                </p>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            
+
                 <!-- Column 2: Pending Payments and Available Accommodations -->
-                <div class="col-md-4">
-                    <!-- Pending Payments -->
-                    <div class="p-3 rounded-4 d-flex align-items-center gap-3 mb-4" style="background-color: #0b573d;">
-                        <div class="d-flex flex-column">
-                            <h1 class="fs-1 fw-bold text-white mb-0">{{ $availableAccommodations ?? 0 }}</h1>
-                            <p class="text-white mb-0 font-paragraph">Total Rooms<br>Availble</p>
+                <div class="col-12 col-sm-6 col-lg-2">
+                    <!-- Total Rooms Available -->
+                    <div class="flex-grow-1 p-4 rounded-4 shadow-lg position-relative overflow-hidden mb-4" 
+                        style="background: linear-gradient(135deg, #43cea2 0%, #385E3C 100%); border: none;">
+                        
+                        <div class="position-absolute top-0 end-0 opacity-25">
+                            <i class="fas fa-bed" style="font-size: 4rem; margin: -10px;"></i>
                         </div>
-                        <i class="fas fa-bed fs-1 text-white ms-auto"></i>
+
+                        <div class="d-flex align-items-center position-relative">
+                            <div>
+                                <h2 class="fs-1 fw-bold text-white mb-2 position-relative" 
+                                    style="text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+                                    {{ $availableAccommodations ?? 0 }}
+                                </h2>
+                                <p class="text-white text-uppercase mb-0 font-paragraph fw-bold position-relative" 
+                                style="font-size: 0.85rem; opacity: 0.95;">
+                                    Total Rooms<br>Available
+                                </p>
+                            </div>
+                        </div>
                     </div>
-            
-                    <!-- Available Accommodations -->
-                    <div class="p-3 rounded-4 d-flex align-items-center gap-3" style="background-color: #0b573d;">
-                        <div class="d-flex flex-column">
-                            <h1 class="fs-1 fw-bold text-white mb-0">{{ $checkedOutGuests ?? 0 }}</h1>
-                            <p class="text-white mb-0 font-paragraph">Check-outs<br>Today</p>
+
+                    <!-- Check-outs Today -->
+                    <div class="flex-grow-1 p-4 rounded-4 shadow-lg position-relative overflow-hidden" 
+                    style="background: linear-gradient(135deg,rgb(75, 96, 7) 0%,rgb(129, 235, 48) 100%); border: none;">
+                        
+                        <div class="position-absolute top-0 end-0 opacity-25">
+                            <i class="fas fa-sign-out-alt" style="font-size: 4rem; margin: -10px;"></i>
                         </div>
-                        <i class="fas fa-sign-out-alt fs-1 text-white ms-auto"></i>
+
+                        <div class="d-flex align-items-center position-relative">
+                            <div>
+                                <h2 class="fs-1 fw-bold text-white mb-2 position-relative" 
+                                    style="text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+                                    {{ $checkedOutGuests ?? 0 }}
+                                </h2>
+                                <p class="text-white text-uppercase mb-0 font-paragraph fw-bold position-relative" 
+                                style="font-size: 0.85rem; opacity: 0.95;">
+                                    Check-outs<br>Today
+                                </p>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            
+
+
                 <!-- Column 3: Pending Bookings -->
-                <div class="col-md-4">
-                    <div class="p-4 rounded-4 border border-4" style="border-color: #0b573d !important;  background-color: white; height:280px;">
-                        <h2 class="font-heading mb-1" style="color: #0b573d;">Pending Bookings</h2>
+                <div class="col-12 col-lg-8">
+                    <div class="p-4 rounded-4 border border-4" 
+                        style="background: linear-gradient(to top, rgb(211, 209, 209), #ffffff); min-height: 250px; height: auto;">
+                        
+                        <h2 class="font-heading mb-3 text-center fw-bold fs-4 fs-md-3 fs-lg-1" style="color: #0b573d;">
+                            Pending Bookings
+                        </h2>
+
                         @if($pendingReservationsList && count($pendingReservationsList) > 0)
-                            <div class="overflow-auto" style="max-height: 300px;">
+                            <div class="overflow-auto" style="max-height: 250px;">
                                 @foreach($pendingReservationsList as $reservation)
-                                    <div class="d-flex align-items-center justify-content-between mb-1 p-1 border-bottom">
+                                    <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between mb-2 p-2 border-bottom">
                                         <div>
                                             <p class="mb-0 font-paragraph fw-bold">{{ $reservation->guest_name }}</p>
-                                            <small class="text-muted">{{ \Carbon\Carbon::parse($reservation->reservation_check_in_date)->format('M d, Y') }} - {{ \Carbon\Carbon::parse($reservation->reservation_check_in)->format('h:i A') }}</small>
+                                            <small class="text-muted">
+                                                {{ \Carbon\Carbon::parse($reservation->reservation_check_in_date)->format('M d, Y') }}
+                                                - {{ \Carbon\Carbon::parse($reservation->reservation_check_in)->format('h:i A') }}
+                                            </small>
                                         </div>
-                                        <span class="badge bg-warning text-dark">Pending</span>
+                                        <span class="badge bg-warning text-dark mt-2 mt-sm-0">Pending</span>
                                     </div>
                                 @endforeach
                             </div>
                         @else
-                            <p class="text-secondary font-paragraph fst-italic">No pending reservations.</p>
-                        @endif
-                    </div>
-                </div>
-            <!-- After the Pending Bookings Section -->
-            <div class="mt-4">
-                <div class="card border-2" style="border-color: #0b573d !important;">
-                    <div class="card-header bg-white">
-                        <h2 class="font-heading mb-0" style="color: #0b573d;">Today's Reservations</h2>
-                    </div>
-                    <div class="card-body">
-                        @if($todayReservations->count() > 0)
-                            <div class="table-responsive">
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th>Room</th>
-                                            <th>Room Type</th>
-                                            <th>Guest Name</th>
-                                            <th>Arrival Time</th>
-                                            <th>Status</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($todayReservations as $reservation)
-                                            <tr>
-                                                <td>{{ $reservation->room_numbers }}</td>
-                                                <td>{{ $reservation->accomodation_name}}</td>
-                                                <td>{{ $reservation->guest_name }}</td>
-                                                <td>{{ \Carbon\Carbon::parse($reservation->reservation_check_in)->format('h:i A') }}</td>
-                                                <td class="text-capitalize badge mt-2" style="background-color: {{ $reservation->reservation_status === 'checked-in' ? '#0b573d' : ($reservation->reservation_status === 'pending' ? '#ffc107' : '#dc3545') }}">{{ $reservation->reservation_status }}</td>
-                                                <td>
-                                                    @if($reservation->reservation_status !== 'checked-in')
-                                                        <a href="{{ route('staff.reservation') }}" 
-                                                           class="text-decoration-none p-2 text-semibold color-background8 rounded text-white font-paragraph text-capitalize btn-sm"
-                                                           style="transition: all 0.3s ease; display: inline-block;"
-                                                           onmouseover="this.style.transform='scale(1.1)'; this.style.backgroundColor='#0d6e4c';"
-                                                           onmouseout="this.style.transform='scale(1)'; this.style.backgroundColor='';">
-                                                            <i class="fas fa-eye"></i>
-                                                        </a>
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        @else
-                            <p class="text-secondary font-paragraph fst-italic">No reservations for today.</p>
+                            <p class="text-secondary text-center font-paragraph fst-italic">No pending reservations.</p>
                         @endif
                     </div>
                 </div>
             </div>
-    </div>
-    </div>
-    
-    
+        </div>
+
 </body>
 </html>

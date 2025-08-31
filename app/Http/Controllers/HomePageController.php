@@ -76,53 +76,69 @@ public function profilepage()
 
 
     public function editProfile(Request $request)
-    {
-        // Debugging: Check if request data is coming through
-        // dd($request->all());
-    
-        $request->validate([
-            'name' => 'string|max:255',
-            'email' => 'email|max:255',
-            'mobileNo' => 'string|max:11',
-            'address' => 'string|max:255',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
-        ]);
-    
-        $user = DB::table('users')->where('id', Auth::id())->first();
-    
-        if (!$user) {
-            return redirect()->back()->with('error', 'User not found.');
+{
+    $request->validate([
+        'name' => 'string|max:255',
+        'email' => 'email|max:255',
+        'mobileNo' => 'string|max:11',
+        'address' => 'string|max:255',
+        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+    ]);
+
+    $user = DB::table('users')->where('id', Auth::id())->first();
+
+    if (!$user) {
+        if ($request->expectsJson()) {
+            return response()->json(['success' => false, 'message' => 'User not found.'], 404);
         }
-    
-        $data = [
-            'name' => $request->input('name'),
-            'email' => $request->input('email'),
-            'mobileNo' => $request->input('mobileNo'),
-            'address' => $request->input('address'),
-        ];
-    
-        // Handle image upload
-        if ($request->hasFile('image')) {
-            // Delete old image if it exists
-            if ($user->image) {
-                Storage::disk('public')->delete($user->image);
-            }
-    
-            // Store new image
-            $imagePath = $request->file('image')->store('images', 'public');
-            $data['image'] = $imagePath;
+        return redirect()->back()->with('error', 'User not found.');
+    }
+
+    $data = [
+        'name' => $request->input('name'),
+        'email' => $request->input('email'),
+        'mobileNo' => $request->input('mobileNo'),
+        'address' => $request->input('address'),
+    ];
+
+    // Handle image upload (only for regular form requests)
+    if ($request->hasFile('image')) {
+        // Delete old image if it exists
+        if ($user->image) {
+            Storage::disk('public')->delete($user->image);
         }
-    
-        // Update the user's profile
-        $updated = DB::table('users')->where('id', Auth::id())->update($data);
-    
+
+        // Store new image
+        $imagePath = $request->file('image')->store('images', 'public');
+        $data['image'] = $imagePath;
+    }
+
+    // Update the user's profile
+    $updated = DB::table('users')->where('id', Auth::id())->update($data);
+
+    // Handle AJAX response
+    if ($request->expectsJson()) {
         if ($updated) {
-            return redirect()->back()->with('success', 'Profile updated successfully.');
+            return response()->json([
+                'success' => true,
+                'message' => 'Profile updated successfully.',
+                'user' => $data
+            ]);
         } else {
-            return redirect()->back()->with('error', 'No changes made.');
+            return response()->json([
+                'success' => false,
+                'message' => 'No changes made.'
+            ], 400);
         }
     }
 
+    // Handle regular form response
+    if ($updated) {
+        return redirect()->back()->with('success', 'Profile updated successfully.');
+    } else {
+        return redirect()->back()->with('error', 'No changes made.');
+    }
+}
     public function userlogout(Request $request)
     {
         Auth::logout();

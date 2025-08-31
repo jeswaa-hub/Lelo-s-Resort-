@@ -48,26 +48,42 @@
                     @if(isset($reservationDetails))
                     <div class="mb-3">
                         <!-- Each row for label-value pair -->
+                        @if(!empty($reservationDetails->reservation_id))
                         <div class="row mb-2">
                             <div class="col-4 fw-bold text-success text-break">Reservation ID:</div>
                             <div class="col-8 text-break">{{ $reservationDetails->reservation_id}}</div>
                         </div>
+                        @endif
+
+                        @if(!empty($reservationDetails->name))
                         <div class="row mb-2">
                             <div class="col-4 fw-bold text-success text-break">Name:</div>
                             <div class="col-8 text-break">{{ $reservationDetails->name }}</div>
                         </div>
+                        @endif
+
+                        @if(!empty($reservationDetails->email))
                         <div class="row mb-2">
                             <div class="col-4 fw-bold text-success text-break">Email:</div>
                             <div class="col-8 text-break">{{ $reservationDetails->email }}</div>
                         </div>
+                        @endif
+
+                        @if(!empty($reservationDetails->mobileNo))
                         <div class="row mb-2">
                             <div class="col-4 fw-bold text-success text-break">Mobile No:</div>
                             <div class="col-8 text-break">{{ $reservationDetails->mobileNo }}</div>
                         </div>
+                        @endif
+
+                        @if(!empty($reservationDetails->total_guest) || !empty($reservationDetails->package_max_guests))
                         <div class="row mb-2">
                             <div class="col-4 fw-bold text-success text-break">Guests:</div>
                             <div class="col-8 text-break">{{ $reservationDetails->total_guest ?? $reservationDetails->package_max_guests }}</div>
                         </div>
+                        @endif
+
+                        @if((!empty($reservationDetails->package_room_type) && !empty($roomNames)) || (!empty($accommodations)))
                         <div class="row mb-2">
                             <div class="col-4 fw-bold text-success text-break">Room:</div>
                             <div class="col-8 text-break">
@@ -78,51 +94,81 @@
                                 @endif
                             </div>
                         </div>
+                        @endif
+
+                        @if(!empty($reservationDetails->package_activities) || !empty($activities))
                         <div class="row mb-2">
                             <div class="col-4 fw-bold text-success text-break">Activities:</div>
                             <div class="col-8 text-break">{{ $reservationDetails->package_activities ?? implode(', ', $activities) }}</div>
                         </div>
+                        @endif
+
+                        @if(!empty($reservationDetails->reservation_check_in_date))
                         <div class="row mb-2">
                             <div class="col-4 fw-bold text-success text-break">Date:</div>
                             <div class="col-8 text-break">{{ \Carbon\Carbon::parse($reservationDetails->reservation_check_in_date)->format('l, F jS, Y') }}</div>
                         </div>
+                        @endif
+
+                        @if(!empty($reservationDetails->reservation_check_in))
                         <div class="row mb-2">
                             <div class="col-4 fw-bold text-success text-break">Check-in:</div>
                             <div class="col-8 text-break">{{ date('h:i A', strtotime($reservationDetails->reservation_check_in)) }}</div>
                         </div>
+                        @endif
+
+                        @if(!empty($reservationDetails->reservation_check_out))
                         <div class="row mb-2">
                             <div class="col-4 fw-bold text-success text-break">Check-out:</div>
                             <div class="col-8 text-break">{{ date('h:i A', strtotime($reservationDetails->reservation_check_out)) }}</div>
                         </div>
+                        @endif
+
+                        @if(!empty($reservationDetails->special_request))
                         <div class="row mb-2">
                             <div class="col-4 fw-bold text-success text-break">Special Request:</div>
-                            <div class="col-8 text-break">{{ $reservationDetails->special_request ?? 'None' }}</div>
+                            <div class="col-8 text-break">{{ $reservationDetails->special_request }}</div>
                         </div>
+                        @endif
+
+                        @if(!empty($reservationDetails->payment_method))
                         <div class="row mb-2">
                             <div class="col-4 fw-bold text-success text-break">Payment Method:</div>
                             <div class="col-8 text-break">{{ $reservationDetails->payment_method }}</div>
                         </div>
+                        @endif
+
+                        @if(isset($reservationDetails->amount))
                         <div class="row mb-2">
                             <div class="col-4 fw-bold text-success text-break">Amount:</div>
                             <div class="col-8 text-break">₱{{ number_format($reservationDetails->amount, 2) }}</div>
                         </div>
+                        @endif
+
+                        @if(isset($reservationDetails->balance))
                         <div class="row mb-2">
                             <div class="col-4 fw-bold text-success text-break">Balance:</div>
                             <div class="col-8 text-break">₱{{ number_format($reservationDetails->balance, 2) }}</div>
                         </div>
+                        @endif
+
+                        @if(!empty($reservationDetails->reference_num))
                         <div class="row mb-2">
                             <div class="col-4 fw-bold text-success text-break">Reference No:</div>
                             <div class="col-8 text-break">{{ $reservationDetails->reference_num }}</div>
                         </div>
-                        @if (!empty($reservationDetails->upload_payment))
+                        @endif
+
+                        @if(!empty($reservationDetails->upload_payment))
                         <div class="row mb-2">
                             <div class="col-4 fw-bold text-success text-break">Payment Proof:</div>
                             <div class="col-8 text-break">
-                                <a href="{{ route('payment.proof', ['filename' => basename($reservationDetails->upload_payment)]) }}" 
-                                   target="_blank" 
-                                   class="text-decoration-none text-success">
-                                    View Proof
-                                </a>
+                                    <a href="{{ route('payment.proof', ['filename' => basename($reservationDetails->upload_payment)]) }}" 
+                                       target="_blank" 
+                                       class="text-decoration-none text-success">
+                                        View Proof
+                                    </a>
+                                
                             </div>
                         </div>
                         @endif
@@ -137,6 +183,7 @@
             <div class="col-md-4 order-md-2 order-2">
                 <div class="p-4 border rounded">
                     <!-- Status Section -->
+                    @if(isset($reservationDetails->reservation_status))
                     <div class="d-flex align-items-center mb-4">
                         <h5 class="mb-0 me-2">Status:</h5>
                         <span class="badge 
@@ -148,6 +195,7 @@
                             {{ ucfirst($reservationDetails->reservation_status) }}
                         </span>
                     </div>
+                    @endif
 
                     <!-- Instructions Section -->
                     <div class="mb-3">
@@ -161,12 +209,14 @@
                     </div>
 
                     <!-- QR Code Section -->
+                    @if(!empty($reservationDetails->reservation_id))
                     <div class="text-center">
                         <canvas id="qr-code" class="mb-3"></canvas>
                         <button id="download-qr" class="btn btn-success w-100" onclick="downloadQRCode()">
                             <i class="fa-solid fa-download me-2"></i>DOWNLOAD QR
                         </button>
                     </div>
+                    @endif
                 </div>
             </div>
 
@@ -182,6 +232,7 @@
     <div class="pb-5"></div> <!-- Add padding at the bottom -->
 
     <!-- Feedback Modal -->
+    @if(isset($reservationDetails->id))
     <div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content" style="border-radius: 15px; border: none;">
@@ -236,6 +287,7 @@
             </div>
         </div>
     </div>
+    @endif
 
 <style>
 .rating {

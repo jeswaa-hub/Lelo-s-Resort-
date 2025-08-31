@@ -196,8 +196,8 @@ public function dashboard()
             ->count();
 
         $availableAccommodations = DB::table('accomodations')
-            ->where('accomodation_status', 'available')
-            ->count();
+        ->where('accomodation_status', 'available')
+        ->sum('quantity');
 
         // Get pending reservations list - limited to 3 records with name and date only
         $pendingReservationsList = DB::table('reservation_details')
@@ -302,7 +302,11 @@ public function reservations(Request $request)
     $pendingCount = DB::table('reservation_details')
         ->where('reservation_status', 'pending')
         ->count();
-
+    
+    $OnHoldCount = DB::table('reservation_details')
+        ->where('reservation_status', 'on-hold')
+        ->count();
+        
     $checkedInCount = DB::table('reservation_details')
         ->where('reservation_status', 'checked-in')
         ->count();
@@ -438,6 +442,7 @@ public function reservations(Request $request)
     return view('StaffSide.StaffReservation', compact(
         'reservations',
         'pendingCount',
+        'OnHoldCount',
         'checkedInCount',
         'checkedOutCount',
         'earlyCheckedOutCount',
@@ -463,9 +468,8 @@ public function accomodations()
         ->sum('quantity');
         
     $reservedRoomsFromWalkin = DB::table('walkin_guests')
-        ->where('reservation_status', 'checked-in')
-        ->selectRaw('SUM(quantity) as total_reserved')
-        ->value('total_reserved') ?? 0;
+        ->whereIn('reservation_status', ['reserved', 'checked-in'])
+        ->sum('quantity');
 
     // Add reserved rooms from reservation_details table
     $reservedRoomsFromReservations = DB::table('reservation_details')
@@ -671,7 +675,7 @@ public function cancelReservation($reservationId)
     return response()->json(['success' => false, 'message' => 'Reservation not found or not eligible for cancellation.']);
 }
 
-    public function UpdateStatus(Request $request, $id)
+public function UpdateStatus(Request $request, $id)
 {
     $staffId = session()->get('StaffLogin');
     $staff = Staff::find($staffId);
@@ -704,7 +708,7 @@ public function cancelReservation($reservationId)
     DB::beginTransaction();
 
     try {
-        // Update reservation status
+        // Update reservation/payment status
         DB::table('reservation_details')->where('id', $id)->update([
             'payment_status' => $request->payment_status,
             'reservation_status' => $request->reservation_status,
@@ -722,48 +726,13 @@ public function cancelReservation($reservationId)
             $accommodationIdsAfterUpdate = json_decode($packageRoomsAfterUpdate, true) ?? [];
         }
 
-        // Handle accommodation quantity when status changes to reserved/checked-in
-        if (in_array($request->reservation_status, ['reserved', 'checked-in'])) {
-            if (!empty($accommodationIdsAfterUpdate)) {
-                foreach ($accommodationIdsAfterUpdate as $accommodationId) {
-                    // Deduct quantity
-                    $updated = DB::table('accomodations')
-                        ->where('accomodation_id', $accommodationId)
-                        ->where('quantity', '>', 0)
-                        ->decrement('quantity', 1);
+        /**
+         * 🚫 Removed: Global quantity decrement/increment
+         * The quantity in accomodations table remains fixed.
+         * Availability is now computed dynamically when checking for bookings.
+         */
 
-                    // Update status if quantity reaches 0
-                    if ($updated) {
-                        $accommodation = DB::table('accomodations')->where('accomodation_id', $accommodationId)->first();
-                        if ($accommodation && $accommodation->quantity <= 0) {
-                            DB::table('accomodations')
-                                ->where('accomodation_id', $accommodationId)
-                                ->update(['accomodation_status' => 'unavailable']);
-                        }
-                    }
-                }
-            }
-        }
-
-        // Handle quantity return when status changes to cancelled, completed, or checked-out
-        if (in_array($originalReservationStatus, ['reserved', 'checked-in']) && 
-            in_array($request->reservation_status, ['cancelled','checked-out'])) {
-            if (!empty($accommodationIdsBeforeUpdate)) {
-                foreach ($accommodationIdsBeforeUpdate as $accommodationId) {
-                    // Return quantity
-                    DB::table('accomodations')
-                        ->where('accomodation_id', $accommodationId)
-                        ->increment('quantity', 1);
-
-                    // Update status if quantity goes from 0 to 1
-                    DB::table('accomodations')
-                        ->where('accomodation_id', $accommodationId)
-                        ->where('accomodation_status', 'unavailable')
-                        ->update(['accomodation_status' => 'available']);
-                }
-            }
-        }
-
+        // Prepare change log for activity record
         $statusChanges = [];
         if ($originalPaymentStatus != $request->payment_status) {
             $statusChanges[] = "payment status from '{$originalPaymentStatus}' to '{$request->payment_status}'";
@@ -782,6 +751,7 @@ public function cancelReservation($reservationId)
 
         DB::commit();
 
+        // Send email to guest about the status update
         Mail::to($updatedReservation->email)->send(new ReservationStatusUpdated(
             $updatedReservation,
             $request->custom_message,
@@ -795,6 +765,7 @@ public function cancelReservation($reservationId)
         return redirect()->back()->with('error', 'Failed to update reservation: ' . $e->getMessage());
     }
 }
+
     public function sendEmail(Request $request)
     {
         $request->validate([
@@ -973,11 +944,7 @@ public function cancelReservation($reservationId)
                 return back()->with('error', 'Selected accommodation not found.');
             }   
 
-            // Check if there's enough quantity available
-            if ($accommodation->quantity < $validated['quantity']) {
-                return back()->with('error', 'Not enough rooms available. Only ' . $accommodation->quantity . ' rooms left.');
-            }
-            
+                        
             // Calculate total guests
             $totalGuests = $validated['number_of_adult'] + $validated['number_of_children'];
             
@@ -1001,15 +968,7 @@ public function cancelReservation($reservationId)
                 'amount' => $validated['amount']
             ]);
             
-            // Update accommodation quantity
-            $newQuantity = $accommodation->quantity - $validated['quantity'];
-            DB::table('accomodations')
-                ->where('accomodation_id', $validated['accomodation_id'])
-                ->update([
-                    'quantity' => $newQuantity,
-                    'accomodation_status' => $newQuantity > 0 ? 'available' : 'unavailable'
-                ]);
-
+            
             // Record activity
             $this->recordActivity("Created walk-in reservation for {$validated['name']}");
 

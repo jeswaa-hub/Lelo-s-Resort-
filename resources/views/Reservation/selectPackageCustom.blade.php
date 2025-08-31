@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Stay In</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
@@ -46,15 +47,16 @@
         border-top: 3px solid #198754;
     }
 
-    .select-accommodation:hover {
+    .select-accommodation:hover:not(.unavailable) {
         transform: translateY(-5px);
         box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     }
     
-    /* New styles for unavailable accommodations */
+    /* Fixed styles for unavailable accommodations */
     .select-accommodation.unavailable {
         cursor: not-allowed;
-        opacity: 0.8;
+        opacity: 0.6;
+        pointer-events: none; /* Prevent clicking */
     }
     
     .select-accommodation.unavailable .card-body {
@@ -83,9 +85,18 @@
     .select-accommodation.unavailable .text-success {
         color: #dc3545 !important;
     }
+
+    /* Add availability display styling */
+    .availability-display {
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+        padding: 0.25rem;
+        border-radius: 0.25rem;
+        background-color: rgba(255, 255, 255, 0.8);
+    }
 </style>
 
-<body class="bg-light font-paragraph" style="background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.8)), url('{{ asset('images/packagebg.jpg') }}') no-repeat center center fixed; background-size: cover;">
+<body class="bg-light font-paragraph" style="background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.8)), url('{{ asset('images/packagebg.JPG') }}') no-repeat center center fixed; background-size: cover;">
     <div class="d-flex align-items-center ms-5 mt-5">
         <a href="{{ route('calendar') }}"><i class="color-3 fa-2x fa-circle-left fa-solid icon icon-hover ms-4"></i></a><h1 class="text-white text-uppercase font-heading ms-3">Reservation</h1>
     </div>
@@ -102,6 +113,13 @@
     <form method="POST" action="{{ route('savePackageSelection') }}">
         @csrf
         <input type="hidden" name="package_type" value="One day Stay">
+
+        <!-- Hidden user information fields -->
+        <input type="hidden" name="name" value="{{ $user->name }}">
+        <input type="hidden" name="email" value="{{ $user->email }}">
+        <input type="hidden" name="mobileNo" value="{{ $user->mobileNo }}">
+        <input type="hidden" name="address" value="{{ $user->address }}">
+        
         <div class="d-flex justify-content-start mt-4 mb-3 ms-2">
             <button type="button" 
                 class="btn text-dark px-4" 
@@ -122,8 +140,7 @@
                         @foreach($accomodations as $accomodation)
                             @if($accomodation->accomodation_type == 'cabin' || $accomodation->accomodation_type == 'room')
                             <div class="col-md-4 accommodation-card">
-                                <div class="card select-accommodation
-                                    @if($accomodation->accomodation_status == 'unavailable') unavailable @endif"
+                                <div class="card select-accommodation {{ $accomodation->accomodation_status !== 'available' ? 'unavailable' : '' }}"
                                      data-id="{{ $accomodation->accomodation_id }}"
                                      data-price="{{ $accomodation->accomodation_price }}"
                                      data-capacity="{{ $accomodation->accomodation_capacity }}"
@@ -365,513 +382,1055 @@
                 </div>
             </div>
         </div>     
+
 <script>
-    function validateInputs() {
-        const quantityInput = document.getElementById('quantity');
-        const adultsInput = document.getElementById('number_of_adults');
-        const childrenInput = document.getElementById('number_of_children');
-        const submitButton = document.querySelector('button[type="submit"]');
+// Fixed fetchAvailableQuantities function
+function fetchAvailableQuantities() {
+    const checkInDate = document.getElementById('reservation_date').value;
+    const checkOutDate = document.getElementById('check_out_date').value;
 
-        let isValid = true;
-
-        // Validate Quantity
-        if (parseInt(quantityInput.value) <= 0 || quantityInput.value.trim() === '') {
-            quantityInput.classList.add('is-invalid');
-            isValid = false;
-        } else {
-            quantityInput.classList.remove('is-invalid');
-        }
-
-        // Validate Adults
-        if (parseInt(adultsInput.value) <= 0 && parseInt(childrenInput.value) <= 0) {
-            adultsInput.classList.add('is-invalid');
-            childrenInput.classList.add('is-invalid');
-            isValid = false;
-        } else {
-            adultsInput.classList.remove('is-invalid');
-            childrenInput.classList.remove('is-invalid');
-        }
-
-        // Disable submit button if any input is invalid or if quantity exceeds available rooms
-        if (!isValid || (document.getElementById('quantityError').style.display === 'block') || (document.getElementById('guestError').style.display === 'block')) {
-            submitButton.disabled = true;
-            submitButton.classList.add('opacity-50');
-        } else {
-            submitButton.disabled = false;
-            submitButton.classList.remove('opacity-50');
-        }
+    if (!checkInDate || !checkOutDate) {
+        return;
     }
+    const accommodationCards = document.querySelectorAll('.select-accommodation');
 
-    document.addEventListener("DOMContentLoaded", function() {
-        const submitButton = document.querySelector('button[type="submit"]');
-        const confirmPaymentBtn = document.getElementById('confirmPayment');
-        const reservationModal = new bootstrap.Modal(document.getElementById('reservationModal'));
-        
-        // Initial validation on page load
-        validateInputs();
+    // Set a "loading" state on all cards
+    accommodationCards.forEach(card => {
+        const quantityText = card.querySelector('.availability-display');
+        if (quantityText) {
+            quantityText.innerHTML = '<em>Checking availability...</em>';
+            quantityText.className = 'availability-display text-warning';
+        }
+    });
 
-        submitButton.addEventListener("click", function(e) {
-            e.preventDefault();
+    // Make the AJAX request with enhanced error handling
+    fetch(`/get-available-quantities?checkIn=${checkInDate}&checkOut=${checkOutDate}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            // Try to get error message from response
+            return response.text().then(text => {
+                console.error('Server response:', text);
+                throw new Error(`HTTP error! Status: ${response.status}. Response: ${text}`);
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Check if data is in expected format
+        if (typeof data !== 'object' || data === null) {
+            throw new Error('Invalid response format received from server');
+        }
+
+        // Update each accommodation card with the new availability data
+        accommodationCards.forEach(card => {
+            const accommodationId = card.getAttribute('data-id');
+            const originalStatus = card.getAttribute('data-status');
             
-            // Re-validate before showing modal
-            validateInputs();
-            if (submitButton.disabled) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Validation Error',
-                    text: 'Please correct the highlighted fields before proceeding.',
-                    confirmButtonColor: '#198754'
-                });
-                return;
-            }
-
-            // Validate quantity
-            const quantity = parseInt(document.getElementById('quantity').value) || 0;
-            if (quantity <= 0) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Invalid Quantity',
-                    text: 'Please enter a quantity greater than 0',
-                    confirmButtonColor: '#198754'
-                });
-                return;
-            }
-
-            // Validate number of guests
-            const adults = parseInt(document.getElementById('number_of_adults').value) || 0;
-            const children = parseInt(document.getElementById('number_of_children').value) || 0;
+            // Handle different response formats
+            let availableQuantity = 0;
             
-            if (adults <= 0) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Invalid Number of Adults',
-                    text: 'Please enter the number of adults (must be greater than 0)',
-                    confirmButtonColor: '#198754'
-                });
-                return;
-            }
-            
-            if (adults + children <= 0) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Invalid Number of Guests',
-                    text: 'The total number of guests must be greater than 0',
-                    confirmButtonColor: '#198754'
-                });
-                return;
+            if (data[accommodationId] !== undefined) {
+                // If the response contains the accommodation ID
+                if (typeof data[accommodationId] === 'number') {
+                    availableQuantity = data[accommodationId];
+                } else if (typeof data[accommodationId] === 'object' && data[accommodationId].available_rooms !== undefined) {
+                    availableQuantity = data[accommodationId].available_rooms;
+                } else if (typeof data[accommodationId] === 'object' && data[accommodationId].quantity !== undefined) {
+                    availableQuantity = data[accommodationId].quantity;
+                }
             }
             
-            // Hide reservation modal first
-            reservationModal.hide();
+            // Update the card's 'data-room-quantity' attribute for validation logic
+            card.setAttribute('data-room-quantity', availableQuantity);
             
-            // Compute payment details
-            const selectedAccommodation = document.querySelector('.select-accommodation.selected');
-            const roomRate = parseFloat(selectedAccommodation.getAttribute('data-price')) || 0;
-            
-            // Get check-in and check-out dates
-            const checkInDate = new Date(document.getElementById('reservation_date').value);
-            const checkOutDate = new Date(document.getElementById('check_out_date').value);
-            const numberOfNights = Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24));
-            
-            // Calculate total
-            const totalAmount = roomRate * quantity * numberOfNights;
-            
-            // Update modal content
-            document.getElementById('roomRate').textContent = `₱${roomRate.toFixed(2)}`;
-            document.getElementById('numberOfRooms').textContent = quantity;
-            document.getElementById('numberOfNights').textContent = numberOfNights;
-            document.getElementById('totalAmountDisplay').textContent = `₱${totalAmount.toFixed(2)}`;
-            
-            // Show payment breakdown modal
-            const paymentBreakdownModal = new bootstrap.Modal(document.getElementById('paymentBreakdownModal'));
-            paymentBreakdownModal.show();
+            const quantityText = card.querySelector('.availability-display');
+
+            // Update the card's visual state based on BOTH database status AND availability
+            if (originalStatus !== 'available') {
+                // Room is disabled in database - keep it unavailable
+                card.classList.add('unavailable');
+                card.classList.remove('selected');
+                if (quantityText) {
+                    quantityText.innerHTML = `<strong>Currently unavailable</strong>`;
+                    quantityText.className = 'availability-display text-danger fw-bold';
+                }
+            } else if (availableQuantity > 0) {
+                // Room is available in database AND has availability for the dates
+                card.classList.remove('unavailable');
+                if (quantityText) {
+                    quantityText.innerHTML = `<strong>${availableQuantity}</strong> rooms available`;
+                    quantityText.className = 'availability-display text-success';
+                }
+            } else {
+                // Room is available in database BUT no availability for selected dates
+                card.classList.add('unavailable');
+                card.classList.remove('selected');
+                if (quantityText) {
+                    quantityText.innerHTML = `<strong>Not available</strong> on selected dates`;
+                    quantityText.className = 'availability-display text-danger fw-bold';
+                }
+            }
         });
         
-        // Add event listener for when payment breakdown modal is hidden
-        document.getElementById('paymentBreakdownModal').addEventListener('hidden.bs.modal', function () {
-            // Show reservation modal again
-            reservationModal.show();
+        // After updating all cards, re-run validations
+        validateCurrentQuantity();
+        calculateTotalGuest();
+        updateProceedButton();
+    })
+    .catch(error => {
+        console.error('Detailed error information:', {
+            message: error.message,
+            stack: error.stack,
+            name: error.name
         });
         
-        confirmPaymentBtn.addEventListener("click", function() {
-            // Close the breakdown modal
-            const paymentBreakdownModal = bootstrap.Modal.getInstance(document.getElementById('paymentBreakdownModal'));
-            paymentBreakdownModal.hide();
-            
-            // Submit the form
-            document.querySelector('form').submit();
+        // Reset cards to show error state
+        accommodationCards.forEach(card => {
+            const quantityText = card.querySelector('.availability-display');
+            if (quantityText) {
+                quantityText.innerHTML = '<em>Error checking availability</em>';
+                quantityText.className = 'availability-display text-danger';
+            }
+        });
+        
+        Swal.fire({
+            icon: 'error',
+            title: 'Connection Error',
+            text: 'Failed to check room availability. Please check your connection and try again.',
+            footer: `<small>Technical details: ${error.message}</small>`,
+            confirmButtonColor: '#198754'
         });
     });
-</script>
-    <script>
-    function resetFrontendAccommodations() {
-        console.log("Resetting accommodations to available...");
+}   
 
-        document.querySelectorAll(".select-accommodation").forEach(item => {
-            item.classList.remove("disabled");
-            item.classList.add("available");
-
-            // I-update ang status text at background color
-            let statusSpan = item.querySelector(".card-text");
-            if (statusSpan) {
-                statusSpan.textContent = "Available";
-                statusSpan.style.backgroundColor = "#C6F7D0"; // Green background for available
-            }
-        });
-    }
-
-    document.addEventListener("DOMContentLoaded", function () {
-        const checkInDateInput = document.getElementById("reservation_date");
-
-        checkInDateInput.addEventListener("change", function () {
-            resetFrontendAccommodations(); // I-reset ang frontend kapag nagbago ang check-in date
-        });
-    });
-</script>
-<script>
-    function calculateTotalGuest() {
-        let adults = parseInt(document.getElementById("number_of_adults").value) || 0;
-        let children = parseInt(document.getElementById("number_of_children").value) || 0;
-        let totalGuests = adults + children;
-        let quantity = parseInt(document.getElementById("quantity").value) || 1;
+// Function to validate current quantity against newly fetched available quantity
+function validateCurrentQuantity() {
+    const quantityInput = document.getElementById('quantity');
+    const selectedAccommodation = document.querySelector('.select-accommodation.selected');
+    const quantityError = document.getElementById('quantityError');
+    const currentQuantity = parseInt(quantityInput.value) || 0;
+    
+    if (selectedAccommodation && currentQuantity > 0) {
+        const availableQuantity = parseInt(selectedAccommodation.getAttribute('data-room-quantity')) || 0;
         
-        let selectedAccommodation = document.querySelector('.select-accommodation.selected');
-        let totalCapacity = 0;
-        let availableRoomQuantity = 0;
-
-        if (selectedAccommodation) {
-            let roomCapacity = parseInt(selectedAccommodation.getAttribute('data-capacity')) || 0;
-            totalCapacity = roomCapacity * quantity;
-            availableRoomQuantity = parseInt(selectedAccommodation.getAttribute('data-room-quantity')) || 0;
-        }
-
-        let saveButton = document.querySelector('button[type="submit"]');
-        let guestError = document.getElementById('guestError');
-        let quantityError = document.getElementById('quantityError');
-        let totalGuestsInput = document.getElementById("total_guests");
-
-        // Quantity validation against available rooms
-        if (quantity > availableRoomQuantity && availableRoomQuantity > 0) {
+        if (currentQuantity > availableQuantity) {
             quantityError.style.display = 'block';
-            quantityError.textContent = `Exceeds available room quantity! (Available: ${availableRoomQuantity} rooms)`;
-            saveButton.disabled = true;
-            saveButton.classList.add('opacity-50');
+            quantityError.textContent = `Not enough rooms! Only ${availableQuantity} available for selected dates.`;
+            quantityError.classList.add('alert', 'alert-danger', 'mt-2', 'p-2');
+            quantityInput.classList.add('is-invalid');
+            
+            // Auto-adjust quantity to maximum available
+            quantityInput.value = Math.max(1, availableQuantity);
+            
+            if (availableQuantity <= 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Room Not Available',
+                    text: 'No rooms available for selected dates. Please choose different dates.',
+                    confirmButtonColor: '#198754'
+                });
+            } else {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Quantity Adjusted',
+                    text: `We adjusted your quantity to ${availableQuantity} for the selected dates.`,
+                    confirmButtonColor: '#198754',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            }
         } else {
             quantityError.style.display = 'none';
-            // Ensure button is enabled if quantity is valid and other inputs are also valid
-            validateInputs();
+            quantityError.classList.remove('alert', 'alert-danger', 'mt-2', 'p-2');
+            quantityInput.classList.remove('is-invalid');
         }
+    }
+}
 
-        // Guest capacity validation
-        if (totalGuests > totalCapacity && totalCapacity > 0) {
-            guestError.style.display = 'block';
-            guestError.textContent = `Exceeds maximum capacity! (Maximum: ${totalCapacity} guests)`;
-            saveButton.disabled = true;
-            saveButton.classList.add('opacity-50');
-            totalGuestsInput.style.color = 'red';
-        } else {
-            guestError.style.display = 'none';
-            totalGuestsInput.style.color = 'black';
-             // Ensure button is enabled if guest capacity is valid and other inputs are also valid
-            validateInputs();
-        }
+// Updated calculateTotalGuest function
+function calculateTotalGuest() {
+    let adults = parseInt(document.getElementById("number_of_adults").value) || 0;
+    let children = parseInt(document.getElementById("number_of_children").value) || 0;
+    let totalGuests = adults + children;
+    let quantity = parseInt(document.getElementById("quantity").value) || 1;
+    
+    let selectedAccommodation = document.querySelector('.select-accommodation.selected');
+    let totalCapacity = 0;
+    let availableRoomQuantity = 0;
 
-        // Re-evaluate button state after all checks
-        // validateInputs(); // This call is redundant here now that validateInputs is called in the else blocks
-
-        document.getElementById("total_guests").value = totalGuests;
+    if (selectedAccommodation) {
+        let roomCapacity = parseInt(selectedAccommodation.getAttribute('data-capacity')) || 0;
+        totalCapacity = roomCapacity * quantity;
+        availableRoomQuantity = parseInt(selectedAccommodation.getAttribute('data-room-quantity')) || 0;
     }
 
-    document.addEventListener("DOMContentLoaded", function () {
-        const mainForm = document.querySelector('form');
-        const accommodationCards = document.querySelectorAll(".select-accommodation:not(.unavailable)");
-        const proceedButton = document.getElementById("proceedToPayment");
-        const quantityInput = document.getElementById("quantity"); // Get the quantity input
+    let saveButton = document.querySelector('button[type="submit"]');
+    let guestError = document.getElementById('guestError');
+    let quantityError = document.getElementById('quantityError');
+    let totalGuestsInput = document.getElementById("total_guests");
 
-        // Add event listener to quantity input
-        quantityInput.addEventListener('input', calculateTotalGuest); // Call calculateTotalGuest directly
+    // Quantity validation against available rooms
+    if (quantity > availableRoomQuantity && availableRoomQuantity > 0) {
+        quantityError.style.display = 'block';
+        quantityError.textContent = `Not enough rooms! Only ${availableRoomQuantity} available for selected dates`;
+        quantityError.classList.add('alert', 'alert-danger', 'mt-2', 'p-2');
+        document.getElementById('quantity').classList.add('is-invalid');
+    } else if (availableRoomQuantity <= 0 && selectedAccommodation) {
+        quantityError.style.display = 'block';
+        quantityError.textContent = `No rooms available for selected dates!`;
+        quantityError.classList.add('alert', 'alert-danger', 'mt-2', 'p-2');
+        document.getElementById('quantity').classList.add('is-invalid');
+    } else {
+        quantityError.style.display = 'none';
+        quantityError.classList.remove('alert', 'alert-danger', 'mt-2', 'p-2');
+        document.getElementById('quantity').classList.remove('is-invalid');
+    }
 
-        // Function para i-update ang estado ng button
-        function updateProceedButton() {
-            const selectedAccommodation = document.querySelector(".select-accommodation.selected");
-            proceedButton.disabled = !selectedAccommodation;
+    // Guest capacity validation
+    if (totalGuests > totalCapacity && totalCapacity > 0) {
+        guestError.style.display = 'block';
+        guestError.textContent = `Exceeds maximum capacity! (Maximum: ${totalCapacity} guests for ${quantity} room(s))`;
+        guestError.classList.add('alert', 'alert-danger', 'mt-2', 'p-2');
+        totalGuestsInput.style.color = 'red';
+        totalGuestsInput.classList.add('is-invalid');
+    } else {
+        guestError.style.display = 'none';
+        guestError.classList.remove('alert', 'alert-danger', 'mt-2', 'p-2');
+        totalGuestsInput.style.color = 'black';
+        totalGuestsInput.classList.remove('is-invalid');
+    }
+
+    // Update total guests
+    document.getElementById("total_guests").value = totalGuests;
+    
+    // Call validateInputs to check overall form validity
+    validateInputs();
+}
+
+// Main DOMContentLoaded event listener
+document.addEventListener("DOMContentLoaded", function () {
+    const submitButton = document.querySelector('button[type="submit"]');
+    const confirmPaymentBtn = document.getElementById('confirmPayment');
+    const reservationModal = new bootstrap.Modal(document.getElementById('reservationModal'));
+    const mainForm = document.querySelector('form');
+    const proceedButton = document.getElementById("proceedToPayment");
+    const quantityInput = document.getElementById("quantity");
+    const checkInDateInput = document.getElementById("reservation_date");
+    const checkOutDateInput = document.getElementById("check_out_date");
+    
+    // Initialize date pickers
+    const today = new Date().toISOString().split('T')[0];
+    checkInDateInput.min = today;
+    checkOutDateInput.min = today;
+    
+    checkInDateInput.addEventListener("change", function () {
+        checkOutDateInput.min = this.value;
+        if (checkOutDateInput.value && checkOutDateInput.value < this.value) {
+            checkOutDateInput.value = this.value;
         }
+        if (this.value && checkOutDateInput.value) {
+            fetchAvailableQuantities();
+        }
+    });
 
-        // Function para i-update ang hidden input ng selected accommodation
-        function updateSelectedAccommodation() {
-            // Tanggalin muna ang existing accommodation input
-            mainForm.querySelectorAll('input[name="accomodation_id[]"]').forEach(input => input.remove());
+    checkOutDateInput.addEventListener("change", function () {
+        if (checkInDateInput.value) {
+            fetchAvailableQuantities();
+        }
+    });
+
+    // Initial validation on page load
+    validateInputs();
+
+    // Real-time quantity validation
+    quantityInput.addEventListener('input', function() {
+        const selectedAccommodation = document.querySelector('.select-accommodation.selected');
+        const quantityError = document.getElementById('quantityError');
+        const currentQuantity = parseInt(this.value) || 0;
+        
+        if (selectedAccommodation) {
+            const availableQuantity = parseInt(selectedAccommodation.getAttribute('data-room-quantity')) || 0;
             
-            // Magdagdag ng bagong input para sa selected accommodation
-            const selectedCard = document.querySelector(".select-accommodation.selected");
-            if (selectedCard) {
-                const input = document.createElement("input");
-                input.type = "hidden";
-                input.name = "accomodation_id[]";
-                input.value = selectedCard.getAttribute("data-id");
-                mainForm.appendChild(input);
+            if (currentQuantity > availableQuantity) {
+                quantityError.style.display = 'block';
+                quantityError.textContent = `Not enough rooms! Only ${availableQuantity} available for selected dates`;
+                quantityError.classList.add('alert', 'alert-danger', 'mt-2', 'p-2');
+                this.classList.add('is-invalid');
+                
+                // Show SweetAlert for immediate feedback
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Too many rooms selected!',
+                    text: `Only ${availableQuantity} rooms available for selected dates.`,
+                    confirmButtonColor: '#198754',
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+            } else {
+                quantityError.style.display = 'none';
+                quantityError.classList.remove('alert', 'alert-danger', 'mt-2', 'p-2');
+                this.classList.remove('is-invalid');
             }
         }
-
-        // Magdagdag ng click event listener sa bawat available accommodation card
-        accommodationCards.forEach(card => {
-            card.addEventListener("click", function () {
-                // Check if this accommodation is unavailable
-                if (this.classList.contains('unavailable')) {
-                    // Show warning message for unavailable accommodations
-                    Swal.fire({
-                        title: "Accommodation Unavailable",
-                        text: "This accommodation is currently unavailable. Please select another room.",
-                        icon: "warning",
-                        confirmButtonColor: '#198754'
-                    });
-                    return; // Exit early, don't allow selection
-                }
-
-                // Alisin muna ang selected class sa lahat ng cards
-                document.querySelectorAll('.select-accommodation').forEach(c => c.classList.remove("selected"));
-                
-                // I-toggle ang selected class sa clinick na card
-                this.classList.add("selected");
-                
-                updateProceedButton();
-                calculateTotalGuest(); // Call calculateTotalGuest when a card is selected
-                updateSelectedAccommodation();
-            });
-        });
-
-        // I-handle ang form submission
-        mainForm.addEventListener("submit", function (e) {
-            const selectedAccommodation = document.querySelector(".select-accommodation.selected");
-            
-            if (!selectedAccommodation) {
-                e.preventDefault();
-                Swal.fire({
-                    title: "No room selected",
-                    text: "Choose atleast 1.",
-                    icon: "warning"
-                });
-                return;
-            }
-            
-            // Check if selected accommodation is unavailable (extra safety check)
-            if (selectedAccommodation.classList.contains('unavailable')) {
-                e.preventDefault();
-                Swal.fire({
-                    title: "Selected room is unavailable",
-                    text: "Please select an available room.",
-                    icon: "error",
-                    confirmButtonColor: '#198754'
-                });
-                return;
-            }
-            
-            // I-update muna ang hidden input bago mag-submit
-            updateSelectedAccommodation();
-        });
-
-        // Initial call to set button state and validate on page load if needed
-        updateProceedButton();
+        
         calculateTotalGuest();
     });
 
-    // Keep the validateInputs function for other validations if needed
-    function validateInputs() {
-        let isValid = true;
-        const quantityInput = document.getElementById("quantity");
-        const adultsInput = document.getElementById("number_of_adults");
-        const childrenInput = document.getElementById("number_of_children");
-        const saveButton = document.querySelector('button[type="submit"]');
+    // Add event listeners for adult and children inputs
+    document.getElementById('number_of_adults').addEventListener('input', calculateTotalGuest);
+    document.getElementById('number_of_children').addEventListener('input', calculateTotalGuest);
 
-        // Check if quantity, adults, and children inputs are valid numbers and not empty
-        if (!quantityInput.value || parseInt(quantityInput.value) <= 0 || isNaN(parseInt(quantityInput.value))) {
-            isValid = false;
-        }
-        if (!adultsInput.value || parseInt(adultsInput.value) < 0 || isNaN(parseInt(adultsInput.value))) {
-             isValid = false;
-        }
-         if (!childrenInput.value || parseInt(childrenInput.value) < 0 || isNaN(parseInt(childrenInput.value))) {
-             isValid = false;
-        }
-
-        // Check if there are any visible error messages
-        const guestError = document.getElementById('guestError');
-        const quantityError = document.getElementById('quantityError');
-
-        if (guestError.style.display === 'block' || quantityError.style.display === 'block') {
-            isValid = false;
-        }
-
-        // Enable or disable the save button based on overall validity
-        if (isValid) {
-            saveButton.disabled = false;
-            saveButton.classList.remove('opacity-50');
-        } else {
-            saveButton.disabled = true;
-            saveButton.classList.add('opacity-50');
-        }
-
-        return isValid;
-    }
-</script>
-    <script>
-    function resetFrontendAccommodations() {
-        console.log("Resetting accommodations to available...");
-
-        document.querySelectorAll(".select-accommodation").forEach(item => {
-            item.classList.remove("disabled");
-            item.classList.add("available");
-
-            // I-update ang status text at background color
-            let statusSpan = item.querySelector(".card-text");
-            if (statusSpan) {
-                statusSpan.textContent = "Available";
-                statusSpan.style.backgroundColor = "#C6F7D0"; // Green background for available
-            }
-        });
+    // Function to update proceed button state
+    function updateProceedButton() {
+        const selectedAccommodation = document.querySelector(".select-accommodation.selected");
+        proceedButton.disabled = !selectedAccommodation || selectedAccommodation.classList.contains('unavailable');
     }
 
-    document.addEventListener("DOMContentLoaded", function () {
-        const checkInDateInput = document.getElementById("reservation_date");
-
-        checkInDateInput.addEventListener("change", function () {
-            resetFrontendAccommodations(); // I-reset ang frontend kapag nagbago ang check-in date
-        });
-    });
-</script>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        // Get check-in and check-out dates from URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const checkIn = urlParams.get("checkIn") || "";
-        const checkOut = urlParams.get("checkOut") || "";
-        const roomId = urlParams.get('roomid');
-
-        // Set values in the date inputs
-        document.getElementById("reservation_date").value = checkIn;
-        document.getElementById("check_out_date").value = checkOut;
-
-        if (roomId) {
-            // Find and select the corresponding accommodation card
-            const roomCard = document.querySelector(`.select-accommodation[data-id="${roomId}"]`);
-            if (roomCard && !roomCard.classList.contains('unavailable')) {
-                // Remove selection from all cards first
-                document.querySelectorAll(".select-accommodation").forEach(card => {
-                    card.classList.remove("selected");
-                });
-                
-                // Select the specified room
-                roomCard.classList.add("selected");
-                
-                // Scroll to the selected card
-                roomCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                
-                // Update the proceed button state
-                document.getElementById("proceedToPayment").disabled = false;
-                
-                // Update the hidden input field
-                updateSelectedAccommodation();
-            }
+    // Fixed accommodation card click handlers
+    document.addEventListener('click', function(e) {
+        const card = e.target.closest('.select-accommodation');
+        if (!card) return;
+        
+        // Prevent selection of unavailable accommodations
+        if (card.classList.contains('unavailable')) {
+            Swal.fire({
+                title: "Accommodation Unavailable",
+                text: "This accommodation is currently unavailable. Please select another room or different dates.",
+                icon: "warning",
+                confirmButtonColor: '#198754'
+            });
+            return;
         }
+
+        // Remove selected class from all cards
+        document.querySelectorAll('.select-accommodation').forEach(c => c.classList.remove("selected"));
+        
+        // Add selected class to clicked card
+        card.classList.add("selected");
+        
+        // Validate quantity for newly selected accommodation
+        validateCurrentQuantity();
+        
+        updateProceedButton();
+        calculateTotalGuest();
+        updateSelectedAccommodation();
     });
 
-    // Function to update the hidden input with selected accommodation
-    function updateSelectedAccommodation() {
-        const mainForm = document.querySelector('form');
+    // Form submission handler for booking details modal
+    submitButton.addEventListener("click", function(e) {
+        e.preventDefault();
         
-        // Remove existing accommodation input
-        mainForm.querySelectorAll('input[name="accomodation_id[]"]').forEach(input => input.remove());
+        // Re-validate before showing modal
+        validateInputs();
+        if (submitButton.disabled) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Validation Error',
+                text: 'Please correct the highlighted fields before proceeding.',
+                confirmButtonColor: '#198754'
+            });
+            return;
+        }
+
+        // Additional validations
+        const quantity = parseInt(document.getElementById('quantity').value) || 0;
+        const adults = parseInt(document.getElementById('number_of_adults').value) || 0;
+        const children = parseInt(document.getElementById('number_of_children').value) || 0;
         
-        // Add new input for selected accommodation
-        const selectedCard = document.querySelector(".select-accommodation.selected");
-        if (selectedCard) {
-            const input = document.createElement("input");
-            input.type = "hidden";
-            input.name = "accomodation_id[]";
-            input.value = selectedCard.getAttribute("data-id");
-            mainForm.appendChild(input);
+        if (quantity <= 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Invalid Quantity',
+                text: 'Please enter a quantity greater than 0',
+                confirmButtonColor: '#198754'
+            });
+            return;
+        }
+
+        if (adults <= 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Invalid Number of Adults',
+                text: 'Please enter the number of adults (must be greater than 0)',
+                confirmButtonColor: '#198754'
+            });
+            return;
+        }
+        
+        if (adults + children <= 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Invalid Number of Guests',
+                text: 'The total number of guests must be greater than 0',
+                confirmButtonColor: '#198754'
+            });
+            return;
+        }
+        
+        // Hide reservation modal and show payment breakdown
+        reservationModal.hide();
+        
+        // Compute payment details
+        const selectedAccommodation = document.querySelector('.select-accommodation.selected');
+        const roomRate = parseFloat(selectedAccommodation.getAttribute('data-price')) || 0;
+        
+        // Calculate number of nights
+        const checkInDate = new Date(document.getElementById('reservation_date').value);
+        const checkOutDate = new Date(document.getElementById('check_out_date').value);
+        const numberOfNights = Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24));
+        
+        // Calculate total
+        const totalAmount = roomRate * quantity * numberOfNights;
+        
+        // Update payment breakdown modal
+        document.getElementById('roomRate').textContent = `₱${roomRate.toFixed(2)}`;
+        document.getElementById('numberOfRooms').textContent = quantity;
+        document.getElementById('numberOfNights').textContent = numberOfNights;
+        document.getElementById('totalAmountDisplay').textContent = `₱${totalAmount.toFixed(2)}`;
+        
+        // Show payment breakdown modal
+        const paymentBreakdownModal = new bootstrap.Modal(document.getElementById('paymentBreakdownModal'));
+        paymentBreakdownModal.show();
+    });
+    
+    // Payment breakdown modal events
+    document.getElementById('paymentBreakdownModal').addEventListener('hidden.bs.modal', function () {
+        reservationModal.show();
+    });
+    
+    confirmPaymentBtn.addEventListener("click", function() {
+        const paymentBreakdownModal = bootstrap.Modal.getInstance(document.getElementById('paymentBreakdownModal'));
+        paymentBreakdownModal.hide();
+        document.querySelector('form').submit();
+    });
+
+    // Main form submission handler
+    mainForm.addEventListener("submit", function (e) {
+        const selectedAccommodation = document.querySelector(".select-accommodation.selected");
+        
+        if (!selectedAccommodation) {
+            e.preventDefault();
+            Swal.fire({
+                title: "No room selected",
+                text: "Please select at least 1 room.",
+                icon: "warning"
+            });
+            return;
+        }
+        
+        if (selectedAccommodation.classList.contains('unavailable')) {
+            e.preventDefault();
+            Swal.fire({
+                title: "Selected room is unavailable",
+                text: "Please select an available room.",
+                icon: "error",
+                confirmButtonColor: '#198754'
+            });
+            return;
+        }
+        
+        if (!validateInputs()) {
+            e.preventDefault();
+            Swal.fire({
+                title: "Validation Error",
+                text: "Please correct all errors before submitting.",
+                icon: "error",
+                confirmButtonColor: '#198754'
+            });
+            return;
+        }
+        
+        updateSelectedAccommodation();
+    });
+
+    // Get URL parameters and set initial values
+    const urlParams = new URLSearchParams(window.location.search);
+    const checkIn = urlParams.get("checkIn") || "";
+    const checkOut = urlParams.get("checkOut") || "";
+    const roomId = urlParams.get('roomid');
+
+    // Set date values
+    document.getElementById("reservation_date").value = checkIn;
+    document.getElementById("check_out_date").value = checkOut;
+
+    // Pre-select room if specified in URL
+    if (roomId) {
+        const roomCard = document.querySelector(`.select-accommodation[data-id="${roomId}"]`);
+        if (roomCard && !roomCard.classList.contains('unavailable')) {
+            document.querySelectorAll(".select-accommodation").forEach(card => {
+                card.classList.remove("selected");
+            });
+            
+            roomCard.classList.add("selected");
+            roomCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            updateProceedButton();
+            updateSelectedAccommodation();
         }
     }
-</script>
-<script>
-        document.addEventListener("DOMContentLoaded", function () { 
-    const checkInDateInput = document.getElementById("reservation_date");
-    const accommodationList = document.getElementById("accommodationList");
-    const accommodationMessage = document.getElementById("accommodationMessage");
 
-    checkInDateInput.addEventListener("change", function () {
-        let checkInDate = this.value;
-        if (!checkInDate) return;
+    // Fetch available quantities if both dates are set
+    if (checkIn && checkOut) {
+        fetchAvailableQuantities();
+    }
 
-        fetch(`/get-available-accommodations?date=${checkInDate}`)
-            .then(response => response.json())
-            .then(data => {
-                accommodationList.innerHTML = ""; // Clear list
-                if (data.length === 0) {
-                    accommodationMessage.innerHTML = "No accommodations available for this date.";
-                    return;
-                }
+    // Initial setup
+    updateProceedButton();
+    calculateTotalGuest();
 
-                data.forEach(accommodation => {
-                    let div = document.createElement("div");
-                    div.classList.add("accommodation-item", "p-3", "mb-2", "border", "rounded");
-                    div.innerHTML = `
-                        <h5>${accommodation.name}</h5>
-                        <p>Type: ${accommodation.type}</p>
-                        <p>Capacity: ${accommodation.capacity} pax</p>
-                        <p>Price: ₱${accommodation.price}</p>
-                        <span class="badge bg-${accommodation.available ? 'success' : 'danger'}">
-                            ${accommodation.available ? "Available" : "Fully Booked"}
-                        </span>
-                    `;
-                    accommodationList.appendChild(div);
-                });
-            })
-            .catch(error => console.error("Error fetching accommodations:", error));
+    // Enhanced quantity input restrictions
+    quantityInput.addEventListener('keydown', function(e) {
+        // Allow: backspace, delete, tab, escape, enter
+        if ([46, 8, 9, 27, 13].indexOf(e.keyCode) !== -1 ||
+            // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+            (e.keyCode === 65 && e.ctrlKey === true) ||
+            (e.keyCode === 67 && e.ctrlKey === true) ||
+            (e.keyCode === 86 && e.ctrlKey === true) ||
+            (e.keyCode === 88 && e.ctrlKey === true)) {
+            return;
+        }
+        // Ensure that it's a number and stop the keypress
+        if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+            e.preventDefault();
+        }
+    });
+
+    // Prevent pasting non-numeric values
+    quantityInput.addEventListener('paste', function(e) {
+        setTimeout(() => {
+            let value = this.value.replace(/[^0-9]/g, '');
+            if (value !== this.value) {
+                this.value = value;
+                calculateTotalGuest();
+            }
+        }, 1);
+    });
+
+    // Auto-correct quantity on blur
+    quantityInput.addEventListener('blur', function() {
+        const selectedAccommodation = document.querySelector('.select-accommodation.selected');
+        const currentQuantity = parseInt(this.value) || 0;
+        
+        if (selectedAccommodation && currentQuantity > 0) {
+            const availableQuantity = parseInt(selectedAccommodation.getAttribute('data-room-quantity')) || 0;
+            
+            if (currentQuantity > availableQuantity) {
+                this.value = Math.max(1, availableQuantity);
+                calculateTotalGuest();
+            }
+        }
     });
 });
-</script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const typeButtons = document.querySelectorAll('.accommodation-type-btn');
-    const cards = document.querySelectorAll('.accommodation-card');
-    
-    // Ipakita ang unang type ng accommodation by default
-    if (typeButtons.length > 0) {
-        typeButtons[0].classList.add('active');
-        const defaultType = typeButtons[0].getAttribute('data-type');
-        filterAccommodations(defaultType);
+
+// Utility functions
+function validateInputs() {
+    const quantityInput = document.getElementById('quantity');
+    const adultsInput = document.getElementById('number_of_adults');
+    const childrenInput = document.getElementById('number_of_children');
+    const submitButton = document.querySelector('button[type="submit"]');
+    const selectedAccommodation = document.querySelector('.select-accommodation.selected');
+
+    let isValid = true;
+
+    // Validate accommodation selection
+    if (!selectedAccommodation || selectedAccommodation.classList.contains('unavailable')) {
+        isValid = false;
     }
 
-    typeButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            // Alisin ang active class sa lahat ng buttons
-            typeButtons.forEach(btn => btn.classList.remove('active'));
-            
-            // Idagdag ang active class sa napiling button
-            this.classList.add('active');
-            
-            // I-filter ang mga accommodations
-            const selectedType = this.getAttribute('data-type');
-            filterAccommodations(selectedType);
-        });
+    // Validate quantity
+    if (!quantityInput.value || parseInt(quantityInput.value) <= 0 || isNaN(parseInt(quantityInput.value))) {
+        quantityInput.classList.add('is-invalid');
+        isValid = false;
+    } else {
+        if (selectedAccommodation) {
+            const availableQuantity = parseInt(selectedAccommodation.getAttribute('data-room-quantity')) || 0;
+            if (parseInt(quantityInput.value) > availableQuantity) {
+                quantityInput.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                quantityInput.classList.remove('is-invalid');
+            }
+        }
+    }
+
+    // Validate guests
+    const totalGuests = (parseInt(adultsInput.value) || 0) + (parseInt(childrenInput.value) || 0);
+    if (totalGuests <= 0) {
+        adultsInput.classList.add('is-invalid');
+        childrenInput.classList.add('is-invalid');
+        isValid = false;
+    } else {
+        adultsInput.classList.remove('is-invalid');
+        childrenInput.classList.remove('is-invalid');
+    }
+
+    // Check for visible error messages
+    const guestError = document.getElementById('guestError');
+    const quantityError = document.getElementById('quantityError');
+
+    if (guestError.style.display === 'block' || quantityError.style.display === 'block') {
+        isValid = false;
+    }
+
+    // Update submit button state
+    if (isValid) {
+        submitButton.disabled = false;
+        submitButton.classList.remove('opacity-50');
+    } else {
+        submitButton.disabled = true;
+        submitButton.classList.add('opacity-50');
+    }
+
+    return isValid;
+}
+
+function updateSelectedAccommodation() {
+    const mainForm = document.querySelector('form');
+    
+    // Remove existing accommodation input
+    mainForm.querySelectorAll('input[name="accomodation_id[]"]').forEach(input => input.remove());
+    
+    // Add new input for selected accommodation
+    const selectedCard = document.querySelector(".select-accommodation.selected");
+    if (selectedCard) {
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = "accomodation_id[]";
+        input.value = selectedCard.getAttribute("data-id");
+        mainForm.appendChild(input);
+    }
+}
+
+function updateProceedButton() {
+    const selectedAccommodation = document.querySelector(".select-accommodation.selected");
+    const proceedButton = document.getElementById("proceedToPayment");
+    proceedButton.disabled = !selectedAccommodation || (selectedAccommodation && selectedAccommodation.classList.contains('unavailable'));
+}
+// Add this function to calculate and update total amount
+function calculateAndUpdateTotalAmount() {
+    const selectedAccommodation = document.querySelector('.select-accommodation.selected');
+    const quantityInput = document.getElementById('quantity');
+    const checkInDateInput = document.getElementById('reservation_date');
+    const checkOutDateInput = document.getElementById('check_out_date');
+    const totalAmountInput = document.getElementById('total_amount');
+    
+    if (!selectedAccommodation || !checkInDateInput.value || !checkOutDateInput.value) {
+        totalAmountInput.value = 0;
+        return;
+    }
+    
+    // Get room price
+    const roomPrice = parseFloat(selectedAccommodation.getAttribute('data-price')) || 0;
+    
+    // Get quantity
+    const quantity = parseInt(quantityInput.value) || 1;
+    
+    // Calculate number of nights
+    const checkInDate = new Date(checkInDateInput.value);
+    const checkOutDate = new Date(checkOutDateInput.value);
+    const numberOfNights = Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24));
+    
+    // Calculate total amount: room price × quantity × number of nights
+    const totalAmount = roomPrice * quantity * numberOfNights;
+    
+    // Update the hidden input
+    totalAmountInput.value = totalAmount.toFixed(2);
+    
+    console.log(`Calculation: ₱${roomPrice} × ${quantity} rooms × ${numberOfNights} nights = ₱${totalAmount.toFixed(2)}`);
+    
+    return totalAmount;
+}
+
+// Update the existing calculateTotalGuest function to also calculate total amount
+function calculateTotalGuest() {
+    let adults = parseInt(document.getElementById("number_of_adults").value) || 0;
+    let children = parseInt(document.getElementById("number_of_children").value) || 0;
+    let totalGuests = adults + children;
+    let quantity = parseInt(document.getElementById("quantity").value) || 1;
+    
+    let selectedAccommodation = document.querySelector('.select-accommodation.selected');
+    let totalCapacity = 0;
+    let availableRoomQuantity = 0;
+
+    if (selectedAccommodation) {
+        let roomCapacity = parseInt(selectedAccommodation.getAttribute('data-capacity')) || 0;
+        totalCapacity = roomCapacity * quantity;
+        availableRoomQuantity = parseInt(selectedAccommodation.getAttribute('data-room-quantity')) || 0;
+    }
+
+    let saveButton = document.querySelector('button[type="submit"]');
+    let guestError = document.getElementById('guestError');
+    let quantityError = document.getElementById('quantityError');
+    let totalGuestsInput = document.getElementById("total_guests");
+
+    // Quantity validation against available rooms
+    if (quantity > availableRoomQuantity && availableRoomQuantity > 0) {
+        quantityError.style.display = 'block';
+        quantityError.textContent = `Not enough rooms! Only ${availableRoomQuantity} available for selected dates`;
+        quantityError.classList.add('alert', 'alert-danger', 'mt-2', 'p-2');
+        document.getElementById('quantity').classList.add('is-invalid');
+    } else if (availableRoomQuantity <= 0 && selectedAccommodation) {
+        quantityError.style.display = 'block';
+        quantityError.textContent = `No rooms available for selected dates!`;
+        quantityError.classList.add('alert', 'alert-danger', 'mt-2', 'p-2');
+        document.getElementById('quantity').classList.add('is-invalid');
+    } else {
+        quantityError.style.display = 'none';
+        quantityError.classList.remove('alert', 'alert-danger', 'mt-2', 'p-2');
+        document.getElementById('quantity').classList.remove('is-invalid');
+    }
+
+    // Guest capacity validation
+    if (totalGuests > totalCapacity && totalCapacity > 0) {
+        guestError.style.display = 'block';
+        guestError.textContent = `Exceeds maximum capacity! (Maximum: ${totalCapacity} guests for ${quantity} room(s))`;
+        guestError.classList.add('alert', 'alert-danger', 'mt-2', 'p-2');
+        totalGuestsInput.style.color = 'red';
+        totalGuestsInput.classList.add('is-invalid');
+    } else {
+        guestError.style.display = 'none';
+        guestError.classList.remove('alert', 'alert-danger', 'mt-2', 'p-2');
+        totalGuestsInput.style.color = 'black';
+        totalGuestsInput.classList.remove('is-invalid');
+    }
+
+    // Update total guests
+    document.getElementById("total_guests").value = totalGuests;
+    
+    // Calculate and update total amount
+    calculateAndUpdateTotalAmount();
+    
+    // Call validateInputs to check overall form validity
+    validateInputs();
+}
+
+// Update the DOMContentLoaded event listener to include total amount calculation
+document.addEventListener("DOMContentLoaded", function () {
+    const submitButton = document.querySelector('button[type="submit"]');
+    const confirmPaymentBtn = document.getElementById('confirmPayment');
+    const reservationModal = new bootstrap.Modal(document.getElementById('reservationModal'));
+    const mainForm = document.querySelector('form');
+    const proceedButton = document.getElementById("proceedToPayment");
+    const quantityInput = document.getElementById("quantity");
+    const checkInDateInput = document.getElementById("reservation_date");
+    const checkOutDateInput = document.getElementById("check_out_date");
+    
+    // Initialize date pickers
+    const today = new Date().toISOString().split('T')[0];
+    checkInDateInput.min = today;
+    checkOutDateInput.min = today;
+    
+    checkInDateInput.addEventListener("change", function () {
+        checkOutDateInput.min = this.value;
+        if (checkOutDateInput.value && checkOutDateInput.value < this.value) {
+            checkOutDateInput.value = this.value;
+        }
+        if (this.value && checkOutDateInput.value) {
+            fetchAvailableQuantities();
+            calculateAndUpdateTotalAmount(); // Add this line
+        }
     });
 
-    function filterAccommodations(type) {
-        cards.forEach(card => {
-            if (card.getAttribute('data-type') === type) {
-                card.classList.remove('hidden');
-                setTimeout(() => {
-                    card.style.opacity = '1';
-                    card.style.transform = 'scale(1)';
-                }, 50);
+    checkOutDateInput.addEventListener("change", function () {
+        if (checkInDateInput.value) {
+            fetchAvailableQuantities();
+            calculateAndUpdateTotalAmount(); // Add this line
+        }
+    });
+
+    // Initial validation on page load
+    validateInputs();
+
+    // Real-time quantity validation with total amount calculation
+    quantityInput.addEventListener('input', function() {
+        const selectedAccommodation = document.querySelector('.select-accommodation.selected');
+        const quantityError = document.getElementById('quantityError');
+        const currentQuantity = parseInt(this.value) || 0;
+        
+        if (selectedAccommodation) {
+            const availableQuantity = parseInt(selectedAccommodation.getAttribute('data-room-quantity')) || 0;
+            
+            if (currentQuantity > availableQuantity) {
+                quantityError.style.display = 'block';
+                quantityError.textContent = `Not enough rooms! Only ${availableQuantity} available for selected dates`;
+                quantityError.classList.add('alert', 'alert-danger', 'mt-2', 'p-2');
+                this.classList.add('is-invalid');
+                
+                // Show SweetAlert for immediate feedback
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Too many rooms selected!',
+                    text: `Only ${availableQuantity} rooms available for selected dates.`,
+                    confirmButtonColor: '#198754',
+                    timer: 3000,
+                    showConfirmButton: false
+                });
             } else {
-                card.classList.add('hidden');
-                card.style.opacity = '0';
-                card.style.transform = 'scale(0.95)';
+                quantityError.style.display = 'none';
+                quantityError.classList.remove('alert', 'alert-danger', 'mt-2', 'p-2');
+                this.classList.remove('is-invalid');
             }
-        });
+        }
+        
+        calculateTotalGuest(); // This now includes total amount calculation
+    });
+
+    // Add event listeners for adult and children inputs
+    document.getElementById('number_of_adults').addEventListener('input', calculateTotalGuest);
+    document.getElementById('number_of_children').addEventListener('input', calculateTotalGuest);
+
+    // Function to update proceed button state
+    function updateProceedButton() {
+        const selectedAccommodation = document.querySelector(".select-accommodation.selected");
+        proceedButton.disabled = !selectedAccommodation || selectedAccommodation.classList.contains('unavailable');
     }
+
+    // Fixed accommodation card click handlers with total amount calculation
+    document.addEventListener('click', function(e) {
+        const card = e.target.closest('.select-accommodation');
+        if (!card) return;
+        
+        // Prevent selection of unavailable accommodations
+        if (card.classList.contains('unavailable')) {
+            Swal.fire({
+                title: "Accommodation Unavailable",
+                text: "This accommodation is currently unavailable. Please select another room or different dates.",
+                icon: "warning",
+                confirmButtonColor: '#198754'
+            });
+            return;
+        }
+
+        // Remove selected class from all cards
+        document.querySelectorAll('.select-accommodation').forEach(c => c.classList.remove("selected"));
+        
+        // Add selected class to clicked card
+        card.classList.add("selected");
+        
+        // Validate quantity for newly selected accommodation
+        validateCurrentQuantity();
+        
+        updateProceedButton();
+        calculateTotalGuest(); // This now includes total amount calculation
+        updateSelectedAccommodation();
+    });
+
+    // Form submission handler for booking details modal
+    submitButton.addEventListener("click", function(e) {
+        e.preventDefault();
+        
+        // Re-validate before showing modal
+        validateInputs();
+        if (submitButton.disabled) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Validation Error',
+                text: 'Please correct the highlighted fields before proceeding.',
+                confirmButtonColor: '#198754'
+            });
+            return;
+        }
+
+        // Additional validations
+        const quantity = parseInt(document.getElementById('quantity').value) || 0;
+        const adults = parseInt(document.getElementById('number_of_adults').value) || 0;
+        const children = parseInt(document.getElementById('number_of_children').value) || 0;
+        
+        if (quantity <= 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Invalid Quantity',
+                text: 'Please enter a quantity greater than 0',
+                confirmButtonColor: '#198754'
+            });
+            return;
+        }
+
+        if (adults <= 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Invalid Number of Adults',
+                text: 'Please enter the number of adults (must be greater than 0)',
+                confirmButtonColor: '#198754'
+            });
+            return;
+        }
+        
+        if (adults + children <= 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Invalid Number of Guests',
+                text: 'The total number of guests must be greater than 0',
+                confirmButtonColor: '#198754'
+            });
+            return;
+        }
+        
+        // Hide reservation modal and show payment breakdown
+        reservationModal.hide();
+        
+        // Get the calculated total amount
+        const totalAmount = calculateAndUpdateTotalAmount();
+        
+        // Compute payment details for display
+        const selectedAccommodation = document.querySelector('.select-accommodation.selected');
+        const roomRate = parseFloat(selectedAccommodation.getAttribute('data-price')) || 0;
+        
+        // Calculate number of nights
+        const checkInDate = new Date(document.getElementById('reservation_date').value);
+        const checkOutDate = new Date(document.getElementById('check_out_date').value);
+        const numberOfNights = Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24));
+        
+        // Update payment breakdown modal
+        document.getElementById('roomRate').textContent = `₱${roomRate.toFixed(2)}`;
+        document.getElementById('numberOfRooms').textContent = quantity;
+        document.getElementById('numberOfNights').textContent = numberOfNights;
+        document.getElementById('totalAmountDisplay').textContent = `₱${totalAmount.toFixed(2)}`;
+        
+        // Show payment breakdown modal
+        const paymentBreakdownModal = new bootstrap.Modal(document.getElementById('paymentBreakdownModal'));
+        paymentBreakdownModal.show();
+    });
+    
+    // Payment breakdown modal events
+    document.getElementById('paymentBreakdownModal').addEventListener('hidden.bs.modal', function () {
+        reservationModal.show();
+    });
+    
+    confirmPaymentBtn.addEventListener("click", function() {
+        const paymentBreakdownModal = bootstrap.Modal.getInstance(document.getElementById('paymentBreakdownModal'));
+        paymentBreakdownModal.hide();
+        document.querySelector('form').submit();
+    });
+
+    // Main form submission handler
+    mainForm.addEventListener("submit", function (e) {
+        const selectedAccommodation = document.querySelector(".select-accommodation.selected");
+        
+        if (!selectedAccommodation) {
+            e.preventDefault();
+            Swal.fire({
+                title: "No room selected",
+                text: "Please select at least 1 room.",
+                icon: "warning"
+            });
+            return;
+        }
+        
+        if (selectedAccommodation.classList.contains('unavailable')) {
+            e.preventDefault();
+            Swal.fire({
+                title: "Selected room is unavailable",
+                text: "Please select an available room.",
+                icon: "error",
+                confirmButtonColor: '#198754'
+            });
+            return;
+        }
+        
+        if (!validateInputs()) {
+            e.preventDefault();
+            Swal.fire({
+                title: "Validation Error",
+                text: "Please correct all errors before submitting.",
+                icon: "error",
+                confirmButtonColor: '#198754'
+            });
+            return;
+        }
+        
+        // Ensure total amount is calculated before submission
+        calculateAndUpdateTotalAmount();
+        
+        updateSelectedAccommodation();
+    });
+
+    // Get URL parameters and set initial values
+    const urlParams = new URLSearchParams(window.location.search);
+    const checkIn = urlParams.get("checkIn") || "";
+    const checkOut = urlParams.get("checkOut") || "";
+    const roomId = urlParams.get('roomid');
+
+    // Set date values
+    document.getElementById("reservation_date").value = checkIn;
+    document.getElementById("check_out_date").value = checkOut;
+
+    // Pre-select room if specified in URL
+    if (roomId) {
+        const roomCard = document.querySelector(`.select-accommodation[data-id="${roomId}"]`);
+        if (roomCard && !roomCard.classList.contains('unavailable')) {
+            document.querySelectorAll(".select-accommodation").forEach(card => {
+                card.classList.remove("selected");
+            });
+            
+            roomCard.classList.add("selected");
+            roomCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            updateProceedButton();
+            updateSelectedAccommodation();
+        }
+    }
+
+    // Fetch available quantities if both dates are set
+    if (checkIn && checkOut) {
+        fetchAvailableQuantities();
+        // Calculate total amount after fetching quantities
+        setTimeout(() => {
+            calculateAndUpdateTotalAmount();
+        }, 1000);
+    }
+
+    // Initial setup
+    updateProceedButton();
+    calculateTotalGuest(); // This now includes total amount calculation
+
+    // Enhanced quantity input restrictions
+    quantityInput.addEventListener('keydown', function(e) {
+        // Allow: backspace, delete, tab, escape, enter
+        if ([46, 8, 9, 27, 13].indexOf(e.keyCode) !== -1 ||
+            // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+            (e.keyCode === 65 && e.ctrlKey === true) ||
+            (e.keyCode === 67 && e.ctrlKey === true) ||
+            (e.keyCode === 86 && e.ctrlKey === true) ||
+            (e.keyCode === 88 && e.ctrlKey === true)) {
+            return;
+        }
+        // Ensure that it's a number and stop the keypress
+        if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+            e.preventDefault();
+        }
+    });
+
+    // Prevent pasting non-numeric values
+    quantityInput.addEventListener('paste', function(e) {
+        setTimeout(() => {
+            let value = this.value.replace(/[^0-9]/g, '');
+            if (value !== this.value) {
+                this.value = value;
+                calculateTotalGuest(); // This now includes total amount calculation
+            }
+        }, 1);
+    });
+
+    // Auto-correct quantity on blur
+    quantityInput.addEventListener('blur', function() {
+        const selectedAccommodation = document.querySelector('.select-accommodation.selected');
+        const currentQuantity = parseInt(this.value) || 0;
+        
+        if (selectedAccommodation && currentQuantity > 0) {
+            const availableQuantity = parseInt(selectedAccommodation.getAttribute('data-room-quantity')) || 0;
+            
+            if (currentQuantity > availableQuantity) {
+                this.value = Math.max(1, availableQuantity);
+                calculateTotalGuest(); // This now includes total amount calculation
+            }
+        }
+    });
 });
 </script>
 </body>

@@ -478,158 +478,430 @@ public function login(Request $request) {
         abort(404, 'Admin credentials not found');
     }
 
-    // Total Bookings
-    $totalBookings = DB::table('reservation_details')
-        ->whereDate('created_at', Carbon::today())
-        ->count();
+    // Total Bookings (sum of quantities from both tables)
+    $onlineBookingsToday = DB::table('reservation_details')
+        ->whereDate('reservation_check_in_date', Carbon::today())
+        ->sum('quantity');
+
+    $walkinBookingsToday = DB::table('walkin_guests')
+        ->whereDate('reservation_check_in_date', Carbon::today())
+        ->sum('quantity');
+
+    $totalBookings = $onlineBookingsToday + $walkinBookingsToday;
 
     // Total Guests
     $totalGuests = DB::table('users')->count();
 
     // Get available years
     $availableYears = DB::table('reservation_details')
-        ->select(DB::raw('YEAR(reservation_check_in_date) as year'))
-        ->distinct()
-        ->orderBy('year', 'desc')
-        ->pluck('year');
+    ->select(DB::raw('YEAR(reservation_check_in_date) as year'))
+    ->union(
+    DB::table('walkin_guests')
+    ->select(DB::raw('YEAR(reservation_check_in_date) as year'))
+    )
+    ->distinct()
+    ->orderBy('year', 'desc')
+    ->pluck('year');
 
     // Get selected year from request or use current year
     $selectedYear = request()->input('year', date('Y'));
     
     $dailyReservations = DB::table('reservation_details AS rd')
     ->select(
-        DB::raw('DATE(rd.created_at) as date'),
-        DB::raw('COUNT(*) as total'),
-        DB::raw('GROUP_CONCAT(rd.accomodation_id SEPARATOR \'|\') as accomodation_ids')
+        DB::raw('DATE(rd.reservation_check_in_date) as date'),
+        DB::raw('SUM(rd.quantity) as total'),
+        DB::raw('GROUP_CONCAT(rd.accomodation_id SEPARATOR \'|\') as accomodation_ids'),
+        DB::raw('GROUP_CONCAT(rd.quantity SEPARATOR \'|\') as quantities')
     )
-    ->whereYear('rd.created_at', $selectedYear)
-    ->groupBy(DB::raw('DATE(rd.created_at)'))
+    ->whereYear('rd.reservation_check_in_date', $selectedYear)
+    ->groupBy(DB::raw('DATE(rd.reservation_check_in_date)'))
     ->orderBy('date', 'asc')
     ->get()
     ->map(function($reservation) {
-        // Explode the concatenated strings
         $rawJsonStrings = explode('|', $reservation->accomodation_ids);
+        $quantities = explode('|', $reservation->quantities);
         $allAccommodationIds = [];
 
-        foreach ($rawJsonStrings as $jsonString) {
-            // Skip empty strings
-            if (empty($jsonString)) continue;
-            
+        foreach ($rawJsonStrings as $index => $jsonString) {
             $decoded = json_decode($jsonString, true);
-            
-            // Only merge if decoding was successful and we got an array
-            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-                $allAccommodationIds = array_merge($allAccommodationIds, $decoded);
+            if (is_array($decoded)) {
+                $qty = $quantities[$index] ?? 1;
+                for ($i = 0; $i < $qty; $i++) {
+                    $allAccommodationIds = array_merge($allAccommodationIds, $decoded);
+                }
             }
         }
 
-        // Remove empty values and duplicates
-        $uniqueAccommodationIds = array_unique(array_filter($allAccommodationIds));
+        $allAccommodationIds = array_filter($allAccommodationIds);
 
-        // Get room names in one query (more efficient)
+        $uniqueIds = array_unique($allAccommodationIds);
+        $idToName = DB::table('accomodations')
+            ->whereIn('accomodation_id', $uniqueIds)
+            ->pluck('accomodation_name', 'accomodation_id')
+            ->toArray();
+
         $roomTypes = [];
-        if (!empty($uniqueAccommodationIds)) {
-            $roomTypes = DB::table('accomodations')
-                ->whereIn('accomodation_id', $uniqueAccommodationIds)
-                ->pluck('accomodation_name')
-                ->toArray();
+        foreach ($allAccommodationIds as $id) {
+            $roomTypes[] = $idToName[$id] ?? 'Unknown';
         }
 
         return [
             'date' => $reservation->date,
             'total' => $reservation->total,
-            'rooms' => $roomTypes,
-            'unique_room_count' => count($uniqueAccommodationIds) // Added count of unique rooms
+            'rooms' => $roomTypes
         ];
     });
         $weeklyReservations = DB::table('reservation_details AS rd')
         ->select(
-            DB::raw('YEARWEEK(rd.created_at, 1) as week'),
+            DB::raw('YEARWEEK(rd.reservation_check_in_date, 1) as week'),
             DB::raw('SUM(rd.quantity) as total'),
             DB::raw('GROUP_CONCAT(rd.accomodation_id SEPARATOR \'|\') as accomodation_ids'),
             DB::raw('GROUP_CONCAT(rd.quantity SEPARATOR \'|\') as quantities')
         )
-        ->whereYear('rd.created_at', $selectedYear)
+        ->whereYear('rd.reservation_check_in_date', $selectedYear)
         ->groupBy('week')
         ->orderBy('week', 'asc')
         ->get()
         ->map(function($reservation) {
-            $rawJsonStrings = explode('|', $reservation->accomodation_ids);
-            $quantities = explode('|', $reservation->quantities);
-            $allAccommodationIds = [];
-    
-            foreach ($rawJsonStrings as $index => $jsonString) {
-                $decoded = json_decode($jsonString, true);
-                if (is_array($decoded)) {
-                    $qty = $quantities[$index] ?? 1;
-                    $allAccommodationIds = array_merge($allAccommodationIds, array_fill(0, $qty, $decoded));
-                }
-            }
-    
-            $roomTypes = DB::table('accomodations')
-                ->whereIn('accomodation_id', $allAccommodationIds)
-                ->pluck('accomodation_name')
-                ->toArray();
-    
-            return [
-                'week' => $reservation->week,
-                'total' => $reservation->total,
-                'rooms' => $roomTypes
-            ];
+        $rawJsonStrings = explode('|', $reservation->accomodation_ids);
+        $quantities = explode('|', $reservation->quantities);
+        $allAccommodationIds = [];
+        
+        foreach ($rawJsonStrings as $index => $jsonString) {
+        $decoded = json_decode($jsonString, true);
+        if (is_array($decoded)) {
+        $qty = $quantities[$index] ?? 1;
+        for ($i = 0; $i < $qty; $i++) {
+        $allAccommodationIds = array_merge($allAccommodationIds, $decoded);
+        }
+        }
+        }
+        
+        $allAccommodationIds = array_filter($allAccommodationIds);
+        
+        $uniqueIds = array_unique($allAccommodationIds);
+        $idToName = DB::table('accomodations')
+        ->whereIn('accomodation_id', $uniqueIds)
+        ->pluck('accomodation_name', 'accomodation_id')
+        ->toArray();
+        
+        $roomTypes = [];
+        foreach ($allAccommodationIds as $id) {
+        $roomTypes[] = $idToName[$id] ?? 'Unknown';
+        }
+        
+        return [
+        'week' => $reservation->week,
+        'total' => $reservation->total,
+        'rooms' => $roomTypes
+        ];
         });
 
         $monthlyReservations = DB::table('reservation_details AS rd')
         ->select(
-            DB::raw('DATE_FORMAT(rd.reservation_check_in_date, "%b %Y") as month'),
-            DB::raw('SUM(rd.quantity) as total'),
-            DB::raw('GROUP_CONCAT(rd.accomodation_id SEPARATOR \'|\') as accomodation_ids'),
-            DB::raw('GROUP_CONCAT(rd.quantity SEPARATOR \'|\') as quantities')
+        DB::raw('DATE_FORMAT(rd.reservation_check_in_date, "%b %Y") as month'),
+        DB::raw('SUM(rd.quantity) as total'),
+        DB::raw('GROUP_CONCAT(rd.accomodation_id SEPARATOR \'|\') as accomodation_ids'),
+        DB::raw('GROUP_CONCAT(rd.quantity SEPARATOR \'|\') as quantities')
         )
         ->whereYear('rd.reservation_check_in_date', $selectedYear)
         ->groupBy('month')
         ->orderBy(DB::raw('MIN(rd.reservation_check_in_date)'), 'asc')
         ->get()
         ->map(function($reservation) {
-            $rawJsonStrings = explode('|', $reservation->accomodation_ids);
-            $quantities = explode('|', $reservation->quantities);
-            $allAccommodationIds = [];
-    
-            foreach ($rawJsonStrings as $index => $jsonString) {
-                $decoded = json_decode($jsonString, true);
-                if (is_array($decoded)) {
-                    $qty = $quantities[$index] ?? 1;
-                    $allAccommodationIds = array_merge($allAccommodationIds, array_fill(0, $qty, $decoded));
-                }
-            }
-    
-            $allAccommodationIds = array_filter($allAccommodationIds);
-    
-            $roomTypes = DB::table('accomodations')
-                ->whereIn('accomodation_id', $allAccommodationIds)
-                ->pluck('accomodation_name')
-                ->toArray();
-    
-            return [
-                'month' => $reservation->month,
-                'total' => $reservation->total,
-                'rooms' => $roomTypes
-            ];
+        $rawJsonStrings = explode('|', $reservation->accomodation_ids);
+        $quantities = explode('|', $reservation->quantities);
+        $allAccommodationIds = [];
+        
+        foreach ($rawJsonStrings as $index => $jsonString) {
+        $decoded = json_decode($jsonString, true);
+        if (is_array($decoded)) {
+        $qty = $quantities[$index] ?? 1;
+        for ($i = 0; $i < $qty; $i++) {
+            $allAccommodationIds = array_merge($allAccommodationIds, $decoded);
+        }
+        }
+        }
+        
+        $allAccommodationIds = array_filter($allAccommodationIds);
+        
+        $uniqueIds = array_unique($allAccommodationIds);
+        $idToName = DB::table('accomodations')
+            ->whereIn('accomodation_id', $uniqueIds)
+            ->pluck('accomodation_name', 'accomodation_id')
+            ->toArray();
+
+        $roomTypes = [];
+        foreach ($allAccommodationIds as $id) {
+            $roomTypes[] = $idToName[$id] ?? 'Unknown';
+        }
+        
+        return [
+        'month' => $reservation->month,
+        'total' => $reservation->total,
+        'rooms' => $roomTypes
+        ];
+        });
+        
+        // Yearly Reservations
+        $yearlyReservations = DB::table('reservation_details AS rd')
+        ->select(
+        DB::raw('YEAR(rd.reservation_check_in_date) as year'),
+        DB::raw('SUM(rd.quantity) as total'),
+        DB::raw('GROUP_CONCAT(rd.accomodation_id SEPARATOR \'|\') as accomodation_ids'),
+        DB::raw('GROUP_CONCAT(rd.quantity SEPARATOR \'|\') as quantities')
+        )
+        ->groupBy('year')
+        ->orderBy('year', 'asc')
+        ->get()
+        ->map(function($reservation) {
+        $rawJsonStrings = explode('|', $reservation->accomodation_ids);
+        $quantities = explode('|', $reservation->quantities);
+        $allAccommodationIds = [];
+        
+        foreach ($rawJsonStrings as $index => $jsonString) {
+        $decoded = json_decode($jsonString, true);
+        if (is_array($decoded)) {
+        $qty = $quantities[$index] ?? 1;
+        for ($i = 0; $i < $qty; $i++) {
+            $allAccommodationIds = array_merge($allAccommodationIds, $decoded);
+        }
+        }
+        }
+        
+        $allAccommodationIds = array_filter($allAccommodationIds);
+        
+        $uniqueIds = array_unique($allAccommodationIds);
+        $idToName = DB::table('accomodations')
+            ->whereIn('accomodation_id', $uniqueIds)
+            ->pluck('accomodation_name', 'accomodation_id')
+            ->toArray();
+
+        $roomTypes = [];
+        foreach ($allAccommodationIds as $id) {
+            $roomTypes[] = $idToName[$id] ?? 'Unknown';
+        }
+        
+        return [
+        'year' => $reservation->year,
+        'total' => $reservation->total,
+        'rooms' => $roomTypes
+        ];
+        });
+        
+        // Daily Walk-ins
+        $dailyWalkins = DB::table('walkin_guests AS wg')
+        ->select(
+        DB::raw('DATE(wg.reservation_check_in_date) as date'),
+        DB::raw('SUM(wg.quantity) as total'),
+        DB::raw('GROUP_CONCAT(wg.accomodation_id SEPARATOR \'|\') as accomodation_ids'),
+        DB::raw('GROUP_CONCAT(wg.quantity SEPARATOR \'|\') as quantities')
+        )
+        ->whereYear('wg.reservation_check_in_date', $selectedYear)
+        ->groupBy(DB::raw('DATE(wg.reservation_check_in_date)'))
+        ->orderBy('date', 'asc')
+        ->get()
+        ->map(function($walkin) {
+        $accomodationIds = explode('|', $walkin->accomodation_ids);
+        $quantities = explode('|', $walkin->quantities);
+        $allAccommodationIds = [];
+        
+        foreach ($accomodationIds as $index => $id) {
+        if (!empty($id)) {
+        $qty = $quantities[$index] ?? 1;
+        $allAccommodationIds = array_merge($allAccommodationIds, array_fill(0, $qty, $id));
+        }
+        }
+        
+        $allAccommodationIds = array_filter($allAccommodationIds);
+        
+        $uniqueIds = array_unique($allAccommodationIds);
+        $idToName = DB::table('accomodations')
+            ->whereIn('accomodation_id', $uniqueIds)
+            ->pluck('accomodation_name', 'accomodation_id')
+            ->toArray();
+
+        $roomTypes = [];
+        foreach ($allAccommodationIds as $id) {
+            $roomTypes[] = $idToName[$id] ?? 'Unknown';
+        }
+        
+        return [
+        'date' => $walkin->date,
+        'total' => $walkin->total,
+        'rooms' => $roomTypes
+        ];
+        });
+        
+        // Weekly Walk-ins
+        $weeklyWalkins = DB::table('walkin_guests AS wg')
+        ->select(
+        DB::raw('YEARWEEK(wg.reservation_check_in_date, 1) as week'),
+        DB::raw('SUM(wg.quantity) as total'),
+        DB::raw('GROUP_CONCAT(wg.accomodation_id SEPARATOR \'|\') as accomodation_ids'),
+        DB::raw('GROUP_CONCAT(wg.quantity SEPARATOR \'|\') as quantities')
+        )
+        ->whereYear('wg.reservation_check_in_date', $selectedYear)
+        ->groupBy('week')
+        ->orderBy('week', 'asc')
+        ->get()
+        ->map(function($walkin) {
+        $accomodationIds = explode('|', $walkin->accomodation_ids);
+        $quantities = explode('|', $walkin->quantities);
+        $allAccommodationIds = [];
+        
+        foreach ($accomodationIds as $index => $id) {
+        if (!empty($id)) {
+        $qty = $quantities[$index] ?? 1;
+        $allAccommodationIds = array_merge($allAccommodationIds, array_fill(0, $qty, $id));
+        }
+        }
+        
+        $allAccommodationIds = array_filter($allAccommodationIds);
+        
+        $uniqueIds = array_unique($allAccommodationIds);
+        $idToName = DB::table('accomodations')
+            ->whereIn('accomodation_id', $uniqueIds)
+            ->pluck('accomodation_name', 'accomodation_id')
+            ->toArray();
+
+        $roomTypes = [];
+        foreach ($allAccommodationIds as $id) {
+            $roomTypes[] = $idToName[$id] ?? 'Unknown';
+        }
+        
+        return [
+        'week' => $walkin->week,
+        'total' => $walkin->total,
+        'rooms' => $roomTypes
+        ];
+        });
+        
+        // Monthly Walk-ins
+        $monthlyWalkins = DB::table('walkin_guests AS wg')
+        ->select(
+        DB::raw('DATE_FORMAT(wg.reservation_check_in_date, "%b %Y") as month'),
+        DB::raw('SUM(wg.quantity) as total'),
+        DB::raw('GROUP_CONCAT(wg.accomodation_id SEPARATOR \'|\') as accomodation_ids'),
+        DB::raw('GROUP_CONCAT(wg.quantity SEPARATOR \'|\') as quantities')
+        )
+        ->whereYear('wg.reservation_check_in_date', $selectedYear)
+        ->groupBy('month')
+        ->orderBy(DB::raw('MIN(wg.reservation_check_in_date)'), 'asc')
+        ->get()
+        ->map(function($walkin) {
+        $accomodationIds = explode('|', $walkin->accomodation_ids);
+        $quantities = explode('|', $walkin->quantities);
+        $allAccommodationIds = [];
+        
+        foreach ($accomodationIds as $index => $id) {
+        if (!empty($id)) {
+        $qty = $quantities[$index] ?? 1;
+        $allAccommodationIds = array_merge($allAccommodationIds, array_fill(0, $qty, $id));
+        }
+        }
+        
+        $allAccommodationIds = array_filter($allAccommodationIds);
+        
+        $uniqueIds = array_unique($allAccommodationIds);
+        $idToName = DB::table('accomodations')
+            ->whereIn('accomodation_id', $uniqueIds)
+            ->pluck('accomodation_name', 'accomodation_id')
+            ->toArray();
+
+        $roomTypes = [];
+        foreach ($allAccommodationIds as $id) {
+            $roomTypes[] = $idToName[$id] ?? 'Unknown';
+        }
+        
+        return [
+        'month' => $walkin->month,
+        'total' => $walkin->total,
+        'rooms' => $roomTypes
+        ];
+        });
+        
+        // Yearly Walk-ins
+        $yearlyWalkins = DB::table('walkin_guests AS wg')
+        ->select(
+        DB::raw('YEAR(wg.reservation_check_in_date) as year'),
+        DB::raw('SUM(wg.quantity) as total'),
+        DB::raw('GROUP_CONCAT(wg.accomodation_id SEPARATOR \'|\') as accomodation_ids'),
+        DB::raw('GROUP_CONCAT(wg.quantity SEPARATOR \'|\') as quantities')
+        )
+        ->groupBy('year')
+        ->orderBy('year', 'asc')
+        ->get()
+        ->map(function($walkin) {
+        $accomodationIds = explode('|', $walkin->accomodation_ids);
+        $quantities = explode('|', $walkin->quantities);
+        $allAccommodationIds = [];
+        
+        foreach ($accomodationIds as $index => $id) {
+        if (!empty($id)) {
+        $qty = $quantities[$index] ?? 1;
+        $allAccommodationIds = array_merge($allAccommodationIds, array_fill(0, $qty, $id));
+        }
+        }
+        
+        $allAccommodationIds = array_filter($allAccommodationIds);
+        
+        $uniqueIds = array_unique($allAccommodationIds);
+        $idToName = DB::table('accomodations')
+            ->whereIn('accomodation_id', $uniqueIds)
+            ->pluck('accomodation_name', 'accomodation_id')
+            ->toArray();
+
+        $roomTypes = [];
+        foreach ($allAccommodationIds as $id) {
+            $roomTypes[] = $idToName[$id] ?? 'Unknown';
+        }
+        
+        return [
+        'year' => $walkin->year,
+        'total' => $walkin->total,
+        'rooms' => $roomTypes
+        ];
         });
     
     
     // Booking Trends - Last 12 months (regardless of year selection)
     $bookingTrends = DB::table('reservation_details')
         ->select(DB::raw("CONCAT(MONTHNAME(reservation_check_in_date), '-', YEAR(reservation_check_in_date)) as date"), DB::raw('count(*) as total'))
-        ->where('created_at', '>=', Carbon::now()->subMonths(12))
+        ->where('reservation_check_in_date', '>=', Carbon::now()->subMonths(12))
         ->groupBy('date')
         ->orderBy('date', 'asc')
         ->get();
 
     // Reservation Status Breakdown
     $reservationStatusCounts = DB::table('reservation_details')
-        ->select('payment_status', DB::raw('count(*) as total'))
-        ->groupBy('payment_status')
-        ->pluck('total', 'payment_status');
+        ->select('reservation_status', DB::raw('count(*) as total'))
+        ->groupBy('reservation_status')
+        ->pluck('total', 'reservation_status');
+
+    // Define colors for each reservation status
+    $statusColors = [];
+    foreach ($reservationStatusCounts as $status => $count) {
+        switch ($status) {
+            case 'pending':
+                $statusColors[$status] = 'rgba(255, 193, 7, 1)'; // Yellow
+                break;
+            case 'cancelled':
+            case 'checked-out':
+            case 'early-checked-out':
+                $statusColors[$status] = 'rgba(239, 68, 68, 1)'; // Red
+                break;
+            case 'reserved':
+                $statusColors[$status] = 'rgba(59, 130, 246, 1)'; // Blue
+                break;
+            case 'checked-in':
+                $statusColors[$status] = 'rgba(34, 197, 94, 1)'; // Green
+                break;
+            default:
+                $statusColors[$status] = 'rgba(156, 163, 175, 1)'; // Gray for unknown status
+                break;
+        }
+    }
 
     // Paid Reservations
     $checkInReservations = DB::table('reservation_details')
@@ -638,7 +910,7 @@ public function login(Request $request) {
             DB::raw('count(*) as total')
         ])
         ->where('reservation_status', '=', 'checked-in')
-        ->whereDate('created_at', '=', Carbon::today()->toDateString())
+        ->whereDate('reservation_check_in_date', '=', Carbon::today()->toDateString())
         ->groupBy('reservation_status')
         ->first();
 
@@ -818,6 +1090,7 @@ public function login(Request $request) {
         'selectedReservations' => $selectedReservations,
         'bookingTrends' => $bookingTrends,
         'reservationStatusCounts' => $reservationStatusCounts,
+        'statusColors' => $statusColors,
         'checkInReservations' => $checkInReservations,
         'checkOutReservations' => $checkOutReservations,
         'cancelledReservations' => $cancelledReservations,
@@ -827,8 +1100,13 @@ public function login(Request $request) {
         'roomAvailability' => $roomAvailability,
         'todayIncome' => $todayIncome,
         'calendarData' => $calendarData,
-        'roomColors' => $roomColors // Add room colors to view data
-    ]);
+        'roomColors' => $roomColors,
+        'yearlyReservations' => $yearlyReservations,
+        'dailyWalkins' => $dailyWalkins,
+        'weeklyWalkins' => $weeklyWalkins,
+        'monthlyWalkins' => $monthlyWalkins,
+        'yearlyWalkins' => $yearlyWalkins
+        ]);
 }
     // Export to Excel
     

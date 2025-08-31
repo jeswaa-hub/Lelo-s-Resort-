@@ -74,7 +74,7 @@
         <p><span class="highlight">Check-in Date:</span> {{ $reservation->reservation_check_in_date }}</p>
         <p><span class="highlight">Check-out Date:</span> {{ $reservation->reservation_check_out_date }}</p>
         <p><span class="highlight">Number of Guests:</span> {{ $reservation->total_guest }}</p>
-        <p><span class="highlight">Payment Method:</span> {{ ucfirst($reservation->payment_method) }}</p>
+        <p><span class="highlight">Payment Method:</span> {{ isset($reservation->payment_method) ? ucfirst($reservation->payment_method) : 'Not specified' }}</p>
         <p><span class="highlight">Amount Paid:</span> {{($reservation->amount) }}</p>
         <p><span class="highlight">Payment Status:</span> {{ ucfirst($reservation->payment_status) }}</p>
         

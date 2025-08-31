@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Laravel\Socialite\Facades\Socialite;
 use App\Models\User;
+use App\Models\Accomodation;
 use App\Models\Reservation;
 use Illuminate\Support\Str;
 use App\Http\Controllers\AdminSideController;
@@ -97,7 +98,7 @@ Route::middleware(['auth', 'prevent.back'])->group(function () {
     Route::get('/homepage', [LandingPageController::class, 'homepage'])->name('homepage');
     Route::get('/profile', [HomePageController::class, 'profilepage'])->name('profile');
     Route::get('/profile/edit', [HomePageController::class, 'editProfile'])->name('editProfile');
-    Route::post('/profile/edit', [HomePageController::class, 'editProfile'])->name('editProfile.post');
+    Route::post('/edit-profile', [HomePageController::class, 'editProfile'])->name('profile.update');
     Route::post('/reservation/cancel/{id}', [ReservationController::class, 'guestcancelReservation'])->name('guestcancelReservation');
     Route::get('/reservation-summary/{id}', [ReservationController::class, 'displayReservationSummary'])->name('displaySummary');
     Route::get('/get-all-reservations', [HomePageController::class, 'getAllReservations'])->name('getAllReservations');
@@ -140,6 +141,8 @@ Route::middleware(['auth', 'prevent.back'])->group(function () {
 
         return response()->json($events);
     });
+    // In your routes file (web.php)
+    Route::get('/get-available-quantities', [ReservationController::class, 'getAvailableQuantities']);
 
 });
 // Route for testing file access

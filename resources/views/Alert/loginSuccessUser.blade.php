@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     setTimeout(() => {
         toast.hide();
-    }, 3000);
+    }, 10000);
     
     // Also hide when clicked
     toastEl.addEventListener('click', () => toast.hide());

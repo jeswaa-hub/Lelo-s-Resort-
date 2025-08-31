@@ -38,7 +38,7 @@ class ReservationStatusUpdated extends Mailable
         // Compute balance
         $amount = floatval(preg_replace('/[^\d.]/', '', $reservation->amount));
         $paymentStatus = strtolower($reservation->payment_status);
-        $this->balance = ($paymentStatus === 'paid') ? 0 : ($amount - ($amount * 0.15));
+        $this->balance = $paymentStatus === 'paid' ? $amount : 0;
     }
 
     public function build()
@@ -49,7 +49,6 @@ class ReservationStatusUpdated extends Mailable
                         'reservation' => $this->reservation,
                         'reservationDetails' => $this->reservationDetails,
                         'customMessage' => $this->customMessage,
-                        'balance' => $this->balance,
                         'accomodations' => $this->accomodations,
                         'activities' => $this->activities,
                     ]);

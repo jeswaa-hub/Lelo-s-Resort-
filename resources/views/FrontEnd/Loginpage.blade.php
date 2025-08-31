@@ -421,9 +421,6 @@
                             <button type="submit" class="btn btn-success fw-bold py-2">
                                 Verify OTP
                             </button>
-                            <button type="button" class="btn btn-outline-secondary" id="resendOTP">
-                                Resend OTP <span id="countdown" class="d-none">(60s)</span>
-                            </button>
                         </div>
                     </form>
                 </div>

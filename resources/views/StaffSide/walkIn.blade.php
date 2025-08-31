@@ -174,318 +174,387 @@
                         <i class="fas fa-user-plus me-2"></i>Add Walk-in Guest
                     </button>
                 </div>
-            </div>
-            <!-- Modal for adding walkin guest -->
+            </div<!-- Modal for adding walkin guest -->
             <div class="modal fade" id="addWalkInModal" tabindex="-1" aria-labelledby="addWalkInModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-xl"> <!-- Changed to modal-xl for larger width -->
-                    <div class="modal-content">
-                        <div class="modal-header" style="background-color: #0b573d; color: white;">
-                            <h5 class="modal-title" id="addWalkInModalLabel">
-                                <i class="fas fa-user-plus me-2"></i>Walk-in Guest Reservation
-                            </h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="modal-dialog modal-fullscreen-lg-down modal-xl">
+                    <div class="modal-content border-0 shadow-lg">
+                        <!-- Enhanced Header -->
+                        <div class="modal-header border-0 position-relative" style="background: linear-gradient(135deg, #0b573d 0%, #0d6b47 100%); padding: 1.5rem 2rem;">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-opacity-10 rounded-circle p-2 me-3">
+                                    <img src="{{ asset('images/logo2.png') }}" alt="Logo" class="text-primary" style="width: 50px; height: 50px;">
+                                </div>
+                                <div>
+                                    <h4 class="modal-title text-white mb-0 fw-bold" id="addWalkInModalLabel">
+                                        Walk-in Guest Reservation
+                                    </h4>
+                                    <small class="text-white-50">Create a new walk-in reservation</small>
+                                </div>
+                            </div>
+                            <button type="button" class="btn-close btn-close-white position-absolute top-50 end-0 translate-middle-y me-3" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div class="modal-body p-4"> <!-- Added more padding -->
+
+                        <!-- Enhanced Body -->
+                        <div class="modal-body p-0" style="background: linear-gradient(to bottom, #f8f9fa 0%, #ffffff 100%);">
                             <form action="{{ route('staff.walkin.store') }}" method="POST" class="needs-validation" novalidate>
                                 @csrf
-                                <div class="row g-4"> <!-- Added gap between columns -->
-                                    <!-- Left Side - Personal Information -->
-                                    <div class="col-md-6 pe-4 border-end">
-                                        <div class="section-header mb-4">
-                                            <h6 class="text-muted fw-bold">
-                                                <i class="fas fa-user me-2"></i>Personal Information
-                                            </h6>
-                                            <hr class="mt-2 border-success">
-                                        </div>
-                                        
-                                        <!-- Personal Info Card -->
-                                        <div class="card shadow-sm mb-4 border-success">
-                                            <div class="card-body">
-                                                <div class="mb-3">
-                                                    <label for="name" class="form-label fw-bold">
-                                                        <i class="fas fa-user-circle me-2"></i>Full Name
-                                                    </label>
-                                                    <input type="text" class="form-control form-control-lg border-success" id="name" name="name" required>
+                                <div class="container-fluid p-4">
+                                    <div class="row g-4">
+                                        <!-- Left Side - Personal Information -->
+                                        <div class="col-lg-6">
+                                            <!-- Section Header -->
+                                            <div class="d-flex align-items-center mb-4">
+                                                <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-3">
+                                                    <i class="fas fa-user text-primary"></i>
                                                 </div>
-                                                <div class="mb-3">
-                                                    <label for="address" class="form-label fw-bold">
-                                                        <i class="fas fa-map-marker-alt me-2"></i>Address
-                                                    </label>
-                                                    <input type="text" class="form-control form-control-lg border-success" id="address" name="address" required>
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label for="phone" class="form-label fw-bold">
-                                                        <i class="fas fa-phone me-2"></i>Phone Number
-                                                    </label>
-                                                    <input type="tel" class="form-control form-control-lg border-success" id="phone" name="mobileNo" required>
+                                                <div>
+                                                    <h5 class="mb-0 fw-bold text-dark">Personal Information</h5>
+                                                    <small class="text-muted">Guest details and contact information</small>
                                                 </div>
                                             </div>
-                                        </div>
-
-                                        <!-- Guest Count Card -->
-                                        <div class="card shadow-sm mb-4 border-success">
-                                            <div class="card-header bg-success bg-opacity-10">
-                                                <h6 class="mb-0 fw-bold">Guest Information</h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="mb-3">
-                                                    <label for="number_of_adult" class="form-label fw-bold">
-                                                        <i class="fas fa-user-friends me-2"></i>Number of Adults
-                                                    </label>
-                                                    <input type="number" class="form-control form-control-lg border-success" id="number_of_adult" name="number_of_adult" min="0" value="0" required onchange="calculateTotalGuests()">
-                                                    <small class="text-muted" id="adult_entrance_fee">Entrance Fee: ₱<span id="adult_fee">0.00</span></small>
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label for="number_of_children" class="form-label fw-bold">
-                                                        <i class="fas fa-child me-2"></i>Number of Children
-                                                    </label>
-                                                    <input type="number" class="form-control form-control-lg border-success" id="number_of_children" name="number_of_children" min="0" value="0" required onchange="calculateTotalGuests()">
-                                                    <small class="text-muted" id="child_entrance_fee">Entrance Fee: ₱<span id="child_fee">0.00</span></small>
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label for="num_guests" class="form-label fw-bold">
-                                                        <i class="fas fa-users me-2"></i>Total Guests
-                                                    </label>
-                                                    <input type="number" class="form-control form-control-lg border-success" id="num_guests" name="total_guest" readonly>
-                                                    <small class="text-danger" id="capacity_error" style="display:none;">
-                                                        <i class="fas fa-exclamation-triangle me-1"></i>
-                                                        Total guests exceeds accommodation capacity! Maximum allowed: <span id="max_capacity"></span>
-                                                    </small>
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label for="total_fee" class="form-label fw-bold">
-                                                        <i class="fas fa-receipt me-2"></i>Total Entrance Fee
-                                                    </label>
-                                                    <input type="text" class="form-control form-control-lg border-success" id="total_fee" name="total_fee" value="₱0.00" readonly>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Right Side - Reservation Details -->
-                                    <div class="col-md-6 ps-4">
-                                        <div class="section-header mb-4">
-                                            <h6 class="text-muted fw-bold">
-                                                <i class="fas fa-calendar-alt me-2"></i>Reservation Details
-                                            </h6>
-                                            <hr class="mt-2 border-success">
-                                        </div>
-
-                                        <div class="card shadow-sm mb-4 border-success">
-                                            <div class="card-body">
-                                                <div class="row g-3">
-                                                    <div class="col-md-6">
-                                                        <label for="check_in_date" class="form-label fw-bold">
-                                                            <i class="fas fa-calendar-check me-2"></i>Check-in Date
-                                                        </label>
-                                                        <input type="date" 
-                                                            class="form-control form-control-lg border-success" 
-                                                            id="check_in_date" 
-                                                            name="check_in_date" 
-                                                            required
-                                                            onchange="checkAvailability(this.value)">
-                                                        <div class="invalid-feedback" id="date_error" style="display: none;">
-                                                            <i class="fas fa-exclamation-circle me-1"></i>
-                                                            This date is already fully booked. Please select another date.
+                                            
+                                            <!-- Personal Info Card -->
+                                            <div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
+                                                <div class="card-body p-4">
+                                                    <div class="row g-3">
+                                                        <div class="col-12">
+                                                            <label for="name" class="form-label fw-semibold text-dark mb-2">
+                                                                <i class="fas fa-user-circle text-primary me-2"></i>Full Name
+                                                            </label>
+                                                            <input type="text" class="form-control form-control-lg border-0 shadow-sm" 
+                                                                   id="name" name="name" required 
+                                                                   style="background: #f8f9fa; border-radius: 10px;"
+                                                                   placeholder="Enter guest's full name">
+                                                        </div>
+                                                        <div class="col-12">
+                                                            <label for="address" class="form-label fw-semibold text-dark mb-2">
+                                                                <i class="fas fa-map-marker-alt text-primary me-2"></i>Address
+                                                            </label>
+                                                            <input type="text" class="form-control form-control-lg border-0 shadow-sm" 
+                                                                   id="address" name="address" required 
+                                                                   style="background: #f8f9fa; border-radius: 10px;"
+                                                                   placeholder="Enter complete address">
+                                                        </div>
+                                                        <div class="col-12">
+                                                            <label for="phone" class="form-label fw-semibold text-dark mb-2">
+                                                                <i class="fas fa-phone text-primary me-2"></i>Phone Number
+                                                            </label>
+                                                            <input type="tel" class="form-control form-control-lg border-0 shadow-sm" 
+                                                                   id="phone" name="mobileNo" required 
+                                                                   style="background: #f8f9fa; border-radius: 10px;"
+                                                                   placeholder="Enter phone number">
                                                         </div>
                                                     </div>
-                                                    <div class="col-md-6">
-                                                        <label for="check_out_date" class="form-label fw-bold">
-                                                            <i class="fas fa-calendar-times me-2"></i>Check-out Date
-                                                        </label>
-                                                        <input type="date" class="form-control form-control-lg border-success" id="check_out_date" name="check_out_date" required>
-                                                    </div>
                                                 </div>
-                                                <div class="row g-3 mt-2">
-                                                    <div class="col-md-12">
-                                                        <label for="stay_type" class="form-label fw-bold">
-                                                            <i class="fas fa-moon me-2"></i>Stay Duration
-                                                        </label>
-                                                        <select class="form-select form-select-lg border-success" id="stay_type" name="stay_type" required onchange="handleStayTypeChange()">
-                                                            <option value="">Select Stay Type</option>
-                                                            <option value="day">Day Stay (One Day)</option>
-                                                            <option value="overnight">Overnight Stay</option>
-                                                        </select>
-                                                    </div>
+                                            </div>
+
+                                            <!-- Guest Count Card -->
+                                            <div class="card border-0 shadow-sm" style="border-radius: 15px;">
+                                                <div class="card-header border-0 bg-success bg-opacity-10 py-3" style="border-radius: 15px 15px 0 0;">
+                                                    <h6 class="mb-0 fw-bold text-success">
+                                                        <i class="fas fa-users me-2"></i>Guest Information
+                                                    </h6>
                                                 </div>
-                                                <div class="row g-3 mt-2" id="sessionDiv">
-                                                    <div class="col-md-12">
-                                                        <label for="session" class="form-label fw-bold">
-                                                            <i class="fas fa-clock me-2"></i>Session
-                                                        </label>
-                                                        <select class="form-select form-select-lg border-success" id="session" name="session" required onchange="updateTimes()">
-                                                            <option value="">Select Session</option>
-                                                            @if($morningSession = $transactions->firstWhere('session', 'Morning'))
-                                                            <option value="{{ $morningSession->session }}" 
-                                                                    data-start="{{ date('H:i:s', strtotime($morningSession->start_time)) }}" 
-                                                                    data-end="{{ date('H:i:s', strtotime($morningSession->end_time)) }}">
-                                                                Morning
-                                                            </option>
-                                                            @endif
-                                                            @if($eveningSession = $transactions->firstWhere('session', 'Evening'))
-                                                            <option value="{{ $eveningSession->session }}" 
-                                                                    data-start="{{ date('H:i:s', strtotime($eveningSession->start_time)) }}" 
-                                                                    data-end="{{ date('H:i:s', strtotime($eveningSession->end_time)) }}">
-                                                                Evening
-                                                            </option>
-                                                            @endif
-                                                        </select>
+                                                <div class="card-body p-4">
+                                                    <div class="row g-3">
+                                                        <div class="col-md-6">
+                                                            <label for="number_of_adult" class="form-label fw-semibold text-dark mb-2">
+                                                                <i class="fas fa-user-friends text-success me-2"></i>Adults
+                                                            </label>
+                                                            <input type="number" class="form-control form-control-lg border-0 shadow-sm" 
+                                                                   id="number_of_adult" name="number_of_adult" min="0" value="0" required 
+                                                                   onchange="calculateTotalGuests()" 
+                                                                   style="background: #f8f9fa; border-radius: 10px;">
+                                                            <small class="text-muted mt-1 d-block" id="adult_entrance_fee">
+                                                                <i class="fas fa-receipt me-1"></i>Fee: ₱<span id="adult_fee">0.00</span>
+                                                            </small>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label for="number_of_children" class="form-label fw-semibold text-dark mb-2">
+                                                                <i class="fas fa-child text-success me-2"></i>Children
+                                                            </label>
+                                                            <input type="number" class="form-control form-control-lg border-0 shadow-sm" 
+                                                                   id="number_of_children" name="number_of_children" min="0" value="0" required 
+                                                                   onchange="calculateTotalGuests()" 
+                                                                   style="background: #f8f9fa; border-radius: 10px;">
+                                                            <small class="text-muted mt-1 d-block" id="child_entrance_fee">
+                                                                <i class="fas fa-receipt me-1"></i>Fee: ₱<span id="child_fee">0.00</span>
+                                                            </small>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label for="num_guests" class="form-label fw-semibold text-dark mb-2">
+                                                                <i class="fas fa-calculator text-success me-2"></i>Total Guests
+                                                            </label>
+                                                            <input type="number" class="form-control form-control-lg border-0 shadow-sm" 
+                                                                   id="num_guests" name="total_guest" readonly 
+                                                                   style="background: #e9ecef; border-radius: 10px;">
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label for="total_fee" class="form-label fw-semibold text-dark mb-2">
+                                                                <i class="fas fa-money-bill-wave text-success me-2"></i>Entrance Fee
+                                                            </label>
+                                                            <input type="text" class="form-control form-control-lg border-0 shadow-sm" 
+                                                                   id="total_fee" name="total_fee" value="₱0.00" readonly 
+                                                                   style="background: #e9ecef; border-radius: 10px;">
+                                                        </div>
                                                     </div>
-                                                </div>
-
-                                                <script>
-                                                    function handleStayTypeChange() {
-                                                        const stayType = document.getElementById('stay_type').value;
-                                                        const sessionDiv = document.getElementById('sessionDiv');
-                                                        const sessionSelect = document.getElementById('session');
-                                                        const checkInTime = document.getElementById('check_in_time');
-                                                        const checkOutTime = document.getElementById('check_out_time');
-                                                        
-                                                        if (stayType === 'overnight') {
-                                                            sessionDiv.style.display = 'none';
-                                                            sessionSelect.value = ''; // Clear session selection
-                                                            checkInTime.value = '14:00'; // 2:00 PM
-                                                            checkOutTime.value = '12:00'; // 12:00 PM
-                                                            
-                                                            // Calculate total guests even without session for overnight stays
-                                                            calculateTotalGuestsForOvernight();
-                                                        } else {
-                                                            sessionDiv.style.display = 'flex';
-                                                            checkInTime.value = '';
-                                                            checkOutTime.value = '';
-                                                            
-                                                            // Reset fees when switching back to day stay
-                                                            document.getElementById('adult_fee').textContent = '0.00';
-                                                            document.getElementById('child_fee').textContent = '0.00';
-                                                            document.getElementById('total_fee').value = '₱0.00';
-                                                            updateAmount();
-                                                        }
-                                                    }
-
-                                                    function calculateTotalGuestsForOvernight() {
-                                                        const adults = parseInt(document.getElementById('number_of_adult').value) || 0;
-                                                        const children = parseInt(document.getElementById('number_of_children').value) || 0;
-                                                        const totalGuests = adults + children;
-                                                        
-                                                        // Set total guests
-                                                        document.getElementById('num_guests').value = totalGuests;
-                                                        
-                                                        // For overnight stays, you might want to set entrance fees to 0 or a fixed amount
-                                                        // Adjust this based on your business logic
-                                                        document.getElementById('adult_fee').textContent = '0.00';
-                                                        document.getElementById('child_fee').textContent = '0.00';
-                                                        document.getElementById('total_fee').value = '₱0.00';
-                                                        
-                                                        // Update the total amount
-                                                        updateAmount();
-                                                        validateCapacity();
-                                                    }
-                                                </script>
-
-                                                <div class="row g-3 mt-2">
-                                                    <div class="col-md-6">
-                                                        <label for="check_in_time" class="form-label fw-bold">
-                                                            <i class="fas fa-hourglass-start me-2"></i>Check-in Time
-                                                        </label>
-                                                        <input type="time" class="form-control form-control-lg border-success" id="check_in_time" name="check_in_time" readonly>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <label for="check_out_time" class="form-label fw-bold">
-                                                            <i class="fas fa-hourglass-end me-2"></i>Check-out Time
-                                                        </label>
-                                                        <input type="time" class="form-control form-control-lg border-success" id="check_out_time" name="check_out_time" readonly>
+                                                    <div class="alert alert-danger mt-3" id="capacity_error" style="display:none; border-radius: 10px;">
+                                                        <i class="fas fa-exclamation-triangle me-2"></i>
+                                                        <strong>Capacity Exceeded!</strong> Maximum allowed: <span id="max_capacity"></span> guests
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <div class="card shadow-sm mb-4 border-success">
-                                            <div class="card-header bg-success bg-opacity-10">
-                                                <h6 class="mb-0 fw-bold">Room & Payment Details</h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="mb-3">
-                                                    <label for="room_type" class="form-label fw-bold">
-                                                        <i class="fas fa-bed me-2"></i>Room Type
-                                                    </label>
-                                                    <select class="form-select form-select-lg border-success" id="room_type" name="accomodation_id" required onchange="updateAmountAndTotal()">
-                                                        <option value="">Select Room Type</option>
-                                                        @foreach($accomodations as $accomodation)
-                                                            @if($accomodation->accomodation_status === 'available'))
-                                                                <option value="{{ $accomodation->accomodation_id }}" 
-                                                                        data-price="{{ $accomodation->accomodation_price }}"
-                                                                        data-capacity="{{ $accomodation->accomodation_capacity }}">
-                                                                    {{ $accomodation->accomodation_name }} - ₱{{ number_format($accomodation->accomodation_price, 2) }}
-                                                                </option>
-                                                            @endif
-                                                        @endforeach
-                                                    </select>
+                                        <!-- Right Side - Reservation Details -->
+                                        <div class="col-lg-6">
+                                            <!-- Section Header -->
+                                            <div class="d-flex align-items-center mb-4">
+                                                <div class="bg-warning bg-opacity-10 rounded-circle p-2 me-3">
+                                                    <i class="fas fa-calendar-alt text-warning"></i>
                                                 </div>
+                                                <div>
+                                                    <h5 class="mb-0 fw-bold text-dark">Reservation Details</h5>
+                                                    <small class="text-muted">Booking dates and accommodation</small>
+                                                </div>
+                                            </div>
 
-                                                <div class="mb-3">
-                                                    <label for="quantity" class="form-label fw-bold">
-                                                        <i class="fas fa-hashtag me-2"></i>Quantity
-                                                    </label>
-                                                    <input type="number" class="form-control form-control-lg border-success" id="quantity" name="quantity" min="1" value="1" required oninput="validateQuantity()">
-                                                    <div class="invalid-feedback" id="quantity_error">
-                                                        The selected quantity exceeds the available rooms for this accommodation type.
+                                            <!-- Date & Time Card -->
+                                            <div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
+                                                <div class="card-body p-4">
+                                                    <div class="row g-3">
+                                                        <div class="col-md-6">
+                                                            <label for="check_in_date" class="form-label fw-semibold text-dark mb-2">
+                                                                <i class="fas fa-calendar-check text-warning me-2"></i>Check-in Date
+                                                            </label>
+                                                            <input type="date" class="form-control form-control-lg border-0 shadow-sm" 
+                                                                   id="check_in_date" name="check_in_date" required
+                                                                   onchange="checkAvailability(this.value)" 
+                                                                   style="background: #f8f9fa; border-radius: 10px;">
+                                                            <div class="invalid-feedback mt-2" id="date_error" style="display: none; border-radius: 5px;">
+                                                                <i class="fas fa-exclamation-circle me-1"></i>
+                                                                This date is fully booked. Please select another date.
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label for="check_out_date" class="form-label fw-semibold text-dark mb-2">
+                                                                <i class="fas fa-calendar-times text-warning me-2"></i>Check-out Date
+                                                            </label>
+                                                            <input type="date" class="form-control form-control-lg border-0 shadow-sm" 
+                                                                   id="check_out_date" name="check_out_date" required 
+                                                                   style="background: #f8f9fa; border-radius: 10px;">
+                                                        </div>
+                                                        <div class="col-12">
+                                                            <label for="stay_type" class="form-label fw-semibold text-dark mb-2">
+                                                                <i class="fas fa-moon text-warning me-2"></i>Stay Duration
+                                                            </label>
+                                                            <select class="form-select form-select-lg border-0 shadow-sm" 
+                                                                    id="stay_type" name="stay_type" required onchange="handleStayTypeChange()" 
+                                                                    style="background: #f8f9fa; border-radius: 10px;">
+                                                                <option value="">Select Stay Type</option>
+                                                                <option value="day">Day Stay (One Day)</option>
+                                                                <option value="overnight">Overnight Stay</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-12" id="sessionDiv">
+                                                            <label for="session" class="form-label fw-semibold text-dark mb-2">
+                                                                <i class="fas fa-clock text-warning me-2"></i>Session
+                                                            </label>
+                                                            <select class="form-select form-select-lg border-0 shadow-sm" 
+                                                                    id="session" name="session" required onchange="updateTimes()" 
+                                                                    style="background: #f8f9fa; border-radius: 10px;">
+                                                                <option value="">Select Session</option>
+                                                                @if($morningSession = $transactions->firstWhere('session', 'Morning'))
+                                                                <option value="{{ $morningSession->session }}" 
+                                                                        data-start="{{ date('H:i:s', strtotime($morningSession->start_time)) }}" 
+                                                                        data-end="{{ date('H:i:s', strtotime($morningSession->end_time)) }}">
+                                                                    Morning Session
+                                                                </option>
+                                                                @endif
+                                                                @if($eveningSession = $transactions->firstWhere('session', 'Evening'))
+                                                                <option value="{{ $eveningSession->session }}" 
+                                                                        data-start="{{ date('H:i:s', strtotime($eveningSession->start_time)) }}" 
+                                                                        data-end="{{ date('H:i:s', strtotime($eveningSession->end_time)) }}">
+                                                                    Evening Session
+                                                                </option>
+                                                                @endif
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label for="check_in_time" class="form-label fw-semibold text-dark mb-2">
+                                                                <i class="fas fa-hourglass-start text-warning me-2"></i>Check-in Time
+                                                            </label>
+                                                            <input type="time" class="form-control form-control-lg border-0 shadow-sm" 
+                                                                   id="check_in_time" name="check_in_time" readonly 
+                                                                   style="background: #e9ecef; border-radius: 10px;">
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label for="check_out_time" class="form-label fw-semibold text-dark mb-2">
+                                                                <i class="fas fa-hourglass-end text-warning me-2"></i>Check-out Time
+                                                            </label>
+                                                            <input type="time" class="form-control form-control-lg border-0 shadow-sm" 
+                                                                   id="check_out_time" name="check_out_time" readonly 
+                                                                   style="background: #e9ecef; border-radius: 10px;">
+                                                        </div>
                                                     </div>
                                                 </div>
+                                            </div>
 
-                                                <div class="mb-3">
-                                                    <label for="payment_method" class="form-label fw-bold">
-                                                        <i class="fas fa-money-bill me-2"></i>Payment Method
-                                                    </label>
-                                                    <select class="form-select form-select-lg border-success" id="payment_method" name="payment_method" required>
-                                                        <option value="">Select Payment Method</option>
-                                                        <option value="cash">Cash</option>
-                                                        <option value="gcash">GCash</option>
-                                                    </select>
+                                            <!-- Room & Payment Card -->
+                                            <div class="card border-0 shadow-sm" style="border-radius: 15px;">
+                                                <div class="card-header border-0 bg-info bg-opacity-10 py-3" style="border-radius: 15px 15px 0 0;">
+                                                    <h6 class="mb-0 fw-bold text-info">
+                                                        <i class="fas fa-bed me-2"></i>Room & Payment Details
+                                                    </h6>
                                                 </div>
-
-                                                <div class="mb-3">
-                                                    <label for="amount_paid" class="form-label fw-bold">
-                                                        <i class="fas fa-file-invoice-dollar me-2"></i>Total Amount Paid
-                                                    </label>
-                                                    <input type="number" class="form-control form-control-lg border-success" id="amount_paid" name="amount" step="0.01" required readonly>
-                                                </div>
-
-                                                <div class="mb-3">
-                                                    <label for="payment_status" class="form-label fw-bold">
-                                                        <i class="fas fa-money-check-alt me-2"></i>Payment Status
-                                                    </label>
-                                                    <select class="form-select form-select-lg border-success" id="payment_status" name="payment_status" required>
-                                                        <option value="">Select Payment Status</option>
-                                                        <option value="Paid">Paid</option>
-                                                        <option value="Partially paid">Partially Paid</option>
-                                                        <option value="Unpaid">Unpaid</option>
-                                                    </select>
-                                                </div>
-
-                                                <div class="mb-3">
-                                                    <label for="reservation_status" class="form-label fw-bold">
-                                                        <i class="fas fa-bookmark me-2"></i>Reservation Status
-                                                    </label>
-                                                    <select class="form-select form-select-lg border-success" id="reservation_status" name="reservation_status" required>
-                                                        <option value="">Select Reservation Status</option>
-                                                        <option value="Reserved">Reserved</option>
-                                                        <option value="Checked-in">Checked In</option>
-                                                        <option value="Checked-out">Checked Out</option>
-                                                    </select>
+                                                <div class="card-body p-4">
+                                                    <div class="row g-3">
+                                                        <div class="col-md-6">
+                                                            <label for="room_type" class="form-label fw-semibold text-dark mb-2">
+                                                                <i class="fas fa-home text-info me-2"></i>Room Type
+                                                            </label>
+                                                            <select class="form-select form-select-lg border-0 shadow-sm" 
+                                                                    id="room_type" name="accomodation_id" required onchange="updateAmountAndTotal()" 
+                                                                    style="background: #f8f9fa; border-radius: 10px;">
+                                                                <option value="">Select Room Type</option>
+                                                                @foreach($accomodations as $accomodation)
+                                                                    @if($accomodation->accomodation_status === 'available'))
+                                                                        <option value="{{ $accomodation->accomodation_id }}" 
+                                                                                data-price="{{ $accomodation->accomodation_price }}"
+                                                                                data-capacity="{{ $accomodation->accomodation_capacity }}">
+                                                                            {{ $accomodation->accomodation_name }} - ₱{{ number_format($accomodation->accomodation_price, 2) }}
+                                                                        </option>
+                                                                    @endif
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label for="quantity" class="form-label fw-semibold text-dark mb-2">
+                                                                <i class="fas fa-hashtag text-info me-2"></i>Quantity
+                                                            </label>
+                                                            <input type="number" class="form-control form-control-lg border-0 shadow-sm" 
+                                                                   id="quantity" name="quantity" min="1" value="1" required 
+                                                                   oninput="validateQuantity()" 
+                                                                   style="background: #f8f9fa; border-radius: 10px;">
+                                                            <div class="invalid-feedback mt-2" id="quantity_error">
+                                                                Quantity exceeds available rooms for this accommodation type.
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label for="payment_method" class="form-label fw-semibold text-dark mb-2">
+                                                                <i class="fas fa-credit-card text-info me-2"></i>Payment Method
+                                                            </label>
+                                                            <select class="form-select form-select-lg border-0 shadow-sm" 
+                                                                    id="payment_method" name="payment_method" required 
+                                                                    style="background: #f8f9fa; border-radius: 10px;">
+                                                                <option value="">Select Payment Method</option>
+                                                                <option value="cash">💵 Cash</option>
+                                                                <option value="gcash">📱 GCash</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label for="amount_paid" class="form-label fw-semibold text-dark mb-2">
+                                                                <i class="fas fa-file-invoice-dollar text-info me-2"></i>Total Amount
+                                                            </label>
+                                                            <input type="number" class="form-control form-control-lg border-0 shadow-sm" 
+                                                                   id="amount_paid" name="amount" step="0.01" required readonly 
+                                                                   style="background: #e9ecef; border-radius: 10px;">
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label for="payment_status" class="form-label fw-semibold text-dark mb-2">
+                                                                <i class="fas fa-money-check-alt text-info me-2"></i>Payment Status
+                                                            </label>
+                                                            <select class="form-select form-select-lg border-0 shadow-sm" 
+                                                                    id="payment_status" name="payment_status" required 
+                                                                    style="background: #f8f9fa; border-radius: 10px;">
+                                                                <option value="">Select Payment Status</option>
+                                                                <option value="paid">✅ Paid</option>
+                                                                <option value="partially-paid">⏳ Partially Paid</option>
+                                                                <option value="unpaid">❌ Unpaid</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label for="reservation_status" class="form-label fw-semibold text-dark mb-2">
+                                                                <i class="fas fa-bookmark text-info me-2"></i>Reservation Status
+                                                            </label>
+                                                            <select class="form-select form-select-lg border-0 shadow-sm" 
+                                                                    id="reservation_status" name="reservation_status" required 
+                                                                    style="background: #f8f9fa; border-radius: 10px;">
+                                                                <option value="">Select Status</option>
+                                                                <option value="reserved">📋 Reserved</option>
+                                                                <option value="checked-in">🏨 Checked In</option>
+                                                                <option value="checked-out">🚪 Checked Out</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div class="modal-footer mt-4 border-top pt-3">
-                                    <button type="button" class="btn btn-outline-secondary btn-lg px-4" data-bs-dismiss="modal">
-                                        <i class="fas fa-times me-2"></i>Cancel
-                                    </button>
-                                    <button type="submit" class="btn btn-lg text-white px-4" style="background-color: #0b573d;" id="submitButton" disabled>
-                                        <i class="fas fa-save me-2"></i>Add Reservation
-                                    </button>
+                                <!-- Enhanced Footer -->
+                                <div class="modal-footer border-0 bg-light p-4" style="border-radius: 0 0 15px 15px;">
+                                    <div class="d-flex gap-3 ms-auto">
+                                        <button type="button" class="btn btn-outline-secondary btn-lg px-4 py-2" data-bs-dismiss="modal" style="border-radius: 10px;">
+                                            <i class="fas fa-times me-2"></i>Cancel
+                                        </button>
+                                        <button type="submit" class="btn btn-lg text-white px-4 py-2" 
+                                                style="background: linear-gradient(135deg, #0b573d 0%, #0d6b47 100%); border-radius: 10px; border: none;" 
+                                                id="submitButton" disabled>
+                                            <i class="fas fa-save me-2"></i>Create Reservation
+                                        </button>
+                                    </div>
                                 </div>
+
+                                <script>
+                                    function handleStayTypeChange() {
+                                        const stayType = document.getElementById('stay_type').value;
+                                        const sessionDiv = document.getElementById('sessionDiv');
+                                        const sessionSelect = document.getElementById('session');
+                                        const checkInTime = document.getElementById('check_in_time');
+                                        const checkOutTime = document.getElementById('check_out_time');
+                                        
+                                        if (stayType === 'overnight') {
+                                            sessionDiv.style.display = 'none';
+                                            sessionSelect.value = ''; // Clear session selection
+                                            checkInTime.value = '14:00'; // 2:00 PM
+                                            checkOutTime.value = '12:00'; // 12:00 PM
+                                            
+                                            // Calculate total guests even without session for overnight stays
+                                            calculateTotalGuestsForOvernight();
+                                        } else {
+                                            sessionDiv.style.display = 'block';
+                                            checkInTime.value = '';
+                                            checkOutTime.value = '';
+                                            
+                                            // Reset fees when switching back to day stay
+                                            document.getElementById('adult_fee').textContent = '0.00';
+                                            document.getElementById('child_fee').textContent = '0.00';
+                                            document.getElementById('total_fee').value = '₱0.00';
+                                            updateAmount();
+                                        }
+                                    }
+
+                                    function calculateTotalGuestsForOvernight() {
+                                        const adults = parseInt(document.getElementById('number_of_adult').value) || 0;
+                                        const children = parseInt(document.getElementById('number_of_children').value) || 0;
+                                        const totalGuests = adults + children;
+                                        
+                                        // Set total guests
+                                        document.getElementById('num_guests').value = totalGuests;
+                                        
+                                        // For overnight stays, you might want to set entrance fees to 0 or a fixed amount
+                                        // Adjust this based on your business logic
+                                        document.getElementById('adult_fee').textContent = '0.00';
+                                        document.getElementById('child_fee').textContent = '0.00';
+                                        document.getElementById('total_fee').value = '₱0.00';
+                                        
+                                        // Update the total amount
+                                        updateAmount();
+                                        validateCapacity();
+                                    }
+                                </script>
                             </form>
                         </div>
                     </div>
@@ -526,17 +595,17 @@
                                 <td class="text-center">{{ $guest->payment_method }}</td>
                                 <td class="text-center">
                                     @if($guest->reservation_status == 'checked-in')
-                                        <span class="badge bg-success text-capitalize">{{ $guest->reservation_status }}</span>
+                                        <span class="badge bg-success">{{ $guest->reservation_status }}</span>
                                     @elseif($guest->reservation_status == 'checked-out')
-                                        <span class="badge bg-danger text-capitalize">{{ $guest->reservation_status }}</span>
+                                        <span class="badge bg-danger">{{ $guest->reservation_status }}</span>
                                     @else
                                         <span class="badge bg-secondary">{{ $guest->reservation_status }}</span>
                                     @endif
                                 </td>
-                                <td class="text-center text-capitalize">
+                                <td class="text-center">
                                     @if($guest->payment_status == 'Paid')
                                         <span class="badge bg-success ">{{ $guest->payment_status }}</span>
-                                    @elseif($guest->payment_status == 'Partially Paid')
+                                    @elseif($guest->payment_status == 'partially-paid')
                                         <span class="badge bg-warning">{{ $guest->payment_status }}</span>
                                     @else
                                         <span class="badge bg-danger">{{ $guest->payment_status }}</span>

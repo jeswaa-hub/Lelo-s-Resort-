@@ -88,6 +88,15 @@
             text-align: center;
             margin-top: 25px;
         }
+        .downpayment-alert {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -95,7 +104,13 @@
         <div class="header">
             <h2>Payment Status Update</h2>
         </div>
-
+        <!-- Downpayment message - only shown when status is on-hold -->
+        @if($reservation->reservation_status === 'on-hold')
+        <div class="downpayment-alert">
+            <h5 style="color: #856404; margin-top: 0;">Action Required</h5>
+            <p style="margin-bottom: 0; font-weight: bold;">Pay the downpayment to complete the reservation</p>
+        </div>
+        @endif
         <p>Dear {{ $reservation->name }},</p>
         
         <div class="status-box">
@@ -105,7 +120,6 @@
             </span></p>
             <p>Your reservation status is: <span style="color: {{ $reservation->reservation_status === 'reserved' ? '#428bca' : ($reservation->reservation_status === 'checked-in' || $reservation->reservation_status === 'checked-out' ? '#2a5d34' : ($reservation->reservation_status === 'cancelled' ? '#d9534f' : 'inherit')) }}; font-weight: bold; text-transform: capitalize;">{{ $reservation->reservation_status }}</span></p>
         </div>
-
         <div class="details-box">
             <div class="detail-item">
                 <span class="detail-label">Mobile No:</span> {{ $reservation->mobileNo ?? 'No mobile number provided'  }}
@@ -119,7 +133,7 @@
             </div>
             <div class="detail-item">
                 <span class="detail-label">Balance:</span> 
-                <span class="amount-highlight">₱ {{ number_format($balance, 2) }}</span>
+                <span class="amount-highlight">₱ {{ number_format($reservation->balance, 2) }}</span>
             </div>
         </div>
 
@@ -133,7 +147,7 @@
                 </div>
             @elseif(isset($accomodations))
                 <div class="detail-item">
-                    <span class="detail-label">Accommodation:</span> 
+                    <span class="detail-label">Room:</span> 
                     {{ is_array($accomodations) ? implode(', ', $accomodations) : $accomodations }}
                 </div>
             @endif

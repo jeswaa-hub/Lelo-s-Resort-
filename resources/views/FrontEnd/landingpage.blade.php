@@ -81,6 +81,11 @@
     .nav-link.custom-hover:hover {
         color: #0b573d !important;
     }
+    .nav-link-login:hover{
+        scale: 1.1;
+        transition: all 0.3s ease;
+        border: 2px solid #ffffff;
+    }
 </style>
 
 <body>
@@ -100,7 +105,7 @@
                 </div>
                 <ul class="navbar-nav gap-4">
                     <li class="nav-item">
-                        <a class="nav-link d-flex align-items-center gap-3 py-2 px-3 position-relative overflow-hidden"
+                        <a class="nav-link custom-hover d-flex align-items-center gap-3 py-2 px-3 position-relative overflow-hidden"
                             href="#rooms" style="transition: all 0.3s ease;">
                             <i class="fas fa-bed" style="color: #0b573d; font-size: 1.1rem;"></i>
                             <span class="fw-semibold text-uppercase"
@@ -113,7 +118,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link d-flex align-items-center gap-3 py-2 px-3 position-relative overflow-hidden"
+                        <a class="nav-link custom-hover d-flex align-items-center gap-3 py-2 px-3 position-relative overflow-hidden"
                             href="#about" style="transition: all 0.3s ease;">
                             <i class="fas fa-info-circle" style="color: #0b573d; font-size: 1.1rem;"></i>
                             <span class="fw-semibold text-uppercase"
@@ -126,7 +131,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link d-flex align-items-center gap-3 py-2 px-3 position-relative overflow-hidden"
+                        <a class="nav-link custom-hover d-flex align-items-center gap-3 py-2 px-3 position-relative overflow-hidden"
                             href="#reviews" style="transition: all 0.3s ease;">
                             <i class="fas fa-star" style="color: #0b573d; font-size: 1.1rem;"></i>
                             <span class="fw-semibold text-uppercase"
@@ -139,16 +144,13 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link d-flex align-items-center gap-3 py-2 px-3 position-relative overflow-hidden"
-                            href="{{ route('login') }}" style="transition: all 0.3s ease;">
-                            <i class="fas fa-sign-in-alt" style="color: #0b573d; font-size: 1.1rem;"></i>
+                        <a class="nav-link-login d-flex align-items-center gap-3 py-2 px-3 position-relative overflow-hidden" 
+                            href="{{ route('login') }}" style="background-color: #0b573d; transition: all 0.3s ease; border-radius: 20px; text-decoration: none;">
+                            <i class="fas fa-sign-in-alt" style="color:rgb(255, 255, 255); font-size: 1.1rem;"></i>
                             <span class="fw-semibold text-uppercase"
-                                style="color: #0b573d; letter-spacing: 2px; font-size: 1rem;">
+                                style="color:rgb(255, 255, 255); letter-spacing: 2px; font-size: 1rem;">
                                 Login
                             </span>
-                            <div class="hover-bg position-absolute top-0 start-0 w-100 h-100"
-                                style="background-color: #e0f0e9; transform: translateX(-100%); transition: transform 0.3s ease;">
-                            </div>
                         </a>
                     </li>
                 </ul>

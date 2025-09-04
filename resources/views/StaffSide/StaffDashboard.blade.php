@@ -209,14 +209,14 @@
                 <!-- Column 3: Pending Bookings -->
                 <div class="col-12 col-lg-8">
                     <div class="p-4 rounded-4 border border-4" 
-                        style="background: linear-gradient(to top, rgb(211, 209, 209), #ffffff); min-height: 250px; height: auto;">
+                        style="background: linear-gradient(to top, rgb(211, 209, 209), #ffffff); min-height: 300px; height: 100%;">
                         
                         <h2 class="font-heading mb-3 text-center fw-bold fs-4 fs-md-3 fs-lg-1" style="color: #0b573d;">
                             Pending Bookings
                         </h2>
 
                         @if($pendingReservationsList && count($pendingReservationsList) > 0)
-                            <div class="overflow-auto" style="max-height: 250px;">
+                            <div class="overflow-auto" style="max-height: 300px;">
                                 @foreach($pendingReservationsList as $reservation)
                                     <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between mb-2 p-2 border-bottom">
                                         <div>

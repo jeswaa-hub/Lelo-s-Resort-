@@ -19,263 +19,159 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <style>
-    .nav-link {
-        position: relative;
-    }
-    
-    .nav-link::after {
-        content: '';
-        position: absolute;
-        width: 0;
-        height: 2px;
-        background: #ffffff;
-        left: 0;
-        bottom: 0;
-        transition: width 0.3s ease-in-out;
-    }
-    
-    .nav-link:hover::after {
-        width: 100%;
-    }
-    .fancy-link {
-    text-decoration: none;
-    font-weight: 600;
-    position: relative;
-    transition: color 0.3s ease;
-}
 
-.fancy-link::after {
-    content: "";
-    position: absolute;
-    width: 0;
-    height: 2px;
-    left: 0;
-    bottom: -2px;
-    background-color: #0b573d;
-    transition: width 0.3s ease;
-}
-
-.fancy-link:hover {
-    color: #0b573d;
-}
-
-.fancy-link:hover::after {
-    width: 100%;
-}
-.fancy-link.active::after {
-    width: 100% !important;
-}
-.filter-btn {
-    transition: all 0.3s ease;
-}
-
-.filter-btn:hover {
-    background-color: rgba(255, 255, 255, 0.2) !important;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-    .transition-width {
-        transition: all 0.3s ease;
-    }
-    #mainContent.full-width {
-        width: 100% !important;
-        flex: 0 0 100% !important;
-        max-width: 100% !important;
-    }
-.table td,
-.table th {
-  font-size: 0.8rem;
-}
-
-/* Highlight pending reservations */
-.pending-highlight {
-    background-color: #fff3cd !important;
-    border-left: 4px solid #ffc107;
-}
-
-.status-filter-active {
-    background-color: #0b573d !important;
-    color: white !important;
-    border-color: #0b573d !important;
-}
 </style>
 
-<body style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76)), url('{{ asset('images/DSCF2777.JPG') }}') no-repeat center center fixed; background-size: cover;">
+<body style="margin: 0; padding: 0; height: 100vh; background-color: white; overflow-x: hidden;">
     @include('Alert.errorLogin')
     @include('Alert.loginSuccessUser')
-    <div class="container-fluid min-vh-100 d-flex p-0">
-        <!-- SIDEBAR -->
-         @include('Navbar.sidenavbarStaff')
-        <!-- Main Content  -->
-         <div id="mainContent" class="flex-grow-1 py-4 px-4 transition-width" style="transition: all 0.3s ease;">
-            <!-- Heading and Logo -->
-            <div class="d-flex justify-content-end align-items-end mb-2">
-                <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" width="100" class="rounded-pill me-3">
-            </div>
+        <!-- NAVBAR -->
+        @include('Navbar.sidenavbarStaff')
 
-            <hr class="border-5">
-            <!-- Reservation Statistics -->
-            <div class="d-flex gap-4 mb-4">
-                <!-- Total Reservations -->
-                <div class="flex-grow-1 p-4 rounded-4 shadow-lg position-relative overflow-hidden" 
-                     style="background: #0b573d; border: none;">
-
-                    <div class="d-flex align-items-center position-relative">
-                        <div>
-                            <h2 class="fs-1 fw-bold text-white mb-2 position-relative" style="text-shadow: 0 2px 4px rgba(0,0,0,0.3);">{{ $totalCount ?? 0 }}</h2>
-                            <p class="text-white text-uppercase mb-0 font-paragraph fw-bold position-relative" style="font-size: 0.85rem; opacity: 0.95;">
-                                Total<br>Reservations
-                            </p>
-                        </div>
-                        <div class="ms-auto">
-                            <div class="rounded-circle d-flex align-items-center justify-content-center" 
-                                 style="width: 60px; height: 60px; background: rgba(255,255,255,0.2); backdrop-filter: blur(10px);">
-                                <i class="fas fa-calendar-check fs-3 text-white"></i>
-                            </div>
-                        </div>
+                    <!-- Status Alert Banner for Pending Reservations -->
+                    @if(!request('status') || request('status') == 'pending')
+            <div class="alert alert-warning border-0 mb-4" style="background: linear-gradient(135deg, #fff3cd, #ffeaa7); border-left: 5px solid #ffc107;" id="pendingAlert">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-exclamation-triangle fs-4 me-3" style="color: #856404;"></i>
+                    <div>
+                        <h6 class="fw-bold mb-1" style="color: #856404;">Showing Pending Reservations</h6>
+                        <p class="mb-0 small" style="color: #856404;">These reservations require your immediate attention for approval or processing.</p>
                     </div>
-                    <div class="position-absolute bottom-0 start-0 w-100" style="height: 3px; background: linear-gradient(90deg, rgba(255,255,255,0.3), transparent);"></div>
-                </div>
-
-                <!-- Pending Reservations - Made more prominent -->
-                <div class="flex-grow-1 p-4 rounded-4 shadow-lg position-relative overflow-hidden" 
-                     style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border: none; transition: all 0.3s ease; transform: translateY(0); animation: pulse-glow 3s infinite;"
-                     onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 15px 35px rgba(240, 147, 251, 0.4)'"
-                     onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 25px rgba(0,0,0,0.15)'">
-                    <div class="position-absolute top-0 end-0 opacity-25">
-                        <i class="fas fa-clock" style="font-size: 4rem; margin: -10px;"></i>
-                    </div>
-                    <div class="d-flex align-items-center position-relative">
-                        <div>
-                            <h2 class="fs-1 fw-bold text-white mb-2 position-relative" style="text-shadow: 0 2px 4px rgba(0,0,0,0.3);">{{ $pendingCount ?? 0 }}</h2>
-                            <p class="text-white text-uppercase mb-0 font-paragraph fw-bold position-relative" style="font-size: 0.85rem; opacity: 0.95;">
-                                Pending<br>Reservations
-                            </p>
-                        </div>
-                        <div class="ms-auto">
-                            <div class="rounded-circle d-flex align-items-center justify-content-center" 
-                                 style="width: 60px; height: 60px; background: rgba(255,255,255,0.2); backdrop-filter: blur(10px);">
-                                <i class="fas fa-clock fs-3 text-white"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="position-absolute top-0 end-0 rounded-circle bg-warning animate__animated animate__pulse animate__infinite" 
-                         style="width: 12px; height: 12px; margin: 10px;"></div>
-                    <div class="position-absolute bottom-0 start-0 w-100" style="height: 3px; background: linear-gradient(90deg, rgba(255,255,255,0.3), transparent);"></div>
-                </div>
-
-                <!-- Reserved Accommodations -->
-                <div class="flex-grow-1 p-4 rounded-4 shadow-lg position-relative overflow-hidden" 
-                     style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); border: none; transition: all 0.3s ease; transform: translateY(0);"
-                     onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 15px 35px rgba(79, 172, 254, 0.4)'"
-                     onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 25px rgba(0,0,0,0.15)'">
-                    <div class="position-absolute top-0 end-0 opacity-25">
-                        <i class="fas fa-bookmark" style="font-size: 4rem; margin: -10px;"></i>
-                    </div>
-                    <div class="d-flex align-items-center position-relative">
-                        <div>
-                            <h2 class="fs-1 fw-bold text-white mb-2 position-relative" style="text-shadow: 0 2px 4px rgba(0,0,0,0.3);">{{ $reservedCount ?? 0 }}</h2>
-                            <p class="text-white text-uppercase mb-0 font-paragraph fw-bold position-relative" style="font-size: 0.85rem; opacity: 0.95;">
-                                Reserved<br>Reservations
-                            </p>
-                        </div>
-                        <div class="ms-auto">
-                            <div class="rounded-circle d-flex align-items-center justify-content-center" 
-                                 style="width: 60px; height: 60px; background: rgba(255,255,255,0.2); backdrop-filter: blur(10px);">
-                                <i class="fas fa-bookmark fs-3 text-white"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="position-absolute bottom-0 start-0 w-100" style="height: 3px; background: linear-gradient(90deg, rgba(255,255,255,0.3), transparent);"></div>
-                </div>
-
-                <!-- Checked-in Reservations -->
-                <div class="flex-grow-1 p-4 rounded-4 shadow-lg position-relative overflow-hidden" 
-                     style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); border: none; transition: all 0.3s ease; transform: translateY(0);"
-                     onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 15px 35px rgba(67, 233, 123, 0.4)'"
-                     onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 25px rgba(0,0,0,0.15)'">
-                    <div class="position-absolute top-0 end-0 opacity-25">
-                        <i class="fas fa-user-check" style="font-size: 4rem; margin: -10px;"></i>
-                    </div>
-                    <div class="d-flex align-items-center position-relative">
-                        <div>
-                            <h2 class="fs-1 fw-bold text-white mb-2 position-relative" style="text-shadow: 0 2px 4px rgba(0,0,0,0.3);">{{ $checkedInCount ?? 0}}</h2>
-                            <p class="text-white text-uppercase mb-0 font-paragraph fw-bold position-relative" style="font-size: 0.85rem; opacity: 0.95;">
-                                Checked-in<br>Reservations
-                            </p>
-                        </div>
-                        <div class="ms-auto">
-                            <div class="rounded-circle d-flex align-items-center justify-content-center" 
-                                 style="width: 60px; height: 60px; background: rgba(255,255,255,0.2); backdrop-filter: blur(10px);">
-                                <i class="fas fa-user-check fs-3 text-white"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="position-absolute bottom-0 start-0 w-100" style="height: 3px; background: linear-gradient(90deg, rgba(255,255,255,0.3), transparent);"></div>
-                </div>
-
-                <!-- Checked-out Reservations -->
-                <div class="flex-grow-1 p-4 rounded-4 shadow-lg position-relative overflow-hidden" 
-                     style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); border: none; transition: all 0.3s ease; transform: translateY(0);"
-                     onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 15px 35px rgba(250, 112, 154, 0.4)'"
-                     onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 25px rgba(0,0,0,0.15)'">
-                    <div class="position-absolute top-0 end-0 opacity-25">
-                        <i class="fas fa-sign-out-alt" style="font-size: 4rem; margin: -10px;"></i>
-                    </div>
-                    <div class="d-flex align-items-center position-relative">
-                        <div>
-                            <h2 class="fs-1 fw-bold text-white mb-2 position-relative" style="text-shadow: 0 2px 4px rgba(0,0,0,0.3);">{{ $checkedOutCount ?? 0 }}</h2>
-                            <p class="text-white text-uppercase mb-0 font-paragraph fw-bold position-relative" style="font-size: 0.85rem; opacity: 0.95;">
-                                Checked-out<br>Reservations
-                            </p>
-                        </div>
-                        <div class="ms-auto">
-                            <div class="rounded-circle d-flex align-items-center justify-content-center" 
-                                 style="width: 60px; height: 60px; background: rgba(255,255,255,0.2); backdrop-filter: blur(10px);">
-                                <i class="fas fa-sign-out-alt fs-3 text-white"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="position-absolute bottom-0 start-0 w-100" style="height: 3px; background: linear-gradient(90deg, rgba(255,255,255,0.3), transparent);"></div>
                 </div>
             </div>
-            
-            <!-- Search Bar -->
-            <div class="d-flex gap-3">
-                <div class="flex-grow-1">
-                    <form action="{{ route('staff.reservation') }}" method="GET" class="mb-3">
-                        <!-- Preserve current filter when searching -->
-                        <input type="hidden" name="status" value="{{ request('status', 'pending') }}">
-                        <input type="hidden" name="stay_type" value="{{ request('stay_type') }}">
+
+            <script>
+                // Hide alert after 5 seconds
+                setTimeout(function() {
+                    document.getElementById('pendingAlert').style.transition = 'opacity 1s';
+                    document.getElementById('pendingAlert').style.opacity = '0';
+                    setTimeout(function() {
+                        document.getElementById('pendingAlert').style.display = 'none';
+                    }, 1000);
+                }, 5000);
+            </script>
+            @endif  
+
+        <!-- HERO BANNER -->
+<div class="row">
+    <div class="col-11 mx-auto">
+        <div class="hero-banner d-flex flex-column justify-content-center text-white p-3 p-sm-4 p-md-5"
+            style="background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(34, 34, 34, 0.5)), url('{{ asset('images/DSCF2777.JPG') }}'); 
+                   background-size: cover; background-position: center; min-height: 450px; border-radius: 15px;">
+
+            <div class="row g-3 g-md-4">
+                <!-- Left Side -->
+                <div class="col-12 col-md-6">
+                    <div class="d-flex flex-column gap-3">
+                        <!-- Greeting -->
+                        <div class="text-start">
+                            <h1 class="mb-1 display-1 fs-1 fs-md-1" style="font-size: 3.7rem !important;">Hello,</h1>
+                            <h1 class="fw-bold display-1 fs-1 fs-md-1" style="font-size: 5rem !important;">Staff User!</h1>
+                        </div>
                         
-                        <div class="input-group" style="height: 40px;">
-                            <input type="text" 
-                                id="searchInput"
-                                name="search"
-                                class="form-control border-start-0" 
-                                placeholder="Search by reservation ID, name or email..."
-                                style="border-color: #0b573d; height: 40px;"
-                                value="{{ request('search') }}">
-
-                            <span type="submit" class="input-group-text bg-white border-end-0" style="height: 40px;">
-                                <button type="submit" class="btn btn-link text-dark p-0">
-                                    <i class="fas fa-search"></i>
-                                </button>
-                            </span>
+                        <!-- Total Reservations -->
+                        <div class="d-flex align-items-center bg-white text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm">
+                            <div>
+                                <h1 class="fw-bold mb-0 text-success" style="font-size: clamp(2rem, 4vw, 3rem);">{{ $totalCount ?? 0 }}</h1>
+                                <p class="mb-0 fw-semibold" style="font-size: clamp(1rem, 2vw, 1.5rem);">Total Reservations</p>
+                            </div>
+                            <div class="ms-auto">
+                                <i class="fas fa-calendar-check" style="font-size: clamp(2.5rem, 4vw, 4rem); color: #6c757d;"></i>
+                            </div>
                         </div>
-                    </form>
+                    </div>
                 </div>
+
+                <!-- Right Side -->
+                <div class="col-12 col-md-6">
+                    <div class="row row-cols-1 row-cols-sm-2 g-3 g-md-4">
+                        <!-- Checked-in -->
+                        <div class="col">
+                            <div class="d-flex align-items-center bg-white text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100">
+                                <div>
+                                    <h1 class="fw-bold mb-0 text-success" style="font-size: clamp(1.8rem, 3vw, 3rem);">{{ $checkedInCount ?? 0 }}</h1>
+                                    <p class="mb-0 fw-semibold" style="font-size: clamp(0.9rem, 1.5vw, 1.2rem);">Checked-in</p>
+                                </div>
+                                <div class="ms-auto">
+                                    <i class="fas fa-user-check" style="font-size: clamp(2rem, 3vw, 3.5rem); color: #6c757d;"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Checked-out -->
+                        <div class="col">
+                            <div class="d-flex align-items-center bg-white text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100">
+                                <div>
+                                    <h1 class="fw-bold mb-0 text-success" style="font-size: clamp(1.8rem, 3vw, 3rem);">{{ $checkedOutCount ?? 0 }}</h1>
+                                    <p class="mb-0 fw-semibold" style="font-size: clamp(0.9rem, 1.5vw, 1.2rem);">Check-out</p>
+                                </div>
+                                <div class="ms-auto">
+                                    <i class="fas fa-sign-out-alt" style="font-size: clamp(2rem, 3vw, 3.5rem); color: #6c757d;"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pending -->
+                        <div class="col">
+                            <div class="d-flex align-items-center bg-white text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100">
+                                <div>
+                                    <h1 class="fw-bold mb-0 text-success" style="font-size: clamp(1.8rem, 3vw, 3rem);">{{ $pendingCount ?? 0 }}</h1>
+                                    <p class="mb-0 fw-semibold" style="font-size: clamp(0.9rem, 1.5vw, 1.2rem);">Pending</p>
+                                </div>
+                                <div class="ms-auto">
+                                    <i class="fas fa-clock" style="font-size: clamp(2rem, 3vw, 3.5rem); color: #6c757d;"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Reserved -->
+                        <div class="col">
+                            <div class="d-flex align-items-center bg-white text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100">
+                                <div>
+                                    <h1 class="fw-bold mb-0 text-success" style="font-size: clamp(1.8rem, 3vw, 3rem);">{{ $reservedCount ?? 0 }}</h1>
+                                    <p class="mb-0 fw-semibold" style="font-size: clamp(0.9rem, 1.5vw, 1.2rem);">Reserved</p>
+                                </div>
+                                <div class="ms-auto">
+                                    <i class="fas fa-bookmark" style="font-size: clamp(2rem, 3vw, 3.5rem); color: #6c757d;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Additional Hero Banner -->
+<div class="container-fluid mt-4 shadow-lg p-4 bg-white rounded" style="max-width: 100%; margin: 0 auto;">
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center">
+        <h2 class="fw-bold text-black mb-0 border-bottom" style="font-size: 2.5rem;">ONLINE RESERVATION</h2>
+
+        <div class="d-flex gap-2">
+            <form action="{{ route('staff.reservation') }}" method="GET" class="d-flex gap-2" id="filterForm">
                 @if(request('search'))
-                <a href="{{ route('staff.reservation', ['status' => request('status', 'pending')]) }}" class="btn btn-outline-secondary" style="height: 40px;">
-                    Clear
-                </a>
+                    <input type="hidden" name="search" value="{{ request('search') }}">
                 @endif
-            </div>
-            <div id="noResultsMessage" class="alert alert-info text-center" style="display: none;">
-                No reservations found
-            </div>
-            
-            <!-- QR Scanner Modal -->
+                <select class="form-select {{ request('status', 'pending') == 'pending' ? 'status-filter-active' : '' }}" name="status" onchange="this.form.submit()" style="border-color: #0b573d; font-weight: 500;">
+                    <option value="pending" {{ (!request('status') || request('status') == 'pending') ? 'selected' : '' }}>📋 Pending ({{ $pendingCount ?? 0 }})</option>
+                    <option value="on-hold" {{ request('status') == 'on-hold' ? 'selected' : '' }}>⏸️ On-Hold ({{ $OnHoldCount ?? 0 }})</option>
+                    <option value="reserved" {{ request('status') == 'reserved' ? 'selected' : '' }}>📅 Reserved ({{ $reservedCount ?? 0 }})</option>
+                    <option value="checked-in" {{ request('status') == 'checked-in' ? 'selected' : '' }}>🏨 Checked-in ({{ $checkedInCount ?? 0 }})</option>
+                    <option value="checked-out" {{ request('status') == 'checked-out' ? 'selected' : '' }}>✅ Checked-out ({{ $checkedOutCount ?? 0 }})</option>
+                    <option value="early-checked-out" {{ request('status') == 'early-checked-out' ? 'selected' : '' }}>⏰ Early Out</option>
+                    <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>❌ Cancelled</option>
+                </select>
+                <select name="stay_type" class="form-select" onchange="this.form.submit()" style="border-color: #0b573d; font-weight: 500;">
+                    <option value="">All Stay Types</option>
+                    <option value="overnight" {{ request('stay_type') == 'overnight' ? 'selected' : '' }}>🌙 Overnight</option>
+                    <option value="one_day" {{ request('stay_type') == 'one_day' ? 'selected' : '' }}>☀️ Day Stay</option>
+                </select>
+                <button type="button" id="qrScannerBtn" class="btn btn-success w-100" data-bs-toggle="modal" data-bs-target="#qrScannerModal" style="background-color: #0b573d">
+                    <i class="fas fa-qrcode me-2"></i>Open QR Scanner
+                </button>
+
+                            <!-- QR Scanner Modal -->
             <div class="modal fade" id="qrScannerModal" tabindex="-1" aria-labelledby="qrScannerModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content" style="border-radius: 15px; border: none;">
@@ -314,7 +210,7 @@
                 </div>
             </div>
 
-            <script>
+                <script>
                 let scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
                 let isCameraOn = false;
 
@@ -415,370 +311,304 @@
                     }
                 });
             </script>
-            
-            <!-- Status Alert Banner for Pending Reservations -->
-            @if(!request('status') || request('status') == 'pending')
-            <div class="alert alert-warning border-0 mb-4" style="background: linear-gradient(135deg, #fff3cd, #ffeaa7); border-left: 5px solid #ffc107;" id="pendingAlert">
-                <div class="d-flex align-items-center">
-                    <i class="fas fa-exclamation-triangle fs-4 me-3" style="color: #856404;"></i>
-                    <div>
-                        <h6 class="fw-bold mb-1" style="color: #856404;">Showing Pending Reservations</h6>
-                        <p class="mb-0 small" style="color: #856404;">These reservations require your immediate attention for approval or processing.</p>
-                    </div>
-                </div>
-            </div>
 
-            <script>
-                // Hide alert after 5 seconds
-                setTimeout(function() {
-                    document.getElementById('pendingAlert').style.transition = 'opacity 1s';
-                    document.getElementById('pendingAlert').style.opacity = '0';
-                    setTimeout(function() {
-                        document.getElementById('pendingAlert').style.display = 'none';
-                    }, 1000);
-                }, 5000);
-            </script>
-            @endif
-            
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <!-- Status Filter Dropdown -->
-            <div class="d-flex gap-2">
-                <form action="{{ route('staff.reservation') }}" method="GET" class="d-flex gap-2" id="filterForm">
-                    <!-- Preserve search term when filtering -->
-                    @if(request('search'))
-                        <input type="hidden" name="search" value="{{ request('search') }}">
-                    @endif
-                    
-                    <select class="form-select {{ request('status', 'pending') == 'pending' ? 'status-filter-active' : '' }}" 
-                            name="status" 
-                            onchange="this.form.submit()"
-                            style="border-color: #0b573d; font-weight: 500; width: 140%">
-                        <option value="pending" {{ (!request('status') || request('status') == 'pending') ? 'selected' : '' }}>
-                            📋 Pending ({{ $pendingCount ?? 0 }})
-                        </option>
-                        <option value="on-hold" {{ request('status') == 'on-hold' ? 'selected' : '' }}>
-                            ⏸️ On-Hold ({{ $OnHoldCount ?? 0 }})
-                        </option>
-                        <option value="reserved" {{ request('status') == 'reserved' ? 'selected' : '' }}>
-                            📅 Reserved ({{ $reservedCount ?? 0 }})
-                        </option>
-                        <option value="checked-in" {{ request('status') == 'checked-in' ? 'selected' : '' }}>
-                            🏨 Checked-in ({{ $checkedInCount ?? 0 }})
-                        </option>
-                        <option value="checked-out" {{ request('status') == 'checked-out' ? 'selected' : '' }}>
-                            ✅ Checked-out ({{ $checkedOutCount ?? 0 }})
-                        </option>
-                        <option value="early-checked-out" {{ request('status') == 'early-checked-out' ? 'selected' : '' }}>
-                            ⏰ Early Out
-                        </option>
-                        <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>
-                            ❌ Cancelled
-                        </option>
-                    </select>
 
-                    <!-- Stay Type Dropdown -->
-                    <select name="stay_type" 
-                            class="form-select" 
-                            onchange="this.form.submit()"
-                            style="border-color: #0b573d; font-weight: 500;">
-                        <option value="">All Stay Types</option>
-                        <option value="overnight" {{ request('stay_type') == 'overnight' ? 'selected' : '' }}>🌙 Overnight</option>
-                        <option value="one_day" {{ request('stay_type') == 'one_day' ? 'selected' : '' }}>☀️ Day Stay</option>
-                    </select>
-                </form>
-            </div>
 
-                <!-- QR Scanner Button -->
-                <div style="width: 25%;">
-                    <button type="button" id="qrScannerBtn" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#qrScannerModal" style="background-color: #0b573d">
-                        <i class="fas fa-qrcode me-2"></i>Open QR Scanner
-                    </button>
-                </div>
-            </div>
-            
-            <!-- Table -->
-            <div class="card shadow-sm border-0 rounded-4 mb-4 mt-4 p-2">
-                <div style="overflow-x: auto;">
-                    <table class="table table-hover table-striped table-responsive table-sm">
-                    <thead style="background-color: #0b573d; color: white;">
-                    <tr>
-                        <th class="text-center align-middle">ResID</th>
-                        <th class="text-center align-middle">Name</th>
-                        <th class="text-center align-middle">Phone Number</th>
-                        <th class="text-center align-middle">Room</th>
-                        <th class="text-center align-middle">Room Qty</th>
-                        <th class="text-center align-middle">Ref Num</th>
-                        <th class="text-center align-middle">Amount</th>
-                        <th class="text-center align-middle">Balance</th>
-                        <th class="text-center align-middle">Stay Type</th>
-                        <th class="text-center align-middle">Reservation Status</th>
-                        <th class="text-center align-middle">Payment Status</th>
-                        <th class="text-center align-middle">Proof of Payment</th>
-                        <th class="text-center align-middle">Action</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                        @php
-                            $currentStatus = request('status', 'pending');
-                        @endphp
-                        
-                        @forelse ($reservations as $reservation)
-                            @if($reservation->reservation_status == $currentStatus)
-                            <tr class="{{ $reservation->reservation_status == 'pending' ? 'pending-highlight' : '' }}">
-                                <td class="text-center align-middle">
-                                    <span class="fw-bold" style="color: #0b573d;">{{ $reservation->reservation_id }}</span>
-                                </td>
-                                <td class="text-center align-middle">{{ $reservation->name }}</td>
-                                <td class="text-center align-middle">{{ $reservation->mobileNo }}</td>
-                                <td class="text-center align-middle">
-                                @php
-                                    $accommodationNames = is_array($reservation->accommodations) ? $reservation->accommodations : [];
-                                @endphp
-                                {{ implode(', ', $accommodationNames) }}
-                                </td>
-                                <td class="text-center align-middle">{{$reservation->quantity}}</td>
-                                <td class="text-center align-middle">{{ $reservation->reference_num }}</td>
-                                <td class="text-center align-middle">₱{{ number_format($reservation->amount ?? 0, 2)  }}</td>
-                                <td class="text-center align-middle">₱{{ number_format($reservation->balance ?? 0, 2)  }}</td>
-                                <td class="text-center align-middle">
-                                    <span class="badge rounded-pill" style="background-color: #e8f5e9; color: #0b573d;">
-                                        {{ $reservation->stay_type ?? "Unknown" }}
-                                    </span>
-                                </td>
-
-                                <td class="text-center align-middle">
-                                    <span class="badge rounded-pill py-2 px-2
-                                        {{ $reservation->reservation_status == 'reserved' ? 'bg-primary' : 
-                                        ($reservation->reservation_status == 'checked-in' ? 'bg-success' : 
-                                        ($reservation->reservation_status == 'checked-out' ? 'bg-danger' :
-                                        ($reservation->reservation_status == 'cancelled' ? 'bg-danger' : 'bg-warning'))) }}" style="font-size: .7rem;">
-                                        {{ ucfirst($reservation->reservation_status) }}
-                                        @if($reservation->reservation_status == 'pending')
-                                            <i class="fas fa-clock ms-1"></i>
-                                        @endif
-                                    </span>
-                                </td>
-                                <td class="text-center align-middle">
-                                    <span class="badge rounded-pill py-2 px-3
-                                        {{ $reservation->payment_status == 'pending' ? 'bg-warning' : 
-                                        ($reservation->payment_status == 'paid' ? 'bg-success' : 
-                                        ( $reservation->payment_status == 'on-hold' ? 'bg-warning' : 
-                                        ($reservation->payment_status == 'booked' ? 'bg-primary' : 'bg-danger'))) }}" style="font-size: .7rem;">
-                                        {{ ucfirst($reservation->payment_status) }}
-                                    </span>
-                                </td>
-                                <td class="text-center align-middle">
-                                    @if ($reservation->upload_payment)
-                                        <a href="{{ route('payment.proof', ['filename' => basename($reservation->upload_payment)]) }}" target="_blank" class="btn btn-sm btn-outline-info">
-                                            <i class="fas fa-image me-1"></i>View
-                                        </a>
-                                    @else
-                                        <span class="text-muted small">No proof uploaded</span>
-                                    @endif
-                                </td>
-                                <td class="d-flex align-items-center gap-2" style="height: 100px;">
-                                    <button type="button" 
-                                        class="btn" 
-                                        style="background-color: #0b573d; color: white; transition: all 0.3s ease; height: 38px;"
-                                        onmouseover="this.style.backgroundColor='#083d2a'; this.style.transform='scale(1.05)'" 
-                                        onmouseout="this.style.backgroundColor='#0b573d'; this.style.transform='scale(1)'"
-                                        data-bs-toggle="modal" 
-                                        data-bs-target="#updateReservationStatusModal{{ $reservation->id }}"
-                                        title="Update Status">
-                                        <i class="fa-pencil fa-solid"></i>
-                                    </button>
-                                    <button type="button" 
-                                            class="btn btn-info"
-                                            onmouseover="this.style.backgroundColor='#083d2a'; this.style.transform='scale(1.05)'" 
-                                            onmouseout="this.style.backgroundColor='#0b573d'; this.style.transform='scale(1)'"
-                                            data-bs-toggle="modal" 
-                                            data-bs-target="#viewReservationModal{{ $reservation->id }}"
-                                            style="background-color: #0b573d; color: white; border: none; height: 38px;"
-                                            title="View Details">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            <!-- Update Reservation and Payment Status Modal -->
-                            <div class="modal fade" id="updateReservationStatusModal{{ $reservation->id }}" tabindex="-1" aria-labelledby="updateReservationStatusModalLabel" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered">
-                                    <div class="modal-content border-0 shadow">
-                                        <div class="modal-header bg-success text-white" style="background-color: #0b573d !important;">
-                                            <h5 class="modal-title fw-bold" id="updateReservationStatusModalLabel">
-                                                <i class="fas fa-edit me-2"></i>Update Status - {{ $reservation->reservation_id }}
-                                            </h5>
-                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body p-4">
-                                            <form action="{{ route('staff.updateStatus', $reservation->id) }}" method="POST">
-                                                @csrf
-                                                <div class="mb-4">
-                                                    <label for="payment_status" class="form-label fw-semibold text-muted">
-                                                        <i class="fas fa-money-bill me-2"></i>Payment Status
-                                                    </label>
-                                                    <select class="form-select form-select-lg border-2" name="payment_status" id="payment_status" style="border-color: #0b573d">
-                                                        <option value="" disabled selected hidden>Choose payment status</option>
-                                                         <option value="on-hold" {{ old('payment_status', $reservation->payment_status) == 'on-hold' ? 'selected' : '' }}>On-Hold</option>
-                                                        <option value="paid" {{ old('payment_status', $reservation->payment_status) == 'paid' ? 'selected' : '' }}>Paid</option>
-                                                        <option value="partial" {{ old('payment_status', $reservation->payment_status) == 'partial' ? 'selected' : '' }}>Partial</option>
-                                                        <option value="unpaid" {{ old('payment_status', $reservation->payment_status) == 'unpaid' ? 'selected' : '' }}>Unpaid</option>
-                                                    </select>
-                                                </div>
-
-                                                <div class="mb-4">
-                                                    <label for="reservation_status" class="form-label fw-semibold text-muted">
-                                                        <i class="fas fa-calendar-check me-2"></i>Reservation Status
-                                                    </label>
-                                                <select class="form-select form-select-lg border-2" name="reservation_status" id="reservation_status" style="border-color: #0b573d">
-                                                    <option value="" disabled selected hidden>Choose reservation status</option>
-                                                    <option value="on-hold" {{ $reservation->reservation_status == 'on-hold' ? 'selected' : '' }}>On-Hold</option>
-                                                    <option value="reserved" {{ $reservation->reservation_status == 'reserved' ? 'selected' : '' }}>Reserved</option>
-                                                    <option value="checked-in" {{ $reservation->reservation_status == 'checked-in' ? 'selected' : '' }}>Checked-In</option>
-                                                    <option value="early-checked-out" {{ $reservation->reservation_status == 'early-checked-out' ? 'selected' : '' }}>Early Checked-Out</option>
-                                                    <option value="checked-out" {{ $reservation->reservation_status == 'checked-out' ? 'selected' : '' }}>Checked-Out</option>
-                                                    <option value="cancelled" {{ $reservation->reservation_status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
-                                                </select>
-                                                </div>
-
-                                                <div class="mb-4">
-                                                    <label for="custom_message" class="form-label fw-semibold text-muted">
-                                                        <i class="fas fa-comment-alt me-2"></i>Custom Message
-                                                    </label>
-                                                    <textarea class="form-control border-2" name="custom_message" id="custom_message" rows="3" style="border-color: #0b573d" placeholder="Enter additional notes or message..."></textarea>
-                                                </div>
-
-                                                <button type="submit" class="btn btn-success w-100 py-3 fw-bold text-uppercase" style="background-color: #0b573d">
-                                                    <i class="fas fa-check-circle me-2"></i>Update Status
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- View Reservation Details Modal -->
-                            <div class="modal fade" id="viewReservationModal{{ $reservation->id }}" tabindex="-1" aria-hidden="true">
-                                <div class="modal-dialog modal-lg modal-dialog-centered">
-                                    <div class="modal-content border-0">
-                                        <div class="modal-header" style="background-color: #0b573d; color: white;">
-                                            <h5 class="modal-title">
-                                                <i class="fas fa-calendar-plus me-2"></i>Extend Reservation Stay - {{ $reservation->reservation_id }}
-                                            </h5>
-                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <form action="{{ route('staff.extendReservation', $reservation->id) }}" method="POST">
-                                            @csrf
-                                            <div class="modal-body p-4" style="background-color: #f8f9fa;">
-                                                <input type="hidden" name="additional_payment" id="additional_payment" value="0">
-                                                <div class="row g-3">
-                                                    <!-- Current Reservation Details -->
-                                                    <div class="col-md-6">
-                                                        <div class="card h-100 shadow-sm border-0">
-                                                            <div class="card-header" style="background-color: #0b573d; color: white;">
-                                                                <h6 class="fw-bold mb-0"><i class="fas fa-info-circle me-2"></i>Current Reservation</h6>
-                                                            </div>
-                                                            <div class="card-body">
-                                                                <p class="mb-2"><strong>Guest Name:</strong> {{ $reservation->name }}</p>
-                                                                <p class="mb-2"><strong>Email:</strong> {{ $reservation->email }}</p>
-                                                                <p class="mb-2"><strong>Room Name:</strong> {{ $reservation->accomodation_name }}</p>
-                                                                <p class="mb-2"><strong>Current Check-in:</strong> {{ \Carbon\Carbon::parse($reservation->reservation_check_in_date)->format('F j, Y') }}</p>
-                                                                <p class="mb-2"><strong>Current Check-out:</strong> {{ \Carbon\Carbon::parse($reservation->reservation_check_out_date)->format('F j, Y') }}</p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <!-- Extension Form -->
-                                                    <div class="col-md-6">
-                                                        <div class="card h-100 shadow-sm border-0">
-                                                            <div class="card-header" style="background-color: #0b573d; color: white;">
-                                                                <h6 class="fw-bold mb-0"><i class="fas fa-calendar-plus me-2"></i>Extend Stay</h6>
-                                                            </div>
-                                                            <div class="card-body">
-                                                                <div class="form-group mb-3">
-                                                                    <label class="form-label">New Check-out Date</label>
-                                                                    <input type="date" class="form-control" name="new_checkout_date" 
-                                                                        min="{{ \Carbon\Carbon::parse($reservation->reservation_check_out_date)->addDay()->format('Y-m-d') }}"
-                                                                        required>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <!-- Additional Charges Card -->
-                                                    <div class="col-12">
-                                                        <div class="card shadow-sm border-0">
-                                                            <div class="card-header" style="background-color: #0b573d; color: white;">
-                                                                <h6 class="fw-bold mb-0"><i class="fas fa-money-bill me-2"></i>Extension Charges</h6>
-                                                            </div>
-                                                            <div class="card-body">
-                                                                <div class="row">
-                                                                    <div class="col-md-6">
-                                                                        <p class="mb-2"><strong>Current Total:</strong> ₱{{ number_format($reservation->amount, 2) }}</p>
-                                                                        <p class="mb-2"><strong>Extension Fee (per night):</strong> ₱<span id="extension_fee">{{ number_format($reservation->accomodation_price, 2) ?? '0.00' }}</span></p>
-                                                                    </div>
-                                                                    <div class="col-md-6">
-                                                                        <p class="mb-2"><strong>Additional Nights:</strong> <span id="additional_nights">0</span></p>
-                                                                        <p class="mb-2"><strong>Total Extension Cost:</strong> ₱<span id="total_extension_cost" name="additional_payment">0.00</span></p>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="modal-footer" style="background-color: #f8f9fa;">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                <button type="submit" class="btn text-white" style="background-color: #0b573d;">
-                                                    <i class="fas fa-check me-2"></i>Confirm Extension
-                                                </button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                            @endif
-                        @empty
-                            <tr>
-                                <td colspan="16" class="text-center py-5">
-                                    <div class="d-flex flex-column align-items-center">
-                                        <i class="fas fa-calendar-times fs-1 text-muted mb-3"></i>
-                                        <h5 class="text-muted">No {{ ucfirst($currentStatus) }} Reservations Found</h5>
-                                        <p class="text-muted">
-                                            @if($currentStatus == 'pending')
-                                                Great! All reservations have been processed.
-                                            @else
-                                                No reservations with {{ $currentStatus }} status at the moment.
-                                            @endif
-                                        </p>
-                                        @if($currentStatus != 'pending')
-                                            <a href="{{ route('staff.reservation', ['status' => 'pending']) }}" class="btn btn-outline-primary">
-                                                <i class="fas fa-clock me-2"></i>View Pending Reservations
-                                            </a>
-                                        @endif
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-                    <div class="d-flex justify-content-between align-items-center mt-3">
-                        <div class="text-muted small">
-                            Showing reservations with status: {{ ucfirst($currentStatus) }}
-                        </div>
-                        <nav aria-label="Page navigation">
-                            <ul class="pagination pagination-sm">
-                                {{ $reservations->links('pagination::bootstrap-4') }}
-                            </ul>
-                        </nav>
-                    </div>
-
-                </div>
-         </div>
+            </form>
+        </div>
     </div>
-    
+</div>
 
-    <script>
+<!-- Table -->
+<div class="card shadow-sm border-0 rounded-4 mb-4 mt-4 p-2">
+    <div style="overflow-x: auto;">
+        <table class="table table-hover table-striped table-responsive table-sm">
+        <thead style="background-color: #0b573d; color: white;">
+        <tr>
+            <th class="text-center align-middle">ResID</th>
+            <th class="text-center align-middle">Name</th>
+            <th class="text-center align-middle">Phone Number</th>
+            <th class="text-center align-middle">Room</th>
+            <th class="text-center align-middle">Room Qty</th>
+            <th class="text-center align-middle">Ref Num</th>
+            <th class="text-center align-middle">Amount</th>
+            <th class="text-center align-middle">Balance</th>
+            <th class="text-center align-middle">Stay Type</th>
+            <th class="text-center align-middle">Reservation Status</th>
+            <th class="text-center align-middle">Payment Status</th>
+            <th class="text-center align-middle">Proof of Payment</th>
+            <th class="text-center align-middle">Action</th>
+        </tr>
+        </thead>
+        <tbody>
+            @php
+                $currentStatus = request('status', 'pending');
+            @endphp
+            
+            @forelse ($reservations as $reservation)
+                @if($reservation->reservation_status == $currentStatus)
+                <tr class="{{ $reservation->reservation_status == 'pending' ? 'pending-highlight' : '' }}">
+                    <td class="text-center align-middle">
+                        <span class="fw-bold" style="color: #0b573d;">{{ $reservation->reservation_id }}</span>
+                    </td>
+                    <td class="text-center align-middle">{{ $reservation->name }}</td>
+                    <td class="text-center align-middle">{{ $reservation->mobileNo }}</td>
+                    <td class="text-center align-middle">
+                    @php
+                        $accommodationNames = is_array($reservation->accommodations) ? $reservation->accommodations : [];
+                    @endphp
+                    {{ implode(', ', $accommodationNames) }}
+                    </td>
+                    <td class="text-center align-middle">{{$reservation->quantity}}</td>
+                    <td class="text-center align-middle">{{ $reservation->reference_num }}</td>
+                    <td class="text-center align-middle">₱{{ number_format($reservation->amount ?? 0, 2)  }}</td>
+                    <td class="text-center align-middle">₱{{ number_format($reservation->balance ?? 0, 2)  }}</td>
+                    <td class="text-center align-middle">
+                        <span class="badge rounded-pill" style="background-color: #e8f5e9; color: #0b573d;">
+                            {{ $reservation->stay_type ?? "Unknown" }}
+                        </span>
+                    </td>
+
+                    <td class="text-center align-middle">
+                        <span class="badge rounded-pill py-2 px-2
+                            {{ $reservation->reservation_status == 'reserved' ? 'bg-primary' : 
+                            ($reservation->reservation_status == 'checked-in' ? 'bg-success' : 
+                            ($reservation->reservation_status == 'checked-out' ? 'bg-danger' :
+                            ($reservation->reservation_status == 'cancelled' ? 'bg-danger' : 'bg-warning'))) }}" style="font-size: .7rem;">
+                            {{ ucfirst($reservation->reservation_status) }}
+                            @if($reservation->reservation_status == 'pending')
+                                <i class="fas fa-clock ms-1"></i>
+                            @endif
+                        </span>
+                    </td>
+                    <td class="text-center align-middle">
+                        <span class="badge rounded-pill py-2 px-3
+                            {{ $reservation->payment_status == 'pending' ? 'bg-warning' : 
+                            ($reservation->payment_status == 'paid' ? 'bg-success' : 
+                            ( $reservation->payment_status == 'on-hold' ? 'bg-warning' : 
+                            ($reservation->payment_status == 'booked' ? 'bg-primary' : 'bg-danger'))) }}" style="font-size: .7rem;">
+                            {{ ucfirst($reservation->payment_status) }}
+                        </span>
+                    </td>
+                    <td class="text-center align-middle">
+                        @if ($reservation->upload_payment)
+                            <a href="{{ route('payment.proof', ['filename' => basename($reservation->upload_payment)]) }}" target="_blank" class="btn btn-sm btn-outline-info">
+                                <i class="fas fa-image me-1"></i>View
+                            </a>
+                        @else
+                            <span class="text-muted small">No proof uploaded</span>
+                        @endif
+                    </td>
+                    <td class="d-flex align-items-center gap-2" style="height: 100px;">
+                        <button type="button" 
+                            class="btn" 
+                            style="background-color: #0b573d; color: white; transition: all 0.3s ease; height: 38px;"
+                            onmouseover="this.style.backgroundColor='#083d2a'; this.style.transform='scale(1.05)'" 
+                            onmouseout="this.style.backgroundColor='#0b573d'; this.style.transform='scale(1)'"
+                            data-bs-toggle="modal" 
+                            data-bs-target="#updateReservationStatusModal{{ $reservation->id }}"
+                            title="Update Status">
+                            <i class="fa-pencil fa-solid"></i>
+                        </button>
+                        <button type="button" 
+                                class="btn btn-info"
+                                onmouseover="this.style.backgroundColor='#083d2a'; this.style.transform='scale(1.05)'" 
+                                onmouseout="this.style.backgroundColor='#0b573d'; this.style.transform='scale(1)'"
+                                data-bs-toggle="modal" 
+                                data-bs-target="#viewReservationModal{{ $reservation->id }}"
+                                style="background-color: #0b573d; color: white; border: none; height: 38px;"
+                                title="View Details">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </td>
+                </tr>
+                <!-- Update Reservation and Payment Status Modal -->
+                <div class="modal fade" id="updateReservationStatusModal{{ $reservation->id }}" tabindex="-1" aria-labelledby="updateReservationStatusModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content border-0 shadow">
+                            <div class="modal-header bg-success text-white" style="background-color: #0b573d !important;">
+                                <h5 class="modal-title fw-bold" id="updateReservationStatusModalLabel">
+                                    <i class="fas fa-edit me-2"></i>Update Status - {{ $reservation->reservation_id }}
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body p-4">
+                                <form action="{{ route('staff.updateStatus', $reservation->id) }}" method="POST">
+                                    @csrf
+                                    <div class="mb-4">
+                                        <label for="payment_status" class="form-label fw-semibold text-muted">
+                                            <i class="fas fa-money-bill me-2"></i>Payment Status
+                                        </label>
+                                        <select class="form-select form-select-lg border-2" name="payment_status" id="payment_status" style="border-color: #0b573d">
+                                            <option value="" disabled selected hidden>Choose payment status</option>
+                                             <option value="on-hold" {{ old('payment_status', $reservation->payment_status) == 'on-hold' ? 'selected' : '' }}>On-Hold</option>
+                                            <option value="paid" {{ old('payment_status', $reservation->payment_status) == 'paid' ? 'selected' : '' }}>Paid</option>
+                                            <option value="partial" {{ old('payment_status', $reservation->payment_status) == 'partial' ? 'selected' : '' }}>Partial</option>
+                                            <option value="unpaid" {{ old('payment_status', $reservation->payment_status) == 'unpaid' ? 'selected' : '' }}>Unpaid</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <label for="reservation_status" class="form-label fw-semibold text-muted">
+                                            <i class="fas fa-calendar-check me-2"></i>Reservation Status
+                                        </label>
+                                    <select class="form-select form-select-lg border-2" name="reservation_status" id="reservation_status" style="border-color: #0b573d">
+                                        <option value="" disabled selected hidden>Choose reservation status</option>
+                                        <option value="on-hold" {{ $reservation->reservation_status == 'on-hold' ? 'selected' : '' }}>On-Hold</option>
+                                        <option value="reserved" {{ $reservation->reservation_status == 'reserved' ? 'selected' : '' }}>Reserved</option>
+                                        <option value="checked-in" {{ $reservation->reservation_status == 'checked-in' ? 'selected' : '' }}>Checked-In</option>
+                                        <option value="early-checked-out" {{ $reservation->reservation_status == 'early-checked-out' ? 'selected' : '' }}>Early Checked-Out</option>
+                                        <option value="checked-out" {{ $reservation->reservation_status == 'checked-out' ? 'selected' : '' }}>Checked-Out</option>
+                                        <option value="cancelled" {{ $reservation->reservation_status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                                    </select>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <label for="custom_message" class="form-label fw-semibold text-muted">
+                                            <i class="fas fa-comment-alt me-2"></i>Custom Message
+                                        </label>
+                                        <textarea class="form-control border-2" name="custom_message" id="custom_message" rows="3" style="border-color: #0b573d" placeholder="Enter additional notes or message..."></textarea>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-success w-100 py-3 fw-bold text-uppercase" style="background-color: #0b573d">
+                                        <i class="fas fa-check-circle me-2"></i>Update Status
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- View Reservation Details Modal -->
+                <div class="modal fade" id="viewReservationModal{{ $reservation->id }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                        <div class="modal-content border-0">
+                            <div class="modal-header" style="background-color: #0b573d; color: white;">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-calendar-plus me-2"></i>Extend Reservation Stay - {{ $reservation->reservation_id }}
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <form action="{{ route('staff.extendReservation', $reservation->id) }}" method="POST">
+                                @csrf
+                                <div class="modal-body p-4" style="background-color: #f8f9fa;">
+                                    <input type="hidden" name="additional_payment" id="additional_payment" value="0">
+                                    <div class="row g-3">
+                                        <!-- Current Reservation Details -->
+                                        <div class="col-md-6">
+                                            <div class="card h-100 shadow-sm border-0">
+                                                <div class="card-header" style="background-color: #0b573d; color: white;">
+                                                    <h6 class="fw-bold mb-0"><i class="fas fa-info-circle me-2"></i>Current Reservation</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <p class="mb-2"><strong>Guest Name:</strong> {{ $reservation->name }}</p>
+                                                    <p class="mb-2"><strong>Email:</strong> {{ $reservation->email }}</p>
+                                                    <p class="mb-2"><strong>Room Name:</strong> {{ $reservation->accomodation_name }}</p>
+                                                    <p class="mb-2"><strong>Current Check-in:</strong> {{ \Carbon\Carbon::parse($reservation->reservation_check_in_date)->format('F j, Y') }}</p>
+                                                    <p class="mb-2"><strong>Current Check-out:</strong> {{ \Carbon\Carbon::parse($reservation->reservation_check_out_date)->format('F j, Y') }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Extension Form -->
+                                        <div class="col-md-6">
+                                            <div class="card h-100 shadow-sm border-0">
+                                                <div class="card-header" style="background-color: #0b573d; color: white;">
+                                                    <h6 class="fw-bold mb-0"><i class="fas fa-calendar-plus me-2"></i>Extend Stay</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="form-group mb-3">
+                                                        <label class="form-label">New Check-out Date</label>
+                                                        <input type="date" class="form-control" name="new_checkout_date" 
+                                                            min="{{ \Carbon\Carbon::parse($reservation->reservation_check_out_date)->addDay()->format('Y-m-d') }}"
+                                                            required>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Additional Charges Card -->
+                                        <div class="col-12">
+                                            <div class="card shadow-sm border-0">
+                                                <div class="card-header" style="background-color: #0b573d; color: white;">
+                                                    <h6 class="fw-bold mb-0"><i class="fas fa-money-bill me-2"></i>Extension Charges</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <p class="mb-2"><strong>Current Total:</strong> ₱{{ number_format($reservation->amount, 2) }}</p>
+                                                            <p class="mb-2"><strong>Extension Fee (per night):</strong> ₱<span id="extension_fee">{{ number_format($reservation->accomodation_price, 2) ?? '0.00' }}</span></p>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <p class="mb-2"><strong>Additional Nights:</strong> <span id="additional_nights">0</span></p>
+                                                            <p class="mb-2"><strong>Total Extension Cost:</strong> ₱<span id="total_extension_cost" name="additional_payment">0.00</span></p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="modal-footer" style="background-color: #f8f9fa;">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn text-white" style="background-color: #0b573d;">
+                                        <i class="fas fa-check me-2"></i>Confirm Extension
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                @endif
+            @empty
+                <tr>
+                    <td colspan="16" class="text-center py-5">
+                        <div class="d-flex flex-column align-items-center">
+                            <i class="fas fa-calendar-times fs-1 text-muted mb-3"></i>
+                            <h5 class="text-muted">No {{ ucfirst($currentStatus) }} Reservations Found</h5>
+                            <p class="text-muted">
+                                @if($currentStatus == 'pending')
+                                    Great! All reservations have been processed.
+                                @else
+                                    No reservations with {{ $currentStatus }} status at the moment.
+                                @endif
+                            </p>
+                            @if($currentStatus != 'pending')
+                                <a href="{{ route('staff.reservation', ['status' => 'pending']) }}" class="btn btn-outline-primary">
+                                    <i class="fas fa-clock me-2"></i>View Pending Reservations
+                                </a>
+                            @endif
+                        </div>
+                    </td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <div class="text-muted small">
+                Showing reservations with status: {{ ucfirst($currentStatus) }}
+            </div>
+            <nav aria-label="Page navigation">
+                <ul class="pagination pagination-sm">
+                    {{ $reservations->links('pagination::bootstrap-4') }}
+                </ul>
+            </nav>
+        </div>
+
+    </div>
+</div>
+                </div>
+            </div>
+        </div>
+        <div class="mb-4"></div>
+    </div>
+</div>
+
+
+
+
+<script>
         // Auto-load pending reservations on page load
         document.addEventListener('DOMContentLoaded', function() {
             // If no status is specified in URL, ensure pending is selected
@@ -830,7 +660,8 @@
         }
         
     </script>
-    <script>
+
+<script>
         // Extension date calculation script
         document.addEventListener('DOMContentLoaded', function() {
             // Add event listener for each reservation's date input
@@ -865,5 +696,10 @@
             });
         });
     </script>
+
+
+
+
+
 </body>
 </html>

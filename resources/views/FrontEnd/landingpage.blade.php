@@ -81,7 +81,8 @@
     .nav-link.custom-hover:hover {
         color: #0b573d !important;
     }
-    .nav-link-login:hover{
+
+    .nav-link-login:hover {
         scale: 1.1;
         transition: all 0.3s ease;
         border: 2px solid #ffffff;
@@ -89,7 +90,7 @@
 </style>
 
 <body>
-
+    <x-loading-screen />
     <!-- Navbar (Fixed at the Top with z-index) -->
     <nav class="navbar navbar-expand-lg position-absolute w-100" style="z-index: 10; top: 20px;">
         <div class="container">
@@ -144,8 +145,9 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link-login d-flex align-items-center gap-3 py-2 px-3 position-relative overflow-hidden" 
-                            href="{{ route('login') }}" style="background-color: #0b573d; transition: all 0.3s ease; border-radius: 20px; text-decoration: none;">
+                        <a class="nav-link-login d-flex align-items-center gap-3 py-2 px-3 position-relative overflow-hidden"
+                            href="{{ route('login') }}"
+                            style="background-color: #0b573d; transition: all 0.3s ease; border-radius: 20px; text-decoration: none;">
                             <i class="fas fa-sign-in-alt" style="color:rgb(255, 255, 255); font-size: 1.1rem;"></i>
                             <span class="fw-semibold text-uppercase"
                                 style="color:rgb(255, 255, 255); letter-spacing: 2px; font-size: 1rem;">

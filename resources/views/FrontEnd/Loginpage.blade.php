@@ -132,6 +132,7 @@
     </style>
 </head>
 <body>
+    <x-loading-screen/>
     @include('Alert.errorLogin')
     @include('Alert.loginSuccessUser')
 

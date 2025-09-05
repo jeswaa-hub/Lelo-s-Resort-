@@ -54,6 +54,7 @@
 </style>
 
 <body>
+    <x-loading-screen />
     @include('Alert.loginSuccessUser')
     <div class="d-none d-md-block"
         style="position: absolute; top: 0; right: 0; width: 45%; height: 100vh; background-color: rgba(0, 0, 0, 0.5); z-index: 1; border-radius: 550px 0 0 600px;">

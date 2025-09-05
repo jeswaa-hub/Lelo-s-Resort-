@@ -38,16 +38,17 @@
             </div>
 
             
-            <div class="position-absolute d-flex flex-column align-items-start align-items-sm-start text-center text-sm-start" 
-                style="top:250px; left:200px; width:100%;">
-                <p class="text-white me-3" style="font-family: 'Poppins', sans-serif; font-size: 3rem; letter-spacing: 5px;">
-                    Hello
-                </p>
-                <h1 class="text-capitalize" 
-                    style="font-family: 'Montserrat', sans-serif; font-size: 5rem; color:#ffffff; letter-spacing: 15px; white-space: nowrap;">
-                    {{ $staffCredentials->username }}!
-                </h1>
-            </div>
+<div class="position-absolute d-flex flex-column align-items-start text-start" 
+    style="top: 50%; left: 61%; transform: translate(-50%, -50%); width: 100%; padding: 0 20px;">
+
+    <p class="text-white" style="font-family: 'Poppins', sans-serif; font-size: clamp(2rem, 5vw, 3rem); letter-spacing: 5px;">
+        Hello,
+    </p>
+    <h1 class="text-capitalize fw-bolder" 
+        style="font-family: 'Montserrat', sans-serif; font-size: clamp(3rem, 8vw, 5rem); color:#ffffff; letter-spacing: clamp(5px, 2vw, 15px); white-space: normal; overflow-wrap: break-word; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
+        {{ $staffCredentials->username }}!
+    </h1>
+</div>
             <div class="position-absolute w-100" style="top: 450px; left: 0;">
                 <div class="d-flex justify-content-center">
                     <div class="w-75">

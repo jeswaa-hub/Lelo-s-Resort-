@@ -24,17 +24,30 @@
 
     <!-- HERO BANNER -->
     <div class="row">
-        <div class="col-11 mx-auto">
-            <div class="hero-banner" style="background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(34, 34, 34, 0.5)), url('{{ asset('images/DSCF2777.JPG') }}'); background-size: cover; background-position: center; height: 450px; border-radius: 15px;">
+    <div class="col-11 mx-auto">
+        <div class="hero-banner" 
+             style="background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(34, 34, 34, 0.5)), url('{{ asset('images/DSCF2777.JPG') }}'); 
+                    background-size: cover; 
+                    background-position: center; 
+                    height: 450px; 
+                    border-radius: 15px;">
+            <div class="d-flex justify-content-start align-items-center h-100">
+                <div class="ms-5">
+                    <p class="text-white mb-0" style="font-size: 2.5rem; font-family: 'Poppins', sans-serif; margin-left: 5rem;">Hello,</p>
+                    <h1 class="text-white fw-bold" style="font-size: 4.5rem; font-family: 'Poppins', sans-serif; margin-left: 5rem;">
+                        Staff002!
+                    </h1>
+                </div>
             </div>
         </div>
     </div>
+</div>
 
     <!-- SEARCH BOX -->
     <div class="row mt-4">
         <div class="col-11 mx-auto">
             <div class="position-relative">
-                <form action="{{ route('staff.guests') }}" method="GET" class="d-flex gap-2 position-absolute" style="bottom: 180px; right: 20px;">
+                <form action="{{ route('staff.guests') }}" method="GET" class="d-flex gap-2 position-absolute" style="bottom: 180px; right: 125px;">
                     <div class="input-group shadow-sm shadow-hover" 
                          style="border-radius: 8px; 
                                 overflow: hidden;
@@ -77,21 +90,21 @@
                             <table class="table table-hover">
                                 <thead style="background-color: #f5f5f5;">
                                     <tr>
-                                        <th style="color: #0b573d;">Guest Details</th>
-                                        <th style="color: #0b573d;">Phone Number</th>
-                                        <th style="color: #0b573d;">Address</th>
-                                        <th style="color: #0b573d;">Actions</th>
+                                        <th style="color: #0b573d; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background-color: #f8f9fa; border-radius: 4px;">Guest Name</th>
+                                        <th style="color: #0b573d; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background-color: #f8f9fa; border-radius: 4px;">Phone Number</th>
+                                        <th style="color: #0b573d; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background-color: #f8f9fa; border-radius: 4px;">Address</th>
+                                        <th style="color: #0b573d; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background-color: #f8f9fa; border-radius: 4px;">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach($guests as $guest)
                                     <tr>
                                         <td>
-                                            <div>{{ $guest->name }}</div>
+                                            <div class="fw-bold">{{ $guest->name }}</div>
                                             <div class="text-muted small">{{ $guest->email }}</div>
                                         </td>
-                                        <td>{{ $guest->mobileNo }}</td>
-                                        <td>{{ $guest->address }}</td>
+                                        <td><strong>{{ $guest->mobileNo }}</strong></td>
+                                        <td><strong>{{ $guest->address }}</strong></td>
                                         <td>
                                             <div class="btn-group" role="group">
                                                 <button type="button" class="btn btn-sm" style="background-color:#0b573d;" data-bs-toggle="modal" data-bs-target="#viewReservations{{ $guest->id }}">

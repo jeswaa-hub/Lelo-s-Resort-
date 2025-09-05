@@ -70,13 +70,13 @@
                         </div>
                         
                         <!-- Total Reservations -->
-                        <div class="d-flex align-items-center bg-white text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm">
-                            <div>
-                                <h1 class="fw-bold mb-0 text-success" style="font-size: clamp(2rem, 4vw, 3rem);">{{ $totalCount ?? 0 }}</h1>
-                                <p class="mb-0 fw-semibold" style="font-size: clamp(1rem, 2vw, 1.5rem);">Total Reservations</p>
+                        <div class="d-flex align-items-center rounded-3 shadow-sm" style="background: linear-gradient(135deg, #ffffff 50%, #f8f9fa 50%);">
+                            <div class="p-3 p-md-4 p-lg-5">
+                                <h1 class="fw-bold mb-0" style="font-size: clamp(2rem, 4vw, 3rem); color: #198754;">{{ $totalCount ?? 0 }}</h1>
+                                <p class="mb-0 fw-semibold" style="font-size: clamp(1rem, 2vw, 1.5rem); color: #198754;">Total Reservations</p>
                             </div>
-                            <div class="ms-auto">
-                                <i class="fas fa-calendar-check" style="font-size: clamp(2.5rem, 4vw, 4rem); color: #6c757d;"></i>
+                            <div class="ms-auto p-3 p-md-4 p-lg-5">
+                                <i class="fas fa-calendar-check" style="font-size: clamp(2.5rem, 4vw, 4rem); background: linear-gradient(45deg, #343a40, #6c757d); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
                             </div>
                         </div>
                     </div>
@@ -87,52 +87,52 @@
                     <div class="row row-cols-1 row-cols-sm-2 g-3 g-md-4">
                         <!-- Checked-in -->
                         <div class="col">
-                            <div class="d-flex align-items-center bg-white text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100">
+                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100" style="background-color: #3E776E;">
                                 <div>
-                                    <h1 class="fw-bold mb-0 text-success" style="font-size: clamp(1.8rem, 3vw, 3rem);">{{ $checkedInCount ?? 0 }}</h1>
-                                    <p class="mb-0 fw-semibold" style="font-size: clamp(0.9rem, 1.5vw, 1.2rem);">Checked-in</p>
+                                    <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.8rem, 3vw, 3rem);">{{ $checkedInCount ?? 0 }}</h1>
+                                    <p class="mb-0 fw-semibold text-white" style="font-size: clamp(0.9rem, 1.5vw, 1.2rem);">Checked-in</p>
                                 </div>
                                 <div class="ms-auto">
-                                    <i class="fas fa-user-check" style="font-size: clamp(2rem, 3vw, 3.5rem); color: #6c757d;"></i>
+                                    <i class="fas fa-user-check text-white" style="font-size: clamp(2rem, 3vw, 3.5rem);"></i>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Checked-out -->
                         <div class="col">
-                            <div class="d-flex align-items-center bg-white text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100">
+                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100" style="background-color: #37A51F;">
                                 <div>
-                                    <h1 class="fw-bold mb-0 text-success" style="font-size: clamp(1.8rem, 3vw, 3rem);">{{ $checkedOutCount ?? 0 }}</h1>
-                                    <p class="mb-0 fw-semibold" style="font-size: clamp(0.9rem, 1.5vw, 1.2rem);">Check-out</p>
+                                    <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.8rem, 3vw, 3rem);">{{ $checkedOutCount ?? 0 }}</h1>
+                                    <p class="mb-0 fw-semibold text-white" style="font-size: clamp(0.9rem, 1.5vw, 1.2rem);">Check-out</p>
                                 </div>
                                 <div class="ms-auto">
-                                    <i class="fas fa-sign-out-alt" style="font-size: clamp(2rem, 3vw, 3.5rem); color: #6c757d;"></i>
+                                    <i class="fas fa-sign-out-alt text-white" style="font-size: clamp(2rem, 3vw, 3.5rem);"></i>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Pending -->
                         <div class="col">
-                            <div class="d-flex align-items-center bg-white text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100">
+                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100" style="background-color: #37A51F;">
                                 <div>
-                                    <h1 class="fw-bold mb-0 text-success" style="font-size: clamp(1.8rem, 3vw, 3rem);">{{ $pendingCount ?? 0 }}</h1>
-                                    <p class="mb-0 fw-semibold" style="font-size: clamp(0.9rem, 1.5vw, 1.2rem);">Pending</p>
+                                    <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.8rem, 3vw, 3rem);">{{ $pendingCount ?? 0 }}</h1>
+                                    <p class="mb-0 fw-semibold text-white" style="font-size: clamp(0.9rem, 1.5vw, 1.2rem);">Pending</p>
                                 </div>
                                 <div class="ms-auto">
-                                    <i class="fas fa-clock" style="font-size: clamp(2rem, 3vw, 3.5rem); color: #6c757d;"></i>
+                                    <i class="fas fa-clock text-white" style="font-size: clamp(2rem, 3vw, 3.5rem);"></i>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Reserved -->
                         <div class="col">
-                            <div class="d-flex align-items-center bg-white text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100">
+                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100" style="background-color: #3E776E;">
                                 <div>
-                                    <h1 class="fw-bold mb-0 text-success" style="font-size: clamp(1.8rem, 3vw, 3rem);">{{ $reservedCount ?? 0 }}</h1>
-                                    <p class="mb-0 fw-semibold" style="font-size: clamp(0.9rem, 1.5vw, 1.2rem);">Reserved</p>
+                                    <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.8rem, 3vw, 3rem);">{{ $reservedCount ?? 0 }}</h1>
+                                    <p class="mb-0 fw-semibold text-white" style="font-size: clamp(0.9rem, 1.5vw, 1.2rem);">Reserved</p>
                                 </div>
                                 <div class="ms-auto">
-                                    <i class="fas fa-bookmark" style="font-size: clamp(2rem, 3vw, 3.5rem); color: #6c757d;"></i>
+                                    <i class="fas fa-bookmark text-white" style="font-size: clamp(2rem, 3vw, 3.5rem);"></i>
                                 </div>
                             </div>
                         </div>

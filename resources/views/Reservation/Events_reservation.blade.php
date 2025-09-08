@@ -91,7 +91,6 @@
         }
     </style>
 </head>
-
 <body class="font-paragraph">
     @if (session('login_success'))
     <div class="toast-container position-fixed top-0 end-0 p-3">
@@ -106,7 +105,7 @@
         </div>
     </div>
     @endif
-    <x-loading-screen />
+    
     @include('Alert.loginSuccessUser')
 
     <!-- Navigation -->

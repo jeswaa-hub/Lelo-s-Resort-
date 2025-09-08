@@ -169,6 +169,7 @@ Route::middleware(['IsStaff' , 'prevent.back'])->group(function () {
     Route::post('/staff/extend-reservation/{id}', [StaffController::class, 'extendReservation'])->name('staff.extendReservation');
     Route::get('/staff/auto-cancellation', [StaffController::class, 'AutoCancellation'])->name('staff.autoCancellation');
     Route::get('/staff/accomodations', [StaffController::class, 'accomodations'])->name('staff.accomodations');
+    Route::get('/staff/accomodations/availability', [StaffController::class, 'getAvailability'])->name('staff.accomodations.availability');
     Route::get('/staff/walk-in-guest', [StaffController::class, 'walkIn'])->name('staff.walkIn');
     Route::get('/staff/walk-in-guest/add', [StaffController::class, 'walkInAdd'])->name('staff.walkin.create');
     Route::post('/staff/walk-in-guest/add', [StaffController::class, 'storeWalkInGuest'])->name('staff.walkin.store');

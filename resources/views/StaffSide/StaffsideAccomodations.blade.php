@@ -14,6 +14,22 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <style>
+    .availability-table {
+        margin-top: 20px;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .availability-table th {
+        background-color: #0b573d;
+        color: white;
+    }
+    .availability-table .text-success {
+        font-weight: bold;
+    }
+    .availability-table .text-danger {
+        font-weight: bold;
+    }
 </style>
 <body style="margin: 0; padding: 0; height: 100vh; background-color: white; overflow-x: hidden;">
     @include('Alert.loginSucess')
@@ -88,6 +104,31 @@
 
 <div class="container-fluid mt-4 shadow-lg p-4 bg-white rounded" style="max-width: 91.67%; margin: 0 auto;">
     <div class="container">
+        <!-- FILTER CONTROLS -->
+        <div class="filter-controls mb-4">
+            <form id="availabilityFilterForm" method="GET" action="{{ route('staff.accomodations') }}">
+                <div class="row align-items-center">
+                    <div class="col-md-3 mb-2">
+                        <select name="filter" class="form-control" id="filterSelect">
+                            <option value="overview" {{ $filter === 'overview' ? 'selected' : '' }}>Overview</option>
+                            <option value="daily" {{ $filter === 'daily' ? 'selected' : '' }}>Daily Availability</option>
+                            <option value="weekly" {{ $filter === 'weekly' ? 'selected' : '' }}>Weekly Availability</option>
+                            <option value="monthly" {{ $filter === 'monthly' ? 'selected' : '' }}>Monthly Availability</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <input type="date" name="date" class="form-control" id="dateInput" 
+                               value="{{ $date }}" {{ $filter === 'overview' ? 'disabled' : '' }}>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <button type="button" class="btn btn-primary" id="applyFilterBtn">
+                            Apply Filter
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div class="d-flex align-items-center gap-3">
                 <h2 class="fw-bold text-success mb-0 border-bottom" style="font-size: 2.5rem;">ROOM OVERVIEW</h2>
@@ -100,6 +141,28 @@
                         <option value="{{ $type }}">{{ ucfirst($type) }}s</option>
                     @endforeach
                 </select>
+            </div>
+        </div>
+
+        <!-- Availability Modal -->
+        <div class="modal fade" id="availabilityModal" tabindex="-1" aria-labelledby="availabilityModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color: #0b573d;">
+                        <h5 class="modal-title text-white" id="availabilityModalLabel">
+                            <i class="fas fa-calendar-check me-2"></i>Room Availability
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="availabilityResults">
+                            <!-- Results will be loaded here via AJAX -->
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -169,7 +232,7 @@
                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            @if($activeReservations->count() > 0)
+                            @if(isset($activeReservations) && $activeReservations->count() > 0)
                                 @foreach($activeReservations as $reservation)
                                 <div class="card shadow-sm mb-3">
                                     <div class="card-body">
@@ -320,6 +383,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Room type filter
             const filterSelect = document.getElementById('roomFilter');
             const tableRows = document.querySelectorAll('tbody tr');
 
@@ -336,9 +400,105 @@
                     }
                 });
             });
+
+            // Availability filter controls
+            const filterSelectElement = document.getElementById('filterSelect');
+            const dateInput = document.getElementById('dateInput');
+            
+            filterSelectElement.addEventListener('change', function() {
+                dateInput.disabled = this.value === 'overview';
+            });
+
+            // AJAX for availability filter
+            const applyFilterBtn = document.getElementById('applyFilterBtn');
+            const availabilityModal = new bootstrap.Modal(document.getElementById('availabilityModal'));
+            
+            applyFilterBtn.addEventListener('click', function() {
+                const filter = document.getElementById('filterSelect').value;
+                const date = document.getElementById('dateInput').value;
+                
+                if (filter === 'overview') {
+                    // If overview is selected, just submit the form normally
+                    document.getElementById('availabilityFilterForm').submit();
+                    return;
+                }
+                
+                if (!date) {
+                    alert('Please select a date for the availability check.');
+                    return;
+                }
+                
+                // Show loading state
+                document.getElementById('availabilityResults').innerHTML = `
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Checking availability...</p>
+                    </div>
+                `;
+                
+                // Make AJAX request
+                fetch(`/staff/accomodations/availability?filter=${filter}&date=${date}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        let html = `
+                            <h4>Availability for ${filter} period starting ${date}</h4>
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Accommodation</th>
+                                            <th>Total Rooms</th>
+                                            <th>Booked</th>
+                                            <th>Available</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                        `;
+                        
+                        if (data.length > 0) {
+                            data.forEach(item => {
+                                html += `
+                                    <tr>
+                                        <td>${item.name}</td>
+                                        <td>${item.total_rooms}</td>
+                                        <td>${item.booked}</td>
+                                        <td class="${item.available > 0 ? 'text-success fw-bold' : 'text-danger fw-bold'}">
+                                            ${item.available}
+                                        </td>
+                                    </tr>
+                                `;
+                            });
+                        } else {
+                            html += `
+                                <tr>
+                                    <td colspan="4" class="text-center">No availability data found</td>
+                                </tr>
+                            `;
+                        }
+                        
+                        html += `
+                                    </tbody>
+                                </table>
+                            </div>
+                        `;
+                        
+                        document.getElementById('availabilityResults').innerHTML = html;
+                        availabilityModal.show();
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        document.getElementById('availabilityResults').innerHTML = `
+                            <div class="alert alert-danger">
+                                Error loading availability data. Please try again.
+                            </div>
+                        `;
+                        availabilityModal.show();
+                    });
+            });
         });
-    </script>
-    <script>
+
         // Function to update countdown for a specific element
         function updateCountdown(element, checkoutDate) {
             const now = new Date().getTime();

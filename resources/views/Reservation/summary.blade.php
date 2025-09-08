@@ -13,6 +13,7 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 </head>
 <body class="bg-light font-paragraph" style="background: url('{{ asset('images/newbg.png') }}') no-repeat center center fixed; background-size: cover;">
+    <x-loading-screen />
     @include('Alert.loginSuccessUser')
     <div class="container mt-5 px-3">
         <div class="d-flex justify-content-between align-items-center">

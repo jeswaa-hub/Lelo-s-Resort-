@@ -298,6 +298,13 @@ public function cancelReservationWithReason(Request $request, $id)
 }
 public function reservations(Request $request)
 {
+    // Get current staff credentials
+    if (session()->has('StaffLogin')) {
+        $staffCredentials = Staff::where('id', session()->get('StaffLogin'))->first();
+    } else {
+        return redirect()->route('staff.login');
+    }
+
     // Count reservations by status
     $pendingCount = DB::table('reservation_details')
         ->where('reservation_status', 'pending')
@@ -322,7 +329,7 @@ public function reservations(Request $request)
     $reservedCount = DB::table('reservation_details')
         ->where('reservation_status', 'reserved')
         ->count();
-
+    
     $totalCount = DB::table('reservation_details')->count();
     $accommodationIdRows = DB::table('reservation_details')->pluck('accomodation_id');
     $allAccommodationIds = [];
@@ -358,12 +365,7 @@ public function reservations(Request $request)
         )
         ->orderByDesc('reservation_details.created_at');
 
-    // Add status filter
-    if ($request->has('status') && $request->status !== 'pending') {
-        $query->where('reservation_details.reservation_status', $request->status);
-    }
-
-    // Add search functionality
+    // Add search functionality FIRST (before status filter)
     if ($request->has('search')) {
         $searchTerm = $request->search;
         $query->where(function($q) use ($searchTerm) {
@@ -371,6 +373,13 @@ public function reservations(Request $request)
               ->orWhere('reservation_details.email', 'LIKE', '%' . $searchTerm . '%')
               ->orWhere('reservation_details.reservation_id', 'LIKE', '%' . $searchTerm . '%');
         });
+        
+        // If search is present, don't apply status filter (global search)
+        // This allows QR scanner to find reservations across all statuses
+    } else {
+        // Only apply status filter if no search is present
+        $status = $request->get('status', 'pending');
+        $query->where('reservation_details.reservation_status', $status);
     }
 
     // Add stay_type filter
@@ -432,6 +441,9 @@ public function reservations(Request $request)
         }
     }
 
+    $status = $request->get('status', 'pending'); // default pending
+    $reservationsPending = Reservation::where('reservation_status', $status)->get();
+
     // Debugging: Log the fetched details
     \Log::info('All Reservations:', ['reservations' => $reservations]);
     \Log::info('Pending Reservations Count:', ['count' => $pendingCount]);
@@ -448,7 +460,10 @@ public function reservations(Request $request)
         'earlyCheckedOutCount',
         'totalCount',
         'accommodationTypes',
-        'reservedCount'
+        'reservedCount',
+        'reservationsPending',
+        'status',
+        'staffCredentials'
     ));
 }
 
@@ -793,6 +808,12 @@ public function UpdateStatus(Request $request, $id)
 
     public function walkIn()
     {
+        //  Get current staff credentials
+        if (session()->has('StaffLogin')) {
+            $staffCredentials = Staff::where('id', session()->get('StaffLogin'))->first();
+        } else {
+            return redirect()->route('staff.login');
+        }
         // Get all transactions ordered by most recent first
         $transactions = DB::table('transaction')
             ->orderBy('created_at', 'desc')
@@ -824,7 +845,8 @@ public function UpdateStatus(Request $request, $id)
             ->paginate(5);
 
         // Guest status counts
-        $totalWalkInGuests = $walkinGuest->count();
+        $totalWalkInGuests = DB::table('walkin_guests')->count();
+        $totalReservedGuests = DB::table('walkin_guests')->where('reservation_status', 'reserved')->count();
         $totalCheckedInGuests = $walkinGuest->where('reservation_status', 'checked-in')->count();
         $totalCheckedOutGuests = $walkinGuest->where('reservation_status', 'checked-out')->count();
 
@@ -844,7 +866,9 @@ public function UpdateStatus(Request $request, $id)
             'start_time', 
             'end_time',
             'adultTransaction',
-            'kidTransaction'
+            'kidTransaction',
+            'staffCredentials',
+            'totalReservedGuests'
         ));
     }
 

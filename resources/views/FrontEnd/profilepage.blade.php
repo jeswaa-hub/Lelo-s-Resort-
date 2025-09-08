@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -205,6 +204,7 @@
             padding: 10px 15px !important;
             border-radius: 4px;
         }
+
         /* Custom animations and hover effects */
         .modal-content {
             animation: modalSlideIn 0.3s ease-out;
@@ -215,6 +215,7 @@
                 opacity: 0;
                 transform: translateY(-50px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -227,7 +228,7 @@
 
         .card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
         }
 
         #download-qr:hover {
@@ -240,9 +241,17 @@
         }
 
         @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.8; }
-            100% { opacity: 1; }
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.8;
+            }
+
+            100% {
+                opacity: 1;
+            }
         }
 
         /* Responsive adjustments */
@@ -250,18 +259,24 @@
             .modal-dialog {
                 margin: 0.5rem;
             }
-            
+
             .modal-header {
                 padding: 1.5rem 1rem 0.5rem;
             }
-            
+
             .card-body {
                 padding: 1rem;
             }
         }
+
         @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
         }
 
         /* Payment button hover effect */
@@ -280,6 +295,7 @@
                 opacity: 0;
                 transform: translateY(-50px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -292,7 +308,7 @@
 
         .card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
         }
 
         #download-qr:hover {
@@ -305,9 +321,17 @@
         }
 
         @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.8; }
-            100% { opacity: 1; }
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.8;
+            }
+
+            100% {
+                opacity: 1;
+            }
         }
 
         /* Responsive adjustments */
@@ -315,11 +339,11 @@
             .modal-dialog {
                 margin: 0.5rem;
             }
-            
+
             .modal-header {
                 padding: 1.5rem 1rem 0.5rem;
             }
-            
+
             .card-body {
                 padding: 1rem;
             }
@@ -330,7 +354,7 @@
 <body
     style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76)), url('{{ asset('images/DSCF2777.JPG') }}') no-repeat center center fixed; background-size: cover;">
     @include('Alert.infoNotif')
-
+    <x-loading-screen />
 
     <!-- Flash Messages -->
     <div class="position-fixed top-0 end-0 p-3" style="z-index: 9999;">
@@ -542,7 +566,7 @@
                 </div>
 
                 <div id="dateTimeDisplay" class="position-absolute mt-0 end-0 p-2 pe-5 text-end d-none d-lg-block"
-                    style="top: 4rem; z-index: 1100; font-family: 'Montserrat', sans-serif;">
+                    style="top: 4rem; z-index: 100; font-family: 'Montserrat', sans-serif;">
                     <div id="time" class="fw-bold fs-1"></div>
                     <div id="date" class="fs-5"></div>
                 </div>
@@ -612,30 +636,39 @@
                                     </div>
 
                                     <!-- Modal -->
-                                   <div class="modal fade" id="viewReservationModal" tabindex="-1" aria-labelledby="viewReservationModalLabel" aria-hidden="true">
+                                    <div class="modal fade" id="viewReservationModal" tabindex="-1"
+                                        aria-labelledby="viewReservationModalLabel" aria-hidden="true">
                                         <div class="modal-dialog modal-xl modal-dialog-centered">
                                             <div class="modal-content border-0 shadow-lg">
                                                 <!-- Enhanced Header -->
-                                                <div class="modal-header border-0 position-relative" style="background: linear-gradient(135deg, #0b573d 0%, #0d6b47 100%); padding: 2rem 2rem 1rem;">
+                                                <div class="modal-header border-0 position-relative"
+                                                    style="background: linear-gradient(135deg, #0b573d 0%, #0d6b47 100%); padding: 2rem 2rem 1rem;">
                                                     <div class="d-flex align-items-center">
                                                         <div class="bg-white bg-opacity-20 rounded-circle p-2 me-3">
-                                                            <img src="{{ asset('images/logo2.png') }}" alt="" height="40" width="40">
+                                                            <img src="{{ asset('images/logo2.png') }}" alt="" height="40"
+                                                                width="40">
                                                         </div>
                                                         <div>
-                                                            <h4 class="modal-title text-white mb-1 fw-bold" id="viewReservationModalLabel">
+                                                            <h4 class="modal-title text-white mb-1 fw-bold"
+                                                                id="viewReservationModalLabel">
                                                                 Reservation Details
                                                             </h4>
-                                                            <p class="text-white-50 mb-0 small">Reservation ID: {{ $latestReservation->reservation_id ?? 'N/A' }}</p>
+                                                            <p class="text-white-50 mb-0 small">Reservation ID:
+                                                                {{ $latestReservation->reservation_id ?? 'N/A' }}</p>
                                                         </div>
                                                     </div>
-                                                    <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" 
-                                                            data-bs-dismiss="modal" aria-label="Close"></button>
-                                                    
+                                                    <button type="button"
+                                                        class="btn-close btn-close-white position-absolute top-0 end-0 m-3"
+                                                        data-bs-dismiss="modal" aria-label="Close"></button>
+
                                                     <!-- Decorative wave -->
-                                                    <div class="position-absolute bottom-0 start-0 w-100" style="height: 20px; overflow: hidden;">
-                                                        <svg viewBox="0 0 1200 120" preserveAspectRatio="none" style="height: 100%; width: 100%;">
-                                                            <path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" 
-                                                opacity=".25" fill="white"></path>
+                                                    <div class="position-absolute bottom-0 start-0 w-100"
+                                                        style="height: 20px; overflow: hidden;">
+                                                        <svg viewBox="0 0 1200 120" preserveAspectRatio="none"
+                                                            style="height: 100%; width: 100%;">
+                                                            <path
+                                                                d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z"
+                                                                opacity=".25" fill="white"></path>
                                                         </svg>
                                                     </div>
                                                 </div>
@@ -654,8 +687,10 @@
                                                                     <i class="fas fa-sun me-2"></i>One Day Stay
                                                                 </span>
                                                             @else
-                                                                <span class="badge fs-6 px-4 py-2 rounded-pill" style="background-color: #0b573d;">
-                                                                    <i class="fas fa-bed me-2"></i>Stay In - {{ $daysDiff }} {{ Str::plural('Night', $daysDiff) }}
+                                                                <span class="badge fs-6 px-4 py-2 rounded-pill"
+                                                                    style="background-color: #0b573d;">
+                                                                    <i class="fas fa-bed me-2"></i>Stay In - {{ $daysDiff }}
+                                                                    {{ Str::plural('Night', $daysDiff) }}
                                                                 </span>
                                                             @endif
                                                         </div>
@@ -666,20 +701,25 @@
                                                         <div class="row g-4">
                                                             <!-- Left Column - Booking Information -->
                                                             <div class="col-lg-6">
-                                                                <div class="card border-0 shadow-sm h-100" style="background-color: #f8f9fa;">
+                                                                <div class="card border-0 shadow-sm h-100"
+                                                                    style="background-color: #f8f9fa;">
                                                                     <div class="card-header border-0 bg-transparent">
                                                                         <h6 class="mb-0 fw-bold" style="color: #0b573d;">
-                                                                            <i class="fas fa-info-circle me-2"></i>Booking Information
+                                                                            <i class="fas fa-info-circle me-2"></i>Booking
+                                                                            Information
                                                                         </h6>
                                                                     </div>
                                                                     <div class="card-body">
                                                                         <!-- Check-in Time -->
-                                                                        <div class="d-flex align-items-center mb-3 p-3 bg-white rounded-3 shadow-sm">
-                                                                            <div class="bg-success bg-opacity-10 rounded-circle p-2 me-3">
+                                                                        <div
+                                                                            class="d-flex align-items-center mb-3 p-3 bg-white rounded-3 shadow-sm">
+                                                                            <div
+                                                                                class="bg-success bg-opacity-10 rounded-circle p-2 me-3">
                                                                                 <i class="fas fa-clock text-success"></i>
                                                                             </div>
                                                                             <div class="flex-grow-1">
-                                                                                <small class="text-muted d-block">Check-in Time</small>
+                                                                                <small class="text-muted d-block">Check-in
+                                                                                    Time</small>
                                                                                 <strong style="color: #0b573d;">
                                                                                     {{ date('h:i A', strtotime($latestReservation->reservation_check_in)) }}
                                                                                     -
@@ -689,46 +729,60 @@
                                                                         </div>
 
                                                                         <!-- Check-in Dates -->
-                                                                        <div class="d-flex align-items-center mb-3 p-3 bg-white rounded-3 shadow-sm">
-                                                                            <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-3">
-                                                                                <i class="fas fa-calendar-alt text-primary"></i>
+                                                                        <div
+                                                                            class="d-flex align-items-center mb-3 p-3 bg-white rounded-3 shadow-sm">
+                                                                            <div
+                                                                                class="bg-primary bg-opacity-10 rounded-circle p-2 me-3">
+                                                                                <i
+                                                                                    class="fas fa-calendar-alt text-primary"></i>
                                                                             </div>
                                                                             <div class="flex-grow-1">
-                                                                                <small class="text-muted d-block">Stay Duration</small>
+                                                                                <small class="text-muted d-block">Stay
+                                                                                    Duration</small>
                                                                                 <strong style="color: #0b573d;">
                                                                                     {{ \Carbon\Carbon::parse($latestReservation->reservation_check_in_date)->format('M j, Y') }}
-                                                                                    <i class="fas fa-arrow-right mx-2 text-muted"></i>
+                                                                                    <i
+                                                                                        class="fas fa-arrow-right mx-2 text-muted"></i>
                                                                                     {{ \Carbon\Carbon::parse($latestReservation->reservation_check_out_date)->format('M j, Y') }}
                                                                                 </strong>
                                                                             </div>
                                                                         </div>
 
                                                                         <!-- Guest Information -->
-                                                                        <div class="d-flex align-items-center mb-3 p-3 bg-white rounded-3 shadow-sm">
-                                                                            <div class="bg-warning bg-opacity-10 rounded-circle p-2 me-3">
+                                                                        <div
+                                                                            class="d-flex align-items-center mb-3 p-3 bg-white rounded-3 shadow-sm">
+                                                                            <div
+                                                                                class="bg-warning bg-opacity-10 rounded-circle p-2 me-3">
                                                                                 <i class="fas fa-users text-warning"></i>
                                                                             </div>
                                                                             <div class="flex-grow-1">
-                                                                                <small class="text-muted d-block">Total Guests</small>
+                                                                                <small class="text-muted d-block">Total
+                                                                                    Guests</small>
                                                                                 <strong style="color: #0b573d;">
-                                                                                    {{ $latestReservation->total_guest ?? 'N/A' }} 
+                                                                                    {{ $latestReservation->total_guest ?? 'N/A' }}
                                                                                     <small class="text-muted">
-                                                                                        ({{ $latestReservation->number_of_adults ?? 0 }} Adults, 
-                                                                                        {{ $latestReservation->number_of_children ?? 0 }} Children)
+                                                                                        ({{ $latestReservation->number_of_adults ?? 0 }}
+                                                                                        Adults,
+                                                                                        {{ $latestReservation->number_of_children ?? 0 }}
+                                                                                        Children)
                                                                                     </small>
                                                                                 </strong>
                                                                             </div>
                                                                         </div>
 
                                                                         <!-- Room Quantity -->
-                                                                        <div class="d-flex align-items-center p-3 bg-white rounded-3 shadow-sm">
-                                                                            <div class="bg-info bg-opacity-10 rounded-circle p-2 me-3">
+                                                                        <div
+                                                                            class="d-flex align-items-center p-3 bg-white rounded-3 shadow-sm">
+                                                                            <div
+                                                                                class="bg-info bg-opacity-10 rounded-circle p-2 me-3">
                                                                                 <i class="fas fa-door-open text-info"></i>
                                                                             </div>
                                                                             <div class="flex-grow-1">
-                                                                                <small class="text-muted d-block">Rooms Reserved</small>
+                                                                                <small class="text-muted d-block">Rooms
+                                                                                    Reserved</small>
                                                                                 <strong style="color: #0b573d;">
-                                                                                    {{ $latestReservation->quantity ?? 1 }} {{ Str::plural('Room', $latestReservation->quantity ?? 1) }}
+                                                                                    {{ $latestReservation->quantity ?? 1 }}
+                                                                                    {{ Str::plural('Room', $latestReservation->quantity ?? 1) }}
                                                                                 </strong>
                                                                             </div>
                                                                         </div>
@@ -738,26 +792,35 @@
 
                                                             <!-- Right Column - Additional Details -->
                                                             <div class="col-lg-6">
-                                                                <div class="card border-0 shadow-sm h-100" style="background-color: #f8f9fa;">
+                                                                <div class="card border-0 shadow-sm h-100"
+                                                                    style="background-color: #f8f9fa;">
                                                                     <div class="card-header border-0 bg-transparent">
                                                                         <h6 class="mb-0 fw-bold" style="color: #0b573d;">
-                                                                            <i class="fas fa-file-alt me-2"></i>Additional Details
+                                                                            <i class="fas fa-file-alt me-2"></i>Additional
+                                                                            Details
                                                                         </h6>
                                                                     </div>
                                                                     <div class="card-body">
                                                                         <!-- Special Request -->
                                                                         <div class="mb-4 p-3 bg-white rounded-3 shadow-sm">
                                                                             <div class="d-flex align-items-start">
-                                                                                <div class="bg-secondary bg-opacity-10 rounded-circle p-2 me-3 mt-1">
-                                                                                    <i class="fas fa-comment-dots text-secondary"></i>
+                                                                                <div
+                                                                                    class="bg-secondary bg-opacity-10 rounded-circle p-2 me-3 mt-1">
+                                                                                    <i
+                                                                                        class="fas fa-comment-dots text-secondary"></i>
                                                                                 </div>
                                                                                 <div class="flex-grow-1">
-                                                                                    <small class="text-muted d-block mb-1">Special Request</small>
+                                                                                    <small
+                                                                                        class="text-muted d-block mb-1">Special
+                                                                                        Request</small>
                                                                                     <div style="color: #0b573d;">
                                                                                         @if($latestReservation->special_request)
-                                                                                            <p class="mb-0">{{ $latestReservation->special_request }}</p>
+                                                                                            <p class="mb-0">
+                                                                                                {{ $latestReservation->special_request }}
+                                                                                            </p>
                                                                                         @else
-                                                                                            <em class="text-muted">No special requests</em>
+                                                                                            <em class="text-muted">No special
+                                                                                                requests</em>
                                                                                         @endif
                                                                                     </div>
                                                                                 </div>
@@ -765,10 +828,14 @@
                                                                         </div>
 
                                                                         <!-- Total Amount -->
-                                                                        <div class="p-4 rounded-3 shadow-sm mb-3" style="background: linear-gradient(135deg, #0b573d 0%, #0d6b47 100%);">
+                                                                        <div class="p-4 rounded-3 shadow-sm mb-3"
+                                                                            style="background: linear-gradient(135deg, #0b573d 0%, #0d6b47 100%);">
                                                                             <div class="text-center text-white">
-                                                                                <h3 class="mb-1 fw-bold">₱{{ number_format($latestReservation->amount, 2) }}</h3>
-                                                                                <small class="opacity-75">Total Amount</small>
+                                                                                <h3 class="mb-1 fw-bold">
+                                                                                    ₱{{ number_format($latestReservation->amount, 2) }}
+                                                                                </h3>
+                                                                                <small class="opacity-75">Total
+                                                                                    Amount</small>
                                                                             </div>
                                                                         </div>
 
@@ -776,25 +843,31 @@
                                                                         @if($latestReservation->reservation_status === 'on-hold')
                                                                             <div class="mb-3">
                                                                                 <div class="d-grid">
-                                                                                    <a href="{{route('paymentProcess')}}" 
-                                                                                    class="btn btn-lg shadow-lg position-relative overflow-hidden text-decoration-none d-block" 
-                                                                                    style="background: linear-gradient(45deg, #28a745, #20c997); border: none; color: white; padding: 15px 20px;">
-                                                                                        <div class="d-flex align-items-center justify-content-center">
+                                                                                    <a href="{{route('paymentProcess')}}"
+                                                                                        class="btn btn-lg shadow-lg position-relative overflow-hidden text-decoration-none d-block"
+                                                                                        style="background: linear-gradient(45deg, #28a745, #20c997); border: none; color: white; padding: 15px 20px;">
+                                                                                        <div
+                                                                                            class="d-flex align-items-center justify-content-center">
                                                                                             <div class="me-3">
-                                                                                                <i class="fas fa-credit-card fs-4"></i>
+                                                                                                <i
+                                                                                                    class="fas fa-credit-card fs-4"></i>
                                                                                             </div>
                                                                                             <div class="text-start">
-                                                                                                <div class="fw-bold fs-5">PROCEED TO PAYMENT</div>
-                                                                                                <small class="opacity-75">Secure payment processing</small>
+                                                                                                <div class="fw-bold fs-5">
+                                                                                                    PROCEED TO PAYMENT</div>
+                                                                                                <small class="opacity-75">Secure
+                                                                                                    payment processing</small>
                                                                                             </div>
                                                                                             <div class="ms-3">
-                                                                                                <i class="fas fa-arrow-right fs-5"></i>
+                                                                                                <i
+                                                                                                    class="fas fa-arrow-right fs-5"></i>
                                                                                             </div>
                                                                                         </div>
                                                                                         <!-- Animated background effect -->
-                                                                                        <div class="position-absolute top-0 start-0 w-100 h-100 opacity-25" 
+                                                                                        <div class="position-absolute top-0 start-0 w-100 h-100 opacity-25"
                                                                                             style="background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.2) 50%, transparent 70%); 
-                                                                                                    animation: shimmer 2s infinite;"></div>
+                                                                                                            animation: shimmer 2s infinite;">
+                                                                                        </div>
                                                                                     </a>
                                                                                 </div>
                                                                                 <div class="text-center mt-2">
@@ -806,12 +879,18 @@
                                                                             </div>
                                                                         @elseif($latestReservation->payment_status === 'paid')
                                                                             <div class="mb-3">
-                                                                                <div class="alert alert-success border-0 shadow-sm" style="background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);">
+                                                                                <div class="alert alert-success border-0 shadow-sm"
+                                                                                    style="background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);">
                                                                                     <div class="d-flex align-items-center">
-                                                                                        <i class="fas fa-check-circle fs-4 text-success me-3"></i>
+                                                                                        <i
+                                                                                            class="fas fa-check-circle fs-4 text-success me-3"></i>
                                                                                         <div>
-                                                                                            <h6 class="mb-1 text-success fw-bold">Payment Completed</h6>
-                                                                                            <small class="text-success">Your reservation has been fully paid</small>
+                                                                                            <h6
+                                                                                                class="mb-1 text-success fw-bold">
+                                                                                                Payment Completed</h6>
+                                                                                            <small class="text-success">Your
+                                                                                                reservation has been fully
+                                                                                                paid</small>
                                                                                         </div>
                                                                                     </div>
                                                                                 </div>
@@ -821,7 +900,7 @@
                                                                         <!-- Status Badge -->
                                                                         <div class="text-center">
                                                                             @php
-                                                                                $statusClass = match($latestReservation->reservation_status ?? 'pending') {
+                                                                                $statusClass = match ($latestReservation->reservation_status ?? 'pending') {
                                                                                     'checked-in' => 'bg-success',
                                                                                     'cancelled' => 'bg-danger',
                                                                                     'checked-out' => 'bg-danger',
@@ -829,8 +908,10 @@
                                                                                     default => 'bg-warning'
                                                                                 };
                                                                             @endphp
-                                                                            <span class="badge {{ $statusClass }} px-3 py-2 rounded-pill">
-                                                                                <i class="fas fa-circle me-1" style="font-size: 0.5rem;"></i>
+                                                                            <span
+                                                                                class="badge {{ $statusClass }} px-3 py-2 rounded-pill">
+                                                                                <i class="fas fa-circle me-1"
+                                                                                    style="font-size: 0.5rem;"></i>
                                                                                 {{ ucfirst($latestReservation->reservation_status ?? 'Pending') }}
                                                                             </span>
                                                                         </div>
@@ -841,47 +922,61 @@
 
                                                         <!-- QR Code Section -->
                                                         <div class="mt-4">
-                                                            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+                                                            <div class="card border-0 shadow-sm"
+                                                                style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
                                                                 <div class="card-header border-0 bg-transparent">
-                                                                    <div class="d-flex align-items-center justify-content-center">
-                                                                        <div class="bg-success bg-opacity-10 rounded-circle p-2 me-3">
+                                                                    <div
+                                                                        class="d-flex align-items-center justify-content-center">
+                                                                        <div
+                                                                            class="bg-success bg-opacity-10 rounded-circle p-2 me-3">
                                                                             <i class="fas fa-qrcode text-success fs-5"></i>
                                                                         </div>
-                                                                        <h6 class="mb-0 fw-bold" style="color: #0b573d;">QR Code for Check-in</h6>
+                                                                        <h6 class="mb-0 fw-bold" style="color: #0b573d;">QR
+                                                                            Code for Check-in</h6>
                                                                     </div>
                                                                 </div>
                                                                 <div class="card-body text-center">
                                                                     <!-- Instructions -->
-                                                                    <div class="alert alert-light border-0 shadow-sm mb-4" style="background-color: rgba(11, 87, 61, 0.05);">
+                                                                    <div class="alert alert-light border-0 shadow-sm mb-4"
+                                                                        style="background-color: rgba(11, 87, 61, 0.05);">
                                                                         <div class="row align-items-center">
                                                                             <div class="col-md-8">
-                                                                                <ol class="mb-0 text-start" style="color: #0b573d;">
+                                                                                <ol class="mb-0 text-start"
+                                                                                    style="color: #0b573d;">
                                                                                     <li class="mb-2">
-                                                                                        <i class="fas fa-download me-2 text-success"></i>
-                                                                                        Download your QR code by clicking the button below
+                                                                                        <i
+                                                                                            class="fas fa-download me-2 text-success"></i>
+                                                                                        Download your QR code by clicking
+                                                                                        the button below
                                                                                     </li>
                                                                                     <li class="mb-0">
-                                                                                        <i class="fas fa-mobile-alt me-2 text-success"></i>
-                                                                                        Present this QR code upon check-in at our resort
+                                                                                        <i
+                                                                                            class="fas fa-mobile-alt me-2 text-success"></i>
+                                                                                        Present this QR code upon check-in
+                                                                                        at our resort
                                                                                     </li>
                                                                                 </ol>
                                                                             </div>
                                                                             <div class="col-md-4 text-center">
-                                                                                <i class="fas fa-shield-alt text-success fs-1 opacity-25"></i>
+                                                                                <i
+                                                                                    class="fas fa-shield-alt text-success fs-1 opacity-25"></i>
                                                                             </div>
                                                                         </div>
                                                                     </div>
 
                                                                     <!-- QR Code Display -->
-                                                                    <div class="d-inline-block p-3 bg-white rounded-3 shadow-sm mb-3">
-                                                                        <canvas id="qr-code" class="border rounded"></canvas>
+                                                                    <div
+                                                                        class="d-inline-block p-3 bg-white rounded-3 shadow-sm mb-3">
+                                                                        <canvas id="qr-code"
+                                                                            class="border rounded"></canvas>
                                                                     </div>
 
                                                                     <!-- Download Button -->
                                                                     <div class="d-grid gap-2 col-md-6 mx-auto">
-                                                                        <button id="download-qr" class="btn btn-lg shadow-sm" 
-                                                                                style="background: linear-gradient(135deg, #0b573d 0%, #0d6b47 100%); border: none; color: white;"
-                                                                                onclick="downloadQRCode()">
+                                                                        <button id="download-qr"
+                                                                            class="btn btn-lg shadow-sm"
+                                                                            style="background: linear-gradient(135deg, #0b573d 0%, #0d6b47 100%); border: none; color: white;"
+                                                                            onclick="downloadQRCode()">
                                                                             <i class="fas fa-download me-2"></i>
                                                                             <span class="fw-bold">DOWNLOAD QR CODE</span>
                                                                         </button>
@@ -889,7 +984,8 @@
 
                                                                     <small class="text-muted mt-2 d-block">
                                                                         <i class="fas fa-info-circle me-1"></i>
-                                                                        Keep this QR code safe and accessible on your mobile device
+                                                                        Keep this QR code safe and accessible on your mobile
+                                                                        device
                                                                     </small>
                                                                 </div>
                                                             </div>
@@ -902,9 +998,11 @@
                                                     <div class="d-flex justify-content-between align-items-center w-100">
                                                         <small class="text-muted">
                                                             <i class="fas fa-calendar me-1"></i>
-                                                            Created: {{ \Carbon\Carbon::parse($latestReservation->created_at)->format('M j, Y') }}
+                                                            Created:
+                                                            {{ \Carbon\Carbon::parse($latestReservation->created_at)->format('M j, Y') }}
                                                         </small>
-                                                        <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">
+                                                        <button type="button" class="btn btn-outline-secondary px-4"
+                                                            data-bs-dismiss="modal">
                                                             <i class="fas fa-times me-2"></i>Close
                                                         </button>
                                                     </div>
@@ -1010,19 +1108,19 @@
             const desktopToggleBtn = document.getElementById('desktopSidebarToggle');
             const mobileToggleBtn = document.getElementById('sidebarToggle');
             let isSidebarOpen = true;
-    
+
             // Add smooth transition for sidebar collapse/expand
             sidebar.style.transition = 'all 0.3s ease';
             if (mainContent) {
                 mainContent.style.transition = 'all 0.3s ease';
             }
-    
+
             // Function to handle sidebar toggle for desktop
             if (desktopToggleBtn) {
                 desktopToggleBtn.addEventListener('click', () => {
                     sidebar.classList.toggle('collapsed');
                     desktopToggleBtn.classList.toggle('collapsed');
-                    
+
                     // Force the main content to adjust immediately
                     if (sidebar.classList.contains('collapsed')) {
                         mainContent.style.width = '100%';
@@ -1034,20 +1132,20 @@
                     }
                 });
             }
-    
+
             // Mobile sidebar toggle
             function openSidebar() {
                 sidebar.classList.add('show');
                 document.body.classList.add('sidebar-open');
                 isSidebarOpen = true;
             }
-    
+
             function closeSidebar() {
                 sidebar.classList.remove('show');
                 document.body.classList.remove('sidebar-open');
                 isSidebarOpen = false;
             }
-    
+
             if (mobileToggleBtn) {
                 mobileToggleBtn.addEventListener('click', function () {
                     if (isSidebarOpen) {
@@ -1057,24 +1155,24 @@
                     }
                 });
             }
-    
+
             // Close sidebar when window is resized to desktop view
             window.addEventListener('resize', function () {
                 if (window.innerWidth >= 768) {
                     closeSidebar();
                 }
             });
-    
+
             // Initialize state
             if (window.innerWidth < 768) {
                 closeSidebar(); // Ensure sidebar is closed initially on mobile
             }
         });
-    
+
         // TIMER OF THE EARTH
         function updateDateTime() {
             const now = new Date();
-    
+
             // Format time as h:mm AM/PM
             let hours = now.getHours();
             const minutes = now.getMinutes().toString().padStart(2, '0');
@@ -1082,18 +1180,18 @@
             hours = hours % 12;
             hours = hours ? hours : 12; // the hour '0' should be '12'
             const timeString = hours + ':' + minutes + ' ' + ampm;
-    
+
             // Format date as Weekday, Month Day
             const options = { weekday: 'long', month: 'long', day: 'numeric' };
             const dateString = now.toLocaleDateString(undefined, options);
-    
+
             document.getElementById('time').textContent = timeString;
             document.getElementById('date').textContent = dateString;
         }
-    
+
         updateDateTime();
         setInterval(updateDateTime, 60000); // Update every minute
-    
+
         // Cancel modal function
         function openCancelModal(reservationId) {
             // Check if reservationId is valid
@@ -1101,110 +1199,111 @@
                 console.error("No valid reservation ID provided.");
                 return;
             }
-    
+
             // Optionally set the reservation ID in a hidden field if you want to use it later
             // document.getElementById('reservationIdInput').value = reservationId;
-    
+
             // Show the modal using Bootstrap 5
             var modal = new bootstrap.Modal(document.getElementById('cancelReservationModal'));
             modal.show();
         }
-    
+
         // Existing tab toggle function
         function toggleTab(event, showSectionId, activeTabId, inactiveTabId) {
             // ... existing code ...
         }
     </script>
-<script>
-            function showMobileRequiredAlert() {
-                alert('Please add your mobile number first before navigating back to homepage.');
+    <script>
+        function showMobileRequiredAlert() {
+            alert('Please add your mobile number first before navigating back to homepage.');
             // Optionally, automatically open the edit modal
             var editModal = new bootstrap.Modal(document.getElementById('editModal'));
             editModal.show();
-    // Focus on mobile number input
-    setTimeout(() => {
+            // Focus on mobile number input
+            setTimeout(() => {
                 document.getElementById('mobileNo').focus();
-    }, 500);
-}
+            }, 500);
+        }
 
-            function preventNavigation() {
-                showMobileRequiredAlert();
+        function preventNavigation() {
+            showMobileRequiredAlert();
             return false; // Prevent the link from navigating
-}
+        }
 
-            // Also disable browser back button if mobile number is empty
-            @if(empty($user->mobileNo) || strlen($user->mobileNo) < 11)
-                window.addEventListener('beforeunload', function(e) {
-                    // This won't prevent back button but will show a warning
-                    e.returnValue = 'Please complete your profile by adding your mobile number.';
-                                    });
-
-                // Prevent back button navigation
-                history.pushState(null, null, location.href);
-                window.addEventListener('popstate', function(event) {
-                    alert('Please add your mobile number first before leaving this page.');
-                history.pushState(null, null, location.href);
-                                    });
-            @endif
-</script>
-<script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
-<script>
-            // Generate QR code when modal is shown
-            document.getElementById('viewReservationModal').addEventListener('shown.bs.modal', function() {
-                let reservationId = '{{ $latestReservation->reservation_id ?? '' }}';
-            if (reservationId) {
-                let qr = new QRious({
-                element: document.getElementById('qr-code'),
-            value: reservationId,
-            size: 200
+        // Also disable browser back button if mobile number is empty
+        @if(empty($user->mobileNo) || strlen($user->mobileNo) < 11)
+            window.addEventListener('beforeunload', function (e) {
+                // This won't prevent back button but will show a warning
+                e.returnValue = 'Please complete your profile by adding your mobile number.';
             });
 
-            // Center the QR code
-            let qrCodeContainer = document.getElementById('qr-code').parentElement;
-            qrCodeContainer.style.display = 'flex';
-            qrCodeContainer.style.flexDirection = 'column';
-            qrCodeContainer.style.justifyContent = 'center';
-            qrCodeContainer.style.alignItems = 'center';
+            // Prevent back button navigation
+            history.pushState(null, null, location.href);
+            window.addEventListener('popstate', function (event) {
+                alert('Please add your mobile number first before leaving this page.');
+                history.pushState(null, null, location.href);
+            });
+        @endif
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
+    <script>
+        // Generate QR code when modal is shown
+        document.getElementById('viewReservationModal').addEventListener('shown.bs.modal', function () {
+            let reservationId = '{{ $latestReservation->reservation_id ?? '' }}';
+            if (reservationId) {
+                let qr = new QRious({
+                    element: document.getElementById('qr-code'),
+                    value: reservationId,
+                    size: 200
+                });
 
-            // Show download button
-            document.getElementById('download-qr').style.display = 'inline-block';
-        } else {
+                // Center the QR code
+                let qrCodeContainer = document.getElementById('qr-code').parentElement;
+                qrCodeContainer.style.display = 'flex';
+                qrCodeContainer.style.flexDirection = 'column';
+                qrCodeContainer.style.justifyContent = 'center';
+                qrCodeContainer.style.alignItems = 'center';
+
+                // Show download button
+                document.getElementById('download-qr').style.display = 'inline-block';
+            } else {
                 console.error('No reservation ID available');
-        }
-    });
+            }
+        });
 
-            function downloadQRCode() {
-                let canvas = document.getElementById('qr-code');
+        function downloadQRCode() {
+            let canvas = document.getElementById('qr-code');
             if (!canvas) {
                 alert('QR code not generated yet!');
-            return;
-        }
+                return;
+            }
 
             let link = document.createElement('a');
             link.href = canvas.toDataURL("image/png");
             link.download = "reservation_qr.png";
             link.click();
-    }
-</script>
-<script>
-function proceedToPayment() {
-    // You can customize this function based on your payment integration
-    // For example, redirect to payment page or open payment modal
-    
-    // Example: Redirect to payment page with reservation ID
-    const reservationId = '{{ $latestReservation->reservation_id ?? '' }}';
-    
-    if (reservationId) {
-        // Replace this with your actual payment route
-        window.location.href = `/payment/${reservationId}`;
-        
-        // Or you can show a confirmation dialog first
-        // if (confirm('Proceed to payment for reservation ' + reservationId + '?')) {
-        //     window.location.href = `/payment/${reservationId}`;
-        // }
-    } else {
-        alert('Unable to process payment. Please try again.');
-    }
-}
-</script>
+        }
+    </script>
+    <script>
+        function proceedToPayment() {
+            // You can customize this function based on your payment integration
+            // For example, redirect to payment page or open payment modal
+
+            // Example: Redirect to payment page with reservation ID
+            const reservationId = '{{ $latestReservation->reservation_id ?? '' }}';
+
+            if (reservationId) {
+                // Replace this with your actual payment route
+                window.location.href = `/payment/${reservationId}`;
+
+                // Or you can show a confirmation dialog first
+                // if (confirm('Proceed to payment for reservation ' + reservationId + '?')) {
+                //     window.location.href = `/payment/${reservationId}`;
+                // }
+            } else {
+                alert('Unable to process payment. Please try again.');
+            }
+        }
+    </script>
+
 </html>

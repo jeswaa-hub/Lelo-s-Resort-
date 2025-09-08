@@ -21,7 +21,7 @@
     min-height: 100vh;
     width: 100%;
     overflow-x: hidden;">
-
+    <x-loading-screen />
     <div class="w-100 d-flex justify-content-between align-items-center p-3">
         <!-- Back Button -->
         <a href="{{ route('homepage') }}" class="d-flex align-items-center justify-content-center rounded-circle shadow ms-3"

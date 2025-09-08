@@ -84,6 +84,7 @@
 </head>
 
 <body>
+    <x-loading-screen />
     @include('Alert.loginSuccessUser')
     @include('Alert.errornotification')
 

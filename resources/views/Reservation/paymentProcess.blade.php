@@ -200,6 +200,7 @@
 </style>
 
 <body class="bg-light font-paragraph">
+    <x-loading-screen />
     <div class="container mt-5 px-3">
         <div class="d-flex justify-content-between align-items-center">
             <h1 class="text-center fw-bold" style="color: #e9ffcc; font-size: 2.5rem; margin: 0 auto;">RESERVATION PAYMENT</h1>

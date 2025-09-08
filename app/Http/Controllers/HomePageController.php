@@ -75,70 +75,86 @@ public function profilepage()
 }
 
 
-    public function editProfile(Request $request)
-{
-    $request->validate([
-        'name' => 'string|max:255',
-        'email' => 'email|max:255',
-        'mobileNo' => 'string|max:11',
-        'address' => 'string|max:255',
-        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
-    ]);
+    public function editProfile()
+    {
+        $userId = Auth::id();
+        if (!$userId) {
+            return redirect()->route('login')->with('error', 'Login first to edit your profile.');
+        }
 
-    $user = DB::table('users')->where('id', Auth::id())->first();
+        // Fetch user details
+        $user = DB::table('users')->where('id', $userId)->first();
+        if (!$user) {
+            return redirect()->route('login')->with('error', 'User not found.');
+        }
 
-    if (!$user) {
+        return view('FrontEnd.editProfile', ['user' => $user]);
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $request->validate([
+            'name' => 'string|max:255',
+            'email' => 'email|max:255',
+            'mobileNo' => 'string|max:11',
+            'address' => 'string|max:255',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+        ]);
+
+        $user = DB::table('users')->where('id', Auth::id())->first();
+
+        if (!$user) {
+            if ($request->expectsJson()) {
+                return response()->json(['success' => false, 'message' => 'User not found.'], 404);
+            }
+            return redirect()->back()->with('error', 'User not found.');
+        }
+
+        $data = [
+            'name' => $request->input('name'),
+            'email' => $request->input('email'),
+            'mobileNo' => $request->input('mobileNo'),
+            'address' => $request->input('address'),
+        ];
+
+        // Handle image upload (only for regular form requests)
+        if ($request->hasFile('image')) {
+            // Delete old image if it exists
+            if ($user->image) {
+                Storage::disk('public')->delete($user->image);
+            }
+
+            // Store new image
+            $imagePath = $request->file('image')->store('images', 'public');
+            $data['image'] = $imagePath;
+        }
+
+        // Update the user's profile
+        $updated = DB::table('users')->where('id', Auth::id())->update($data);
+
+        // Handle AJAX response
         if ($request->expectsJson()) {
-            return response()->json(['success' => false, 'message' => 'User not found.'], 404);
-        }
-        return redirect()->back()->with('error', 'User not found.');
-    }
-
-    $data = [
-        'name' => $request->input('name'),
-        'email' => $request->input('email'),
-        'mobileNo' => $request->input('mobileNo'),
-        'address' => $request->input('address'),
-    ];
-
-    // Handle image upload (only for regular form requests)
-    if ($request->hasFile('image')) {
-        // Delete old image if it exists
-        if ($user->image) {
-            Storage::disk('public')->delete($user->image);
+            if ($updated) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Profile updated successfully.',
+                    'user' => $data
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No changes made.'
+                ], 400);
+            }
         }
 
-        // Store new image
-        $imagePath = $request->file('image')->store('images', 'public');
-        $data['image'] = $imagePath;
-    }
-
-    // Update the user's profile
-    $updated = DB::table('users')->where('id', Auth::id())->update($data);
-
-    // Handle AJAX response
-    if ($request->expectsJson()) {
+        // Handle regular form response
         if ($updated) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Profile updated successfully.',
-                'user' => $data
-            ]);
+            return redirect()->route('profile')->with('success', 'Profile updated successfully.');
         } else {
-            return response()->json([
-                'success' => false,
-                'message' => 'No changes made.'
-            ], 400);
+            return redirect()->back()->with('error', 'No changes made.');
         }
     }
-
-    // Handle regular form response
-    if ($updated) {
-        return redirect()->back()->with('success', 'Profile updated successfully.');
-    } else {
-        return redirect()->back()->with('error', 'No changes made.');
-    }
-}
     public function userlogout(Request $request)
     {
         Auth::logout();

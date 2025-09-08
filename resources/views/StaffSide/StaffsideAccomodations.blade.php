@@ -14,119 +14,83 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <style>
-    .nav-link {
-        position: relative;
-    }
-    
-    .nav-link::after {
-        content: '';
-        position: absolute;
-        width: 0;
-        height: 2px;
-        background: #ffffff;
-        left: 0;
-        bottom: 0;
-        transition: width 0.3s ease-in-out;
-    }
-    
-    .nav-link:hover::after {
-        width: 100%;
-    }
-    .fancy-link {
-    text-decoration: none;
-    font-weight: 600;
-    position: relative;
-    transition: color 0.3s ease;
-}
-
-.fancy-link::after {
-    content: "";
-    position: absolute;
-    width: 0;
-    height: 2px;
-    left: 0;
-    bottom: -2px;
-    background-color: #0b573d;
-    transition: width 0.3s ease;
-}
-
-.fancy-link:hover {
-    color: #0b573d;
-}
-
-.fancy-link:hover::after {
-    width: 100%;
-}
-.fancy-link.active::after {
-    width: 100% !important;
-}
-.transition-width {
-        transition: all 0.3s ease;
-}
-#mainContent.full-width {
-    width: 100% !important;
-    flex: 0 0 100% !important;
-    max-width: 100% !important;
-}
 </style>
-<body style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76)), url('{{ asset('images/DSCF2777.JPG') }}') no-repeat center center fixed; background-size: cover;">
+<body style="margin: 0; padding: 0; height: 100vh; background-color: white; overflow-x: hidden;">
     @include('Alert.loginSucess')
-    <div class="container-fluid min-vh-100 d-flex p-0">
-        <!-- SIDEBAR -->
+        <!-- NAVBAR -->
         @include('Navbar.sidenavbarStaff')
-        <!-- Main Content -->
-        <div id="mainContent" class="flex-grow-1 py-4 px-4 transition-width" style="transition: all 0.3s ease;">
-            <!-- Heading and Logo -->
-            <div class="d-flex justify-content-end align-items-end mb-1">
-                <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="100" class="rounded-pill me-3">
-            </div>
 
-            <hr class="border-5">
+        <div class="row">
+        <div class="col-11 mx-auto">
+            <div class="hero-banner d-flex flex-column justify-content-center text-white p-3 p-sm-4 p-md-5"
+             style="background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(34, 34, 34, 0.5)), url('{{ asset('images/staff-admin-bg.jpg') }}'); 
+                   background-size: cover; background-position: center; min-height: 450px; border-radius: 15px;">
 
-            <div>
-                <h1 class="fw-semibold text-capitalize mt-4" style="font-size: 50px; letter-spacing: 1px; color: #0b573d; margin-top: -30px; font-family: 'Anton', sans-serif; letter-spacing: .1em;">Room Overview</h1>
-            </div>
-            <div class="d-flex gap-3 mt-3">
-                <!-- Total Reservations -->
-                <div class="flex-grow-1 p-4 rounded-4" style="background-color: #0b573d;">
-                    <div class="d-flex align-items-center">
-                        <div>
-                            <h2 class="fs-1 fw-bold text-white mb-0">{{ $totalRooms ?? 0 }}</h2>
-                            <p class="text-white text-uppercase mb-0 font-paragraph" style="font-size: 0.8rem;">
-                                Total<br>Rooms
-                            </p>
+            <div class="row g-3 g-md-4">
+                <!-- Left Side -->
+                <div class="col-12 col-md-6">
+                    <div class="d-flex flex-column gap-3">
+                        <!-- Greeting -->
+                        <div class="text-start">
+                            <h1 class="mb-1 display-1 fs-1 fs-md-1" style="font-size: 3.7rem !important;">Hello,</h1>
+                            <h1 class="fw-bold display-1 fs-1 fs-md-1" style="font-size: 5rem !important;">Staff User!</h1>
                         </div>
-                        <i class="fas fa-bed fs-1 text-white ms-auto"></i>
+                        
+                        <!-- Total Reservations -->
+                        <div class="d-flex align-items-center rounded-3 shadow-sm" style="background: linear-gradient(135deg, #ffffff 50%, #f8f9fa 50%);">
+                            <div class="p-3 p-md-4 p-lg-5 mt-2">
+                                <h1 class="fw-bold mb-0" style="font-size: clamp(2rem, 4vw, 3rem); color: #198754;">{{ $totalRooms ?? 0 }}</h1>
+                                <p class="mb-0 fw-semibold" style="font-size: clamp(1rem, 2vw, 1.5rem); color: #198754;">Total Rooms</p>
+                            </div>
+                            <div class="ms-auto p-3 p-md-4 p-lg-5">
+                                <i class="fas fa-bed" style="font-size: clamp(2.5rem, 4vw, 4rem); background: linear-gradient(45deg, #343a40, #6c757d); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Upcoming Reservations -->
-                <div class="flex-grow-1 p-4 rounded-4" style="background-color: #0b573d;">
-                    <div class="d-flex align-items-center">
-                        <div>
-                            <h2 class="fs-1 fw-bold text-white mb-0">{{ $vacantRooms ?? 0 }}</h2>
-                            <p class="text-white text-uppercase mb-0 font-paragraph" style="font-size: 0.8rem;">
-                                Vacant<br>Rooms
-                            </p>
+                <!-- Right Side -->
+                <div class="col-12 col-md-6">
+                    <div class="row row-cols-1 g-3 g-md-4">
+                        <!-- Walk-in Reservation -->
+                        <div class="col">
+                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100" style="background-color: #3E776E;">
+                                <div>
+                                    <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.8rem, 3vw, 3rem);">{{ $vacantRooms  ?? 0 }}</h1>
+                                    <p class="text-white text-uppercase mb-0 font-paragraph" style="font-size: 0.8rem;">Vacant<br>Rooms
+                                    </p>
+                                </div>
+                                <div class="ms-auto">
+                                    <i class="fas fa-door-open fs-1 text-white ms-auto"></i>
+                                </div>
+                            </div>
                         </div>
-                        <i class="fas fa-door-open fs-1 text-white ms-auto"></i>
-                    </div>
-                </div>
 
-                <!-- Checked-in Reservations -->
-                <div class="flex-grow-1 p-4 rounded-4" style="background-color: #0b573d;">
-                    <div class="d-flex align-items-center">
-                        <div>
-                            <h2 class="fs-1 fw-bold text-white mb-0">{{ $reservedRooms ?? 0}}</h2>
-                            <p class="text-white text-uppercase mb-0 font-paragraph" style="font-size: 0.8rem;">
-                               Reserved<br>Rooms
-                            </p>
+                        <!-- Checked-out -->
+                        <div class="col">
+                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100" style="background-color: #37A51F;">
+                                <div>
+                                    <h2 class="fs-1 fw-bold text-white mb-0">{{ $reservedRooms ?? 0 }}</h2>
+                                    <p class="text-white text-uppercase mb-0 font-paragraph" style="font-size: 0.8rem;">
+                                    Reserved<br>Rooms
+                                    </p>
+                                </div>
+                                <i class="fas fa-door-closed fs-1 text-white ms-auto"></i>
+                            </div>
                         </div>
-                        <i class="fas fa-door-closed fs-1 text-white ms-auto"></i>
+
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="d-flex justify-content-between align-items-center mt-4 mb-3">
+        </div>
+
+<div class="container-fluid mt-4 shadow-lg p-4 bg-white rounded" style="max-width: 91.67%; margin: 0 auto;">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex align-items-center gap-3">
+                <h2 class="fw-bold text-success mb-0 border-bottom" style="font-size: 2.5rem;">ROOM OVERVIEW</h2>
                 <select class="form-select" style="width: auto;" id="roomFilter">
                     <option value="all" selected>All Rooms</option>
                     @php
@@ -136,13 +100,65 @@
                         <option value="{{ $type }}">{{ ucfirst($type) }}s</option>
                     @endforeach
                 </select>
-
-                <button type="button" class="btn text-white" style="background-color: #0b573d;" data-bs-toggle="modal" data-bs-target="#activeReservationsModal">
-                    <i class="fas fa-list me-2"></i>View Active Reservations
-                </button>
             </div>
+        </div>
 
-            <!-- Active Reservations Modal -->
+        <div class="container-fluid">
+            <div class="card shadow">
+                <div class="card-body">
+                    <table class="table table-hover table-responsive m-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th scope="col" class="text-center">Room ID</th>
+                                <th scope="col" class="text-center">Room Image</th>
+                                <th scope="col">Room Name</th>
+                                <th scope="col">Room Description</th>
+                                <th scope="col">Room Type</th>
+                                <th scope="col">Room Qty</th>
+                                <th scope="col" class="text-center">Price</th>
+                                <th scope="col" class="text-center">Capacity</th>
+                                <th scope="col" class="text-center">Availability</th>
+                                <th scope="col" class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($accomodations as $accomodation)
+                                <tr>
+                                    <td class="text-center align-middle">{{ $accomodation->room_id}}</td>
+                                    <td class="text-center">
+                                        <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" 
+                                            alt="Room Image" 
+                                            class="img-thumbnail rounded"
+                                            style="width: 80px; height: 80px; object-fit: cover;">
+                                    </td>
+                                    <td class="align-middle">{{ $accomodation->accomodation_name }}</td>
+                                    <td class="align-middle">{{ Str::limit($accomodation->accomodation_description, 50) }}</td>
+                                    <td class="align-middle text-capitalize">{{ $accomodation->accomodation_type }}</td>
+                                    <td class="align-middle">{{ $accomodation->quantity }}</td>
+                                    <td class="text-center align-middle">₱{{ number_format($accomodation->accomodation_price, 2) }}</td>
+                                    <td class="text-center align-middle">{{ $accomodation->accomodation_capacity }}</td>
+                                    <td class="text-center align-middle">
+                                        <span class="badge rounded-pill {{ $accomodation->accomodation_status == 'available' ? 'bg-success' : ($accomodation->accomodation_status == 'maintenance' ? 'bg-warning' : 'bg-danger') }}">
+                                            {{ ucfirst($accomodation->accomodation_status) }}
+                                        </span>
+                                    </td>
+                                    <td class="text-center align-middle">
+                                        <button class="btn btn-warning btn-sm text-white" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#editRoomModal{{ $accomodation->accomodation_id }}">
+                                            <i class="fa-solid fa-pen-to-square"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    <div class="mt-3">
+                        <button type="button" class="btn text-white" style="background-color: #0b573d;" data-bs-toggle="modal" data-bs-target="#activeReservationsModal">
+                            <i class="fas fa-list me-2"></i>View Active Reservations
+                        </button>
+
+                        <!-- Active Reservations Modal -->
             <div class="modal fade" id="activeReservationsModal" tabindex="-1" aria-labelledby="activeReservationsModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-lg modal-dialog-scrollable">
                     <div class="modal-content">
@@ -243,199 +259,13 @@
                 transition: color 0.3s ease;
             }
             </style>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-            <!-- Table  -->
-            <div class="container-fluid">
-                <div class="card shadow">
-                    <div class="card-body">
-                        <table class="table table-hover table-responsive m-0">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th scope="col" class="text-center">Room ID</th>
-                                    <th scope="col" class="text-center">Room Image</th>
-                                    <th scope="col">Room Name</th>
-                                    <th scope="col">Room Description</th>
-                                    <th scope="col">Room Type</th>
-                                    <th scope="col">Room Qty</th>
-                                    <th scope="col" class="text-center">Price</th>
-                                    <th scope="col" class="text-center">Capacity</th>
-                                    <th scope="col" class="text-center">Availability</th>
-                                    <th scope="col" class="text-center">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($accomodations as $accomodation)
-                                    <tr>
-                                        <td class="text-center align-middle">{{ $accomodation->room_id}}</td>
-                                        <td class="text-center">
-                                            <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" 
-                                                alt="Room Image" 
-                                                class="img-thumbnail rounded"
-                                                style="width: 80px; height: 80px; object-fit: cover;">
-                                        </td>
-                                        <td class="align-middle">{{ $accomodation->accomodation_name }}</td>
-                                        <td class="align-middle">{{ Str::limit($accomodation->accomodation_description, 50) }}</td>
-                                        <td class="align-middle text-capitalize">{{ $accomodation->accomodation_type }}</td>
-                                        <td class="align-middle">{{ $accomodation->quantity }}</td>
-                                        <td class="text-center align-middle">₱{{ number_format($accomodation->accomodation_price, 2) }}</td>
-                                        <td class="text-center align-middle">{{ $accomodation->accomodation_capacity }}</td>
-                                        <td class="text-center align-middle">
-                                            <span class="badge rounded-pill {{ $accomodation->accomodation_status == 'available' ? 'bg-success' : ($accomodation->accomodation_status == 'maintenance' ? 'bg-warning' : 'bg-danger') }}">
-                                                {{ ucfirst($accomodation->accomodation_status) }}
-                                            </span>
-                                        </td>
-                                        <td class="text-center align-middle">
-                                            <button class="btn btn-warning btn-sm text-white" 
-                                                    data-bs-toggle="modal" 
-                                                    data-bs-target="#editRoomModal{{ $accomodation->accomodation_id }}">
-                                                <i class="fa-solid fa-pen-to-square"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-
-                                    <!-- Edit Room Modal -->
-                                    <div class="modal fade" id="editRoomModal{{ $accomodation->accomodation_id }}" tabindex="-1">
-                                        <div class="modal-dialog modal-lg">
-                                            <div class="modal-content">
-                                                <div class="modal-header text-white" style="background-color: #0b573d;">
-                                                    <h5 class="modal-title fs-5 fw-bold"><i class="fas fa-edit me-2" style="height: 20px;"></i>Edit Room Details</h5>
-                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                </div>
-                                                <div class="modal-body p-4">
-                                                    <form method="POST" 
-                                                        action="{{ route('staff.editRoom', ['id' => $accomodation->accomodation_id]) }}" 
-                                                        enctype="multipart/form-data"
-                                                        class="needs-validation">
-                                                        @csrf
-                                                        @method('PUT')
-                                                        <input type="hidden" name="room_id" value="{{ $accomodation->accomodation_id }}">
-                                                        
-                                                        <div class="row g-4">
-                                                            <div class="col-md-6">
-                                                                <div class="card h-100 border-0 shadow-sm">
-                                                                    <div class="card-body text-center">
-                                                                        <label class="form-label fw-bold mb-3 fs-6">Room Image</label>
-                                                                        <div class="position-relative d-inline-block">
-                                                                            <img id="preview{{ $accomodation->accomodation_id }}" 
-                                                                                src="{{ asset('storage/' . $accomodation->accomodation_image) }}" 
-                                                                                class="img-thumbnail rounded-3 mb-3" 
-                                                                                style="width: 250px; height: 250px; object-fit: cover;">
-                                                                            <div class="mt-2">
-                                                                                <input type="file" 
-                                                                                    class="form-control border-2" 
-                                                                                    name="accomodation_image" 
-                                                                                    accept="image/*" 
-                                                                                    onchange="previewImage(event, 'preview{{ $accomodation->accomodation_id }}')">
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="col-md-6">
-                                                                <div class="card h-100 border-0 shadow-sm">
-                                                                    <div class="card-body">
-                                                                        <div class="mb-4">
-                                                                            <label class="form-label fw-bold text-dark fs-6">Room Name</label>
-                                                                            <input type="text" 
-                                                                                class="form-control form-control-md border-2" 
-                                                                                name="accomodation_name" 
-                                                                                value="{{ $accomodation->accomodation_name }}" 
-                                                                                required>
-                                                                        </div>
-
-                                                                        <div class="mb-4">
-                                                                            <label class="form-label fw-bold text-dark fs-6">Room Type</label>
-                                                                            <select class="form-select form-select-md border-2" name="accomodation_type" required>
-                                                                                <option value="room" {{ $accomodation->accomodation_type == 'room' ? 'selected' : '' }}>Room</option>
-                                                                                <option value="cabin" {{ $accomodation->accomodation_type == 'cabin' ? 'selected' : '' }}>Cabin</option>
-                                                                                <option value="cottage" {{ $accomodation->accomodation_type == 'cottage' ? 'selected' : '' }}>Cottage</option>
-                                                                            </select>
-                                                                        </div>
-
-                                                                        <div class="mb-4">
-                                                                            <label class="form-label fw-bold text-dark fs-6">Description</label>
-                                                                            <textarea class="form-control border-2" 
-                                                                                    name="accomodation_description" 
-                                                                                    style="height: 120px; resize: none;"
-                                                                                    rows="3">{{ $accomodation->accomodation_description }}</textarea>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="row g-4 mt-2">
-                                                            <div class="col-md-4">
-                                                                <div class="card border-0 shadow-sm">
-                                                                    <div class="card-body">
-                                                                        <label class="form-label fw-bold text-dark fs-6">Capacity</label>
-                                                                        <div class="input-group">
-                                                                            <span class="input-group-text border-2" style="height: 51px;"><i class="fas fa-users"></i></span>
-                                                                            <input type="number" 
-                                                                                class="form-control form-control-md border-2" 
-                                                                                name="accomodation_capacity" 
-                                                                                min="1" 
-                                                                                value="{{ $accomodation->accomodation_capacity }}" 
-                                                                                required>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="col-md-4">
-                                                                <div class="card border-0 shadow-sm">
-                                                                    <div class="card-body">
-                                                                        <label class="form-label fw-bold text-dark fs-6">Price</label>
-                                                                        <div class="input-group">
-                                                                            <span class="input-group-text border-2" style="height: 51px;">₱</span>
-                                                                            <input type="number" 
-                                                                                class="form-control form-control-md border-2"
-                                                                                name="accomodation_price" 
-                                                                                min="0" 
-                                                                                value="{{ $accomodation->accomodation_price }}" 
-                                                                                required>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="col-md-4">
-                                                                <div class="card border-0 shadow-sm">
-                                                                    <div class="card-body">
-                                                                        <label class="form-label fw-bold text-dark fs-6">Status</label>
-                                                                        <select class="form-select form-select-md border-2" name="accomodation_status" required>
-                                                                            <option value="available" {{ $accomodation->accomodation_status == 'available' ? 'selected' : '' }}>
-                                                                                <i class="fas fa-check-circle text-success" style="height: 16px;"></i> Available
-                                                                            </option>
-                                                                            <option value="unavailable" {{ $accomodation->accomodation_status == 'unavailable' ? 'selected' : '' }}>
-                                                                                <i class="fas fa-times-circle text-danger" style="height: 16px;"></i> Not Available
-                                                                            </option>
-                                                                        </select>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="modal-footer border-0 mt-4">
-                                                            <button type="button" class="btn btn-md btn-secondary" data-bs-dismiss="modal">
-                                                                <i class="fas fa-times me-2" style="height: 16px;"></i>Cancel
-                                                            </button>
-                                                            <button type="submit" class="btn btn-md text-white" style="background-color: #0b573d;">
-                                                                <i class="fas fa-save me-2" style="height: 16px;"></i>Save Changes
-                                                            </button>
-                                                        </div>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </tbody>
-                        </table>
-
-                        <!-- Pagination Section -->
-                        <div class="d-flex justify-content-between align-items-center mt-4">
+         <!-- Pagination Section -->
+         <div class="d-flex justify-content-between align-items-center mt-4">
                             <div class="text-muted">
                                 @if($accomodations->total() > 0)
                                     Showing {{ $accomodations->firstItem() }} to {{ $accomodations->lastItem() }} of {{ $accomodations->total() }} results
@@ -486,6 +316,7 @@
         </div>
 
     </div>
+
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {

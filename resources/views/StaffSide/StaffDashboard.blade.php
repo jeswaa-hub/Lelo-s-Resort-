@@ -32,22 +32,23 @@
             <!-- After the Pending Bookings Section -->
             <div class="row">
                 <div class="col-11  mx-auto">
-                    <div class="hero-banner" style="background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(34, 34, 34, 0.5)), url('{{ asset('images/DSCF2777.JPG') }}'); background-size: cover; background-position: center; height: 450px; border-radius: 15px;">
+                    <div class="hero-banner" style="background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(34, 34, 34, 0.5)), url('{{ asset('images/staff-admin-bg.jpg') }}');   background-size: cover; background-position: center; height: 450px; border-radius: 15px;">
                     </div>
                 </div>
             </div>
 
             
-            <div class="position-absolute d-flex flex-column align-items-start align-items-sm-start text-center text-sm-start" 
-                style="top:250px; left:200px; width:100%;">
-                <p class="text-white me-3" style="font-family: 'Poppins', sans-serif; font-size: 3rem; letter-spacing: 5px;">
-                    Hello
-                </p>
-                <h1 class="text-capitalize" 
-                    style="font-family: 'Montserrat', sans-serif; font-size: 5rem; color:#ffffff; letter-spacing: 15px; white-space: nowrap;">
-                    {{ $staffCredentials->username }}!
-                </h1>
-            </div>
+<div class="position-absolute d-flex flex-column align-items-start text-start" 
+    style="top: 50%; left: 61%; transform: translate(-50%, -50%); width: 100%; padding: 0 20px;">
+
+    <p class="text-white" style="font-family: 'Poppins', sans-serif; font-size: clamp(2rem, 5vw, 3rem); letter-spacing: 5px;">
+        Hello,
+    </p>
+    <h1 class="text-capitalize fw-bolder" 
+        style="font-family: 'Montserrat', sans-serif; font-size: clamp(3rem, 8vw, 5rem); color:#ffffff; letter-spacing: clamp(5px, 2vw, 15px); white-space: normal; overflow-wrap: break-word; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
+        {{ $staffCredentials->username }}!
+    </h1>
+</div>
             <div class="position-absolute w-100" style="top: 450px; left: 0;">
                 <div class="d-flex justify-content-center">
                     <div class="w-75">
@@ -209,14 +210,14 @@
                 <!-- Column 3: Pending Bookings -->
                 <div class="col-12 col-lg-8">
                     <div class="p-4 rounded-4 border border-4" 
-                        style="background: linear-gradient(to top, rgb(211, 209, 209), #ffffff); min-height: 250px; height: auto;">
+                        style="background: linear-gradient(to top, rgb(211, 209, 209), #ffffff); min-height: 300px; height: 100%;">
                         
                         <h2 class="font-heading mb-3 text-center fw-bold fs-4 fs-md-3 fs-lg-1" style="color: #0b573d;">
                             Pending Bookings
                         </h2>
 
                         @if($pendingReservationsList && count($pendingReservationsList) > 0)
-                            <div class="overflow-auto" style="max-height: 250px;">
+                            <div class="overflow-auto" style="max-height: 300px;">
                                 @foreach($pendingReservationsList as $reservation)
                                     <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between mb-2 p-2 border-bottom">
                                         <div>

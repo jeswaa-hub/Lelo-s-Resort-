@@ -106,7 +106,7 @@
         </div>
     </div>
     @endif
-
+    <x-loading-screen />
     @include('Alert.loginSuccessUser')
 
     <!-- Navigation -->

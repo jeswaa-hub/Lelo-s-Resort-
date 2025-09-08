@@ -18,110 +18,145 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <style>
-    .transition-width {
-        transition: all 0.3s ease;
-    }
-    #mainContent.full-width {
-        width: 100% !important;
-        flex: 0 0 100% !important;
-        max-width: 100% !important;
-    }
 </style>
-<body style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76)), url('{{ asset('images/DSCF2777.JPG') }}') no-repeat center center fixed; background-size: cover;">
+<body style="margin: 0; padding: 0; height: 100vh; background-color: white; overflow-x: hidden;">
     @include('Alert.loginSucess')
     @include('Alert.notification')
-    <div class="container-fluid min-vh-100 d-flex p-0">
-        <!-- SIDEBAR -->
-        @include('Navbar.sidenavbarStaff')
+    <!-- NAVBAR -->
+     @include('Navbar.sidenavbarStaff')
         <!-- Main Content -->
-        <div id="mainContent" class="flex-grow-1 py-4 px-4 transition-width" style="transition: all 0.3s ease;">
-            <!-- Heading and Logo -->
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <div class="ms-auto">
-                    <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="100" class="rounded-pill">
+        <div class="row">
+    <div class="col-11 mx-auto">
+        <div class="hero-banner" 
+             style="background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(34, 34, 34, 0.5)), url('{{ asset('images/staff-admin-bg.jpg') }}'); 
+                    background-size: cover; 
+                    background-position: center; 
+                    height: 450px; 
+                    border-radius: 15px;">
+            <div class="d-flex justify-content-start align-items-center h-100">
+                <div class="ms-5">
+                    <p class="text-white mb-0" style="font-size: 2.5rem; font-family: 'Poppins', sans-serif; margin-left: 5rem;">Hello,</p>
+                    <h1 class="text-white fw-bold" style="font-size: 4.5rem; font-family: 'Poppins', sans-serif; margin-left: 5rem;">
+                        Staff002!
+                    </h1>
                 </div>
             </div>
-            
-            <hr class="border-5">
-            <div class="d-flex justify-content-between align-items-center">
-                <h1 class="fw-semibold text-capitalize mt-4" style="font-size: 50px; letter-spacing: 1px; color: #0b573d; margin-top: -30px; font-family: 'Anton', sans-serif; letter-spacing: .1em;">Damage Report</h1>
-            </div>
-            <div class="d-flex justify-content-end mb-3">
-                <button class="btn btn-success d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#addDamageReportModal" style="background-color: #0b573d; border: none; padding: 8px 16px; border-radius: 8px; transition: all 0.3s ease;">
-                    <i class="fas fa-plus"></i>
-                    <span>Add Report</span>
-                </button>
-            </div>
+        </div>
+    </div>
+</div>
 
-            <!-- Damage Reports Table -->
-            <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead class="color-background5 text-white">
-                            <tr>
-                                <th>Image</th>
-                                <th>Room/Area</th>
-                                <th>Damage Description</th>
-                                <th>Date Reported</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($damageReports as $report)
-                            <tr>
-                                <td>
-                                    @if($report->damage_photos)
-                                        <img src="{{ asset('storage/' . $report->damage_photos) }}" alt="Damage Photo" style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px;">
-                                    @else
-                                        <span class="text-muted">No Image</span>
-                                    @endif
-                                </td>
-                                <td>{{ $report->notes }}</td>
-                                <td>{{ $report->damage_description }}</td>
-                                <td>{{ $report->created_at->format('M d, Y h:i A') }}</td>
-                                <td>
-                                    <span class="badge {{ $report->status == 'pending' ? 'bg-warning' : ($report->status == 'in progress' ? 'bg-info' : 'bg-success') }}">
-                                        {{ $report->status }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <div class="d-flex gap-2">
-                                        <button class="btn btn-sm btn-primary rounded-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#editReportModal{{ $report->id }}" style="background-color: #0b573d; border: none; transition: background 0.2s;">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-danger rounded-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $report->id }}" style="background-color: #d9534f; border: none; transition: background 0.2s;">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
 
-                                        <!-- Delete Confirmation Modal -->
-                                        <div class="modal fade" id="deleteModal{{ $report->id }}" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-                                            <div class="modal-dialog modal-dialog-centered">
-                                                <div class="modal-content rounded-4" style="border: 2px solid #d9534f;">
-                                                    <div class="modal-header bg-danger text-white rounded-top-4">
-                                                        <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
-                                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <p>Are you sure you want to delete this damage report?</p>
-                                                        <p class="text-muted small">This action cannot be undone.</p>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                        <button type="button" class="btn btn-danger" onclick="deleteReport({{ $report->id }})">Delete</button>
+
+
+     <!-- TABLE SECTION -->
+<div class="position-relative w-100" style="margin-top: -125px; margin-bottom: 50px;">
+    <div class="d-flex justify-content-center">
+        <div class="w-75">
+            <div class="card border-2 shadow-lg" style="background-color: rgba(255, 255, 255, 0.95);">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <h2 class="font-heading mb-0 fs-3 fw-bold" style="color: #0b573d;">DAMAGE REPORT</h2>
+                    <button class="btn btn-success d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#addDamageReportModal" style="background-color: #0b573d; border: none; padding: 12px 24px; border-radius: 12px; transition: all 0.3s ease; font-size: 1.1rem; font-weight: 600; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        <i class="fas fa-plus"></i>
+                        <span>Add Report</span>
+                    </button>
+                </div>
+
+                <div style="height: 400px; overflow-y: auto;">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead style="background-color: #f5f5f5;">
+                                    <tr>
+                                        <th style="color: #0b573d; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background-color: #f8f9fa; border-radius: 4px;">Room/Area</th>
+                                        <th style="color: #0b573d; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background-color: #f8f9fa; border-radius: 4px;">Damage Description</th>
+                                        <th style="color: #0b573d; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background-color: #f8f9fa; border-radius: 4px;">Date Reported</th>
+                                        <th style="color: #0b573d; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background-color: #f8f9fa; border-radius: 4px;">Status</th>
+                                        <th style="color: #0b573d; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background-color: #f8f9fa; border-radius: 4px;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($damageReports as $report)
+                                    <tr>
+                                        <td>
+                                            @if($report->damage_photos)
+                                            <div>
+                                                <strong>{{ $report->notes }}</strong>
+                                                <br>
+                                                <a href="#" 
+                                                class="text-primary text-decoration-none"
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#imageModal{{ $report->id }}">
+                                                    View Image
+                                                </a>
+                                            </div>
+
+                                            <!-- Image Modal -->
+                                            <div class="modal fade" id="imageModal{{ $report->id }}" tabindex="-1" aria-labelledby="imageModalLabel{{ $report->id }}" aria-hidden="true">
+                                                <div class="modal-dialog modal-dialog-centered modal-lg">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="imageModalLabel{{ $report->id }}">Damage Photo</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body text-center">
+                                                            <img src="{{ asset('storage/' . $report->damage_photos) }}" 
+                                                                alt="Damage Photo Full Size" 
+                                                                style="max-width: 100%; max-height: 80vh; object-fit: contain;">
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </div>
-                                </td>
-                                
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            
+                                            @else
+                                                <span class="text-muted">No Image</span>
+                                            @endif
+                                        </td>
+                                        <td><strong>{{ $report->damage_description }}</strong></td>
+                                        <td><strong>{{ $report->created_at->format('M d, Y') }}<br>{{ $report->created_at->format('h:i A') }}</strong></td>
+                                        <td>
+                                            <span class="badge fs-6 px-3 py-2 {{ $report->status == 'pending' ? 'bg-warning' : ($report->status == 'in progress' ? 'bg-info' : 'bg-success') }}" style="font-size: 1rem;">
+                                                {{ strtoupper($report->status) }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-2">
+                                                <button class="btn btn-sm btn-primary rounded-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#editReportModal{{ $report->id }}" style="background-color: #0b573d; border: none; transition: background 0.2s; width: 32px; height: 32px; padding: 0;">
+                                                    <i class="fas fa-edit" style="font-size: 14px;"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-danger rounded-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $report->id }}" style="background-color: #d9534f; border: none; transition: background 0.2s; width: 32px; height: 32px; padding: 0;">
+                                                    <i class="fas fa-trash" style="font-size: 14px;"></i>
+                                                </button>
+
+                                                <!-- Delete Confirmation Modal -->
+                                                <div class="modal fade" id="deleteModal{{ $report->id }}" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                                                    <div class="modal-dialog modal-dialog-centered">
+                                                        <div class="modal-content rounded-4" style="border: 2px solid #d9534f;">
+                                                            <div class="modal-header bg-danger text-white rounded-top-4">
+                                                                <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <p>Are you sure you want to delete this damage report?</p>
+                                                                <p class="text-muted small">This action cannot be undone.</p>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                                <button type="button" class="btn btn-danger" onclick="deleteReport({{ $report->id }})">Delete</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+<!-- Added spacing below table -->
+
+
+
             <!-- Add Damage Report Modal -->
             <div class="modal fade" id="addDamageReportModal" tabindex="-1">
                 <div class="modal-dialog modal-dialog-centered">
@@ -201,7 +236,5 @@
     </div>
     </div>
     </div>
-    
-    
 </body>
 </html>

@@ -1076,8 +1076,106 @@ public function login(Request $request) {
         $colorIndex = $index % count($colorPalette);
         $roomColors[$room->accomodation_name] = $colorPalette[$colorIndex];
     }
+    // Get selected year from request or use current year
+    $selectedYear = request()->input('year', date('Y'));
+    
+    // Revenue Data - Daily
+    $dailyRevenue = DB::table('reservation_details AS rd')
+        ->select(
+            DB::raw('DATE(rd.reservation_check_in_date) as date'),
+            DB::raw('SUM(rd.amount) as total_revenue')
+        )
+        ->whereYear('rd.reservation_check_in_date', $selectedYear)
+        ->where('payment_status', 'paid')
+        ->groupBy(DB::raw('DATE(rd.reservation_check_in_date)'))
+        ->orderBy('date', 'asc')
+        ->get();
+
+    // Weekly Revenue
+    $weeklyRevenue = DB::table('reservation_details AS rd')
+        ->select(
+            DB::raw('YEARWEEK(rd.reservation_check_in_date, 1) as week'),
+            DB::raw('SUM(rd.amount) as total_revenue')
+        )
+        ->whereYear('rd.reservation_check_in_date', $selectedYear)
+        ->where('payment_status', 'paid')
+        ->groupBy('week')
+        ->orderBy('week', 'asc')
+        ->get();
+
+    // Monthly Revenue
+    $monthlyRevenue = DB::table('reservation_details AS rd')
+        ->select(
+            DB::raw('DATE_FORMAT(rd.reservation_check_in_date, "%Y-%m") as month'),
+            DB::raw('SUM(rd.amount) as total_revenue')
+        )
+        ->whereYear('rd.reservation_check_in_date', $selectedYear)
+        ->where('payment_status', 'paid')
+        ->groupBy('month')
+        ->orderBy('month', 'asc')
+        ->get();
+
+    // Yearly Revenue
+    $yearlyRevenue = DB::table('reservation_details AS rd')
+        ->select(
+            DB::raw('YEAR(rd.reservation_check_in_date) as year'),
+            DB::raw('SUM(rd.amount) as total_revenue')
+        )
+        ->where('payment_status', 'paid')
+        ->groupBy('year')
+        ->orderBy('year', 'asc')
+        ->get();
+
+    // Walk-in Revenue Data
+    $dailyWalkinRevenue = DB::table('walkin_guests AS wg')
+        ->select(
+            DB::raw('DATE(wg.reservation_check_in_date) as date'),
+            DB::raw('SUM(wg.amount) as total_revenue')
+        )
+        ->whereYear('wg.reservation_check_in_date', $selectedYear)
+        ->groupBy(DB::raw('DATE(wg.reservation_check_in_date)'))
+        ->orderBy('date', 'asc')
+        ->get();
+
+    $weeklyWalkinRevenue = DB::table('walkin_guests AS wg')
+        ->select(
+            DB::raw('YEARWEEK(wg.reservation_check_in_date, 1) as week'),
+            DB::raw('SUM(wg.amount) as total_revenue')
+        )
+        ->whereYear('wg.reservation_check_in_date', $selectedYear)
+        ->groupBy('week')
+        ->orderBy('week', 'asc')
+        ->get();
+
+    $monthlyWalkinRevenue = DB::table('walkin_guests AS wg')
+        ->select(
+            DB::raw('DATE_FORMAT(wg.reservation_check_in_date, "%Y-%m") as month'),
+            DB::raw('SUM(wg.amount) as total_revenue')
+        )
+        ->whereYear('wg.reservation_check_in_date', $selectedYear)
+        ->groupBy('month')
+        ->orderBy('month', 'asc')
+        ->get();
+
+    $yearlyWalkinRevenue = DB::table('walkin_guests AS wg')
+        ->select(
+            DB::raw('YEAR(wg.reservation_check_in_date) as year'),
+            DB::raw('SUM(wg.amount) as total_revenue')
+        )
+        ->groupBy('year')
+        ->orderBy('year', 'asc')
+        ->get();
+
     // Pass the data to the view
     return view('AdminSide.Dashboard', [
+        'dailyRevenue' => $dailyRevenue,
+        'weeklyRevenue' => $weeklyRevenue,
+        'monthlyRevenue' => $monthlyRevenue,
+        'yearlyRevenue' => $yearlyRevenue,
+        'dailyWalkinRevenue' => $dailyWalkinRevenue,
+        'weeklyWalkinRevenue' => $weeklyWalkinRevenue,
+        'monthlyWalkinRevenue' => $monthlyWalkinRevenue,
+        'yearlyWalkinRevenue' => $yearlyWalkinRevenue,
         'adminCredentials' => $adminCredentials,
         'totalBookings' => $totalBookings,
         'totalGuests' => $totalGuests,
@@ -1108,8 +1206,8 @@ public function login(Request $request) {
         'yearlyWalkins' => $yearlyWalkins
         ]);
 }
-    // Export to Excel
-    
+
+// Export to Excel    
 public function exportExcel(Request $request)
 {
     try {

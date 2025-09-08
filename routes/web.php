@@ -98,7 +98,7 @@ Route::middleware(['auth', 'prevent.back'])->group(function () {
     Route::get('/homepage', [LandingPageController::class, 'homepage'])->name('homepage');
     Route::get('/profile', [HomePageController::class, 'profilepage'])->name('profile');
     Route::get('/profile/edit', [HomePageController::class, 'editProfile'])->name('editProfile');
-    Route::post('/edit-profile', [HomePageController::class, 'editProfile'])->name('profile.update');
+    Route::post('/profile/edit', [HomePageController::class, 'updateProfile'])->name('profile.update');
     Route::post('/reservation/cancel/{id}', [ReservationController::class, 'guestcancelReservation'])->name('guestcancelReservation');
     Route::get('/reservation-summary/{id}', [ReservationController::class, 'displayReservationSummary'])->name('displaySummary');
     Route::get('/get-all-reservations', [HomePageController::class, 'getAllReservations'])->name('getAllReservations');

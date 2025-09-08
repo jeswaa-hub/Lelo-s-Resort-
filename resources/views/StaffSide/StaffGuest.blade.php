@@ -16,150 +16,189 @@
 <style>
 
 </style>
-<body style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76)), url('{{ asset('images/DSCF2777.JPG') }}') no-repeat center center fixed; background-size: cover;">
-@include('Alert.loginSucess')
-    <div class="container-fluid min-vh-100 d-flex p-0">
-        <!-- Side NavBar -->
-        @include('Navbar.sidenavbarStaff')  
-        <!-- Main Content -->
-        <div id="mainContent" class="flex-grow-1 py-4 px-4 transition-width" style="transition: all 0.3s ease;">
-            <!-- Heading and Logo -->
-            <div class="d-flex justify-content-end align-items-end mb-1">
-                <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="100" class="rounded-pill me-3">
-            </div>
-            <hr class="border-5">
+<body style="margin: 0; padding: 0; height: 100vh; background-color: white; overflow-x: hidden;">
+    @include('Alert.loginSucess')
 
-            <div>
-                <h1 class="fw-semibold text-capitalize mt-4" style="font-size: 50px; letter-spacing: 1px; color: #0b573d; margin-top: -30px; font-family: 'Anton', sans-serif; letter-spacing: .1em;">Guest Information Overview</h1>
-                <div class="mb-4 mt-3">
-                    <form action="{{ route('staff.guests') }}" method="GET" class="d-flex gap-2">
-                        <div class="input-group">
-                            <input type="text" name="search" class="form-control" placeholder="Search by name or email..." value="{{ request('search') }}" oninput="toggleClearButton(this)">
-                            <button type="submit" class="btn btn-success me-2" style="height: 49px; border-top-right-radius: 5px; border-bottom-right-radius: 5px;">
-                                <i class="fas fa-search"></i>
-                            </button>
-                            <button type="button" class="btn btn-danger rounded-1" id="clearButton" style="height: 49px; display: {{ request('search') ? 'block' : 'none' }};" onclick="clearSearch()">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-                    </form>
+    <!-- NAVBAR -->
+    @include('Navbar.sidenavbarStaff')
+
+    <!-- HERO BANNER -->
+    <div class="row">
+    <div class="col-11 mx-auto">
+        <div class="hero-banner" 
+             style="background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(34, 34, 34, 0.5)), url('{{ asset('images/staff-admin-bg.jpg') }}'); 
+                    background-size: cover; 
+                    background-position: center; 
+                    height: 450px; 
+                    border-radius: 15px;">
+            <div class="d-flex justify-content-start align-items-center h-100">
+                <div class="ms-5">
+                    <p class="text-white mb-0" style="font-size: 2.5rem; font-family: 'Poppins', sans-serif; margin-left: 5rem;">Hello,</p>
+                    <h1 class="text-white fw-bold" style="font-size: 4.5rem; font-family: 'Poppins', sans-serif; margin-left: 5rem;">
+                        Staff002!
+                    </h1>
                 </div>
-
-                <script>
-                    function toggleClearButton(input) {
-                        const clearButton = document.getElementById('clearButton');
-                        clearButton.style.display = input.value ? 'block' : 'none';
-                    }
-
-                    function clearSearch() {
-                        document.querySelector('input[name="search"]').value = '';
-                        window.location.href = "{{ route('staff.guests') }}";
-                    }
-                </script>
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead class="table-success">
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Email</th>
-                                    <th>Phone Number</th>
-                                    <th>Address</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($guests as $guest)
-                                <tr>
-                                    <td>{{ $guest->name }}</td>
-                                    <td>{{ $guest->email }}</td>
-                                    <td>{{ $guest->mobileNo }}</td>
-                                    <td>{{ $guest->address }}</td>
-                                    <td>
-                                        <div class="btn-group" role="group">
-                                            <button type="button" class="btn btn-sm" style="background-color:#0b573d;"data-bs-toggle="modal" data-bs-target="#viewReservations{{ $guest->id }}">
-                                                <i class="fas fa-eye text-white"></i>
-                                            </button>
-                                        </div>
-
-                                        <!-- View Guest Reservations Modal -->
-                                        <div class="modal fade" id="viewReservations{{ $guest->id }}" tabindex="-1" aria-labelledby="viewReservationsLabel{{ $guest->id }}" aria-hidden="true">
-                                            <div class="modal-dialog modal-lg">
-                                                <div class="modal-content">
-                                                    <div class="modal-header text-white" style="background-color: #0b573d;">
-                                                        <h5 class="modal-title" id="viewReservationsLabel{{ $guest->id }}">Reservations for {{ $guest->name }}</h5>
-                                                        <button type="button" class="btn-close text-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        @if($guest->reservations->count() > 0)
-                                                            <div class="table-responsive">
-                                                                <table class="table table-striped">
-                                                                    <thead>
-                                                                        <tr>
-                                                                            <th>Reservation ID</th>
-                                                                            <th>Check-in Date</th>
-                                                                            <th>Check-out Date</th>
-                                                                            <th>Status</th>
-                                                                            <th>Total Amount</th>
-                                                                        </tr>
-                                                                    </thead>
-                                                                    <tbody>
-                                                                        @foreach($guest->reservations as $reservation)
-                                                                            <tr>
-                                                                                <td>{{ $reservation->id }}</td>
-                                                                                <td>{{ \Carbon\Carbon::parse($reservation->reservation_check_in_date)->format('M d, Y') }}</td>
-                                                                                <td>{{ \Carbon\Carbon::parse($reservation->reservation_check_out_date)->format('M d, Y') }}</td>
-                                                                                <td>
-                                                                                    <span class="badge {{ $reservation->reservation_status === 'checked-in' ? 'bg-success' : ($reservation->reservation_status === 'pending' ? 'bg-warning' : 'bg-danger') }}">
-                                                                                        {{ ucfirst($reservation->reservation_status) }}
-                                                                                    </span>
-                                                                                </td>
-                                                                                <td>₱{{ number_format($reservation->amount, 2) }}</td>
-                                                                            </tr>
-                                                                        @endforeach
-                                                                    </tbody>
-                                                                </table>
-
-                                                                <div class="d-flex justify-content-between align-items-center mt-4 mb-2">
-                                                                    <div class="text-muted">
-                                                                        Showing {{ $guest->reservations->firstItem() ?? 0 }} to {{ $guest->reservations->lastItem() ?? 0 }} of {{ $guest->reservations->total() }} results
-                                                                    </div>
-                                                                    <nav aria-label="Reservation pagination">
-                                                                        <div class="pagination pagination-sm">
-                                                                            {{ $guest->reservations->links('pagination::bootstrap-4') }}
-                                                                        </div>
-                                                                    </nav>
-                                                                </div>
-                                                            </div>
-                                                        @else
-                                                            <p class="text-center">No reservations found for this guest.</p>
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                        
-                        @if($guests->isEmpty())
-                        <div class="text-center p-3">
-                            <p>No guests found.</p>
-                        </div>
-                        @endif
-
-                        <div class="d-flex justify-content-between align-items-center mt-4">
-                            <div class="text-muted">
-                                Showing {{ $guests->firstItem() ?? 0 }} to {{ $guests->lastItem() ?? 0 }} of {{ $guests->total() }} entries
-                            </div>
-                            <div class="pagination-container">
-                                {{ $guests->links('pagination::bootstrap-4') }}
-                            </div>
-                        </div>
-                    </div>
             </div>
         </div>
     </div>
+</div>
+
+    <!-- SEARCH BOX -->
+    <div class="row mt-4">
+        <div class="col-11 mx-auto">
+            <div class="position-relative">
+                <form action="{{ route('staff.guests') }}" method="GET" class="d-flex gap-2 position-absolute" style="bottom: 180px; right: 125px;">
+                    <div class="input-group shadow-sm shadow-hover" 
+                         style="border-radius: 8px; 
+                                overflow: hidden;
+                                min-width: 350px;
+                                transition: all 0.3s ease-in-out;
+                                background: rgba(255, 255, 255, 0.95);
+                                backdrop-filter: blur(5px);
+                                border: 1px solid rgba(0, 0, 0, 0.1);">
+                        <!-- Search Box -->
+                        <input type="text" 
+                               name="search" 
+                               class="form-control border-0 ps-4" 
+                               placeholder="🔍 Search guest..." 
+                               value="{{ request('search') }}" 
+                               oninput="toggleClearButton(this)"
+                               style="border-radius: 0; height: 50px;">
+                        <!-- Search Button -->
+                        <button type="submit" 
+                                class="btn bg-white px-4"
+                                style="border-radius: 0; height: 50px; transition: 0.3s;">
+                            <i class="fas fa-search" style="color: black;"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABLE SECTION -->
+<div class="position-relative w-100" style="margin-top: -150px; margin-bottom: 50px;">
+    <div class="d-flex justify-content-center">
+        <div class="w-75">
+            <div class="card border-2 shadow-lg" style="background-color: rgba(255, 255, 255, 0.95);">
+                <div class="card-header bg-white py-3">
+                    <h2 class="font-heading mb-0 fs-3 fw-bold" style="color: #0b573d;">GUEST INFORMATION OVERVIEW</h2>
+                </div>
+                <div style="height: 400px; overflow-y: auto;">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead style="background-color: #f5f5f5;">
+                                    <tr>
+                                        <th style="color: #0b573d; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background-color: #f8f9fa; border-radius: 4px;">Guest Name</th>
+                                        <th style="color: #0b573d; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background-color: #f8f9fa; border-radius: 4px;">Phone Number</th>
+                                        <th style="color: #0b573d; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background-color: #f8f9fa; border-radius: 4px;">Address</th>
+                                        <th style="color: #0b573d; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background-color: #f8f9fa; border-radius: 4px;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($guests as $guest)
+                                    <tr>
+                                        <td>
+                                            <div class="fw-bold">{{ $guest->name }}</div>
+                                            <div class="text-muted small">{{ $guest->email }}</div>
+                                        </td>
+                                        <td><strong>{{ $guest->mobileNo }}</strong></td>
+                                        <td><strong>{{ $guest->address }}</strong></td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <button type="button" class="btn btn-sm" style="background-color:#0b573d;" data-bs-toggle="modal" data-bs-target="#viewReservations{{ $guest->id }}">
+                                                    <i class="fas fa-eye text-white"></i>
+                                                </button>
+                                            </div>
+                                            <!-- View Guest Reservations Modal -->
+                                            <div class="modal fade" id="viewReservations{{ $guest->id }}" tabindex="-1" aria-labelledby="viewReservationsLabel{{ $guest->id }}" aria-hidden="true">
+                                                <div class="modal-dialog modal-lg">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header text-white" style="background-color: #0b573d;">
+                                                            <h5 class="modal-title" id="viewReservationsLabel{{ $guest->id }}">Reservations for {{ $guest->name }}</h5>
+                                                            <button type="button" class="btn-close text-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            @if($guest->reservations->count() > 0)
+                                                                <div class="table-responsive">
+                                                                    <table class="table table-striped">
+                                                                        <thead>
+                                                                            <tr>
+                                                                                <th>Reservation ID</th>
+                                                                                <th>Check-in Date</th>
+                                                                                <th>Check-out Date</th>
+                                                                                <th>Status</th>
+                                                                                <th>Total Amount</th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            @foreach($guest->reservations as $reservation)
+                                                                                <tr>
+                                                                                    <td>{{ $reservation->id }}</td>
+                                                                                    <td>{{ \Carbon\Carbon::parse($reservation->reservation_check_in_date)->format('M d, Y') }}</td>
+                                                                                    <td>{{ \Carbon\Carbon::parse($reservation->reservation_check_out_date)->format('M d, Y') }}</td>
+                                                                                    <td>
+                                                                                        <span class="badge {{ $reservation->reservation_status === 'checked-in' ? 'bg-success' : ($reservation->reservation_status === 'pending' ? 'bg-warning' : 'bg-danger') }}">
+                                                                                            {{ ucfirst($reservation->reservation_status) }}
+                                                                                        </span>
+                                                                                    </td>
+                                                                                    <td>₱{{ number_format($reservation->amount, 2) }}</td>
+                                                                                </tr>
+                                                                            @endforeach
+                                                                        </tbody>
+                                                                    </table>
+
+                                                                    <div class="d-flex justify-content-between align-items-center mt-4 mb-2">
+                                                                        <div class="text-muted">
+                                                                            Showing {{ $guest->reservations->firstItem() ?? 0 }} to {{ $guest->reservations->lastItem() ?? 0 }} of {{ $guest->reservations->total() }} results
+                                                                        </div>
+                                                                        <nav aria-label="Reservation pagination">
+                                                                            <div class="pagination pagination-sm">
+                                                                                {{ $guest->reservations->links('pagination::bootstrap-4') }}
+                                                                            </div>
+                                                                        </nav>
+                                                                    </div>
+                                                                </div>
+                                                            @else
+                                                                <p class="text-center">No reservations found for this guest.</p>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                            
+                            @if($guests->isEmpty())
+                            <div class="text-center p-3">
+                                <p>No guests found.</p>
+                            </div>
+                            @endif
+
+                            <div class="d-flex justify-content-between align-items-center mt-4">
+                                <div class="text-muted">
+                                    Showing {{ $guests->firstItem() ?? 0 }} to {{ $guests->lastItem() ?? 0 }} of {{ $guests->total() }} entries
+                                </div>
+                                <div class="pagination-container">
+                                    {{ $guests->links('pagination::bootstrap-4') }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mb-4"></div> <!-- Added margin bottom spacing -->
+        </div>
+    </div>
+</div>
+
+
+
+
+
 </body>
 </html>

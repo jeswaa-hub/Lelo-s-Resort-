@@ -127,13 +127,13 @@
 <div class="container-fluid mt-4 shadow-lg p-4 bg-white rounded" style="max-width: 91.67%; margin: 0 auto;">
     <div class="container">
         <div class="d-flex justify-content-between align-items-center">
-            <h2 class="fw-bold text-black mb-0 border-bottom" style="font-size: 2.5rem;">WALK-IN RESERVATION</h2>
+            <h2 class="fw-bold mb-0 border-bottom" style="font-size: 2.5rem; color: #0b573d;">WALK-IN RESERVATION</h2>
             <button type="button" class="btn ms-auto text-white" style="width: 200px; background-color: #0b573d;" data-bs-toggle="modal" data-bs-target="#addWalkInModal">
                 <i class="fas fa-user-plus me-2"></i>Add Walk-in Guest
             </button>
         </div>
 
-        <div class="card shadow-sm border-0 rounded-4 mb-4 mt-4 p-2">
+        <div class="card shadow-sm border-0 rounded-4 mb-4 mt-4 p-2" style="background: linear-gradient(to top, rgb(211, 209, 209), #ffffff);">
             <table class="table table-hover table-striped table-responsive table-sm">
                 <thead>
                 <tr>

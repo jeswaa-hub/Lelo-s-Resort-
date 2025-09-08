@@ -151,10 +151,11 @@
         </div>
 
         <!-- Additional Hero Banner -->
-<div class="container-fluid mt-4 shadow-lg p-4 bg-white rounded" style="max-width: 100%; margin: 0 auto;">
+<div class="container-fluid mt-4 shadow-lg p-4 rounded" style="max-width: 100%; margin: 0 auto; background: linear-gradient(to top, rgb(211, 209, 209), #ffffff);">
 <div class="container">
     <div class="d-flex justify-content-between align-items-center">
-        <h2 class="fw-bold text-black mb-0 border-bottom" style="font-size: 2.5rem;">ONLINE RESERVATION</h2>
+        <h2 class="fw-bold mb-0 border-bottom" style="font-size: 2.5rem; color: #0b573d;">ONLINE RESERVATION</h2>
+        
 
         <div class="d-flex gap-2">
             <form action="{{ route('staff.reservation') }}" method="GET" class="d-flex gap-2" id="filterForm">
@@ -333,19 +334,19 @@
         <table class="table table-hover table-striped table-responsive table-sm">
         <thead style="background-color: #0b573d; color: white;">
         <tr>
-            <th class="text-center align-middle">ResID</th>
-            <th class="text-center align-middle">Name</th>
-            <th class="text-center align-middle">Phone Number</th>
-            <th class="text-center align-middle">Room</th>
-            <th class="text-center align-middle">Room Qty</th>
-            <th class="text-center align-middle">Ref Num</th>
-            <th class="text-center align-middle">Amount</th>
-            <th class="text-center align-middle">Balance</th>
-            <th class="text-center align-middle">Stay Type</th>
-            <th class="text-center align-middle">Reservation Status</th>
-            <th class="text-center align-middle">Payment Status</th>
-            <th class="text-center align-middle">Proof of Payment</th>
-            <th class="text-center align-middle">Action</th>
+            <th class="text-center align-middle" style="color: #0b573d">ResID</th>
+            <th class="text-center align-middle" style="color: #0b573d">Name</th>
+            <th class="text-center align-middle" style="color: #0b573d">Phone Number</th>
+            <th class="text-center align-middle" style="color: #0b573d">Room</th>
+            <th class="text-center align-middle" style="color: #0b573d">Room Qty</th>
+            <th class="text-center align-middle" style="color: #0b573d">Ref Num</th>
+            <th class="text-center align-middle" style="color: #0b573d">Amount</th>
+            <th class="text-center align-middle" style="color: #0b573d">Balance</th>
+            <th class="text-center align-middle" style="color: #0b573d">Stay Type</th>
+            <th class="text-center align-middle" style="color: #0b573d">Reservation Status</th>
+            <th class="text-center align-middle" style="color: #0b573d">Payment Status</th>
+            <th class="text-center align-middle" style="color: #0b573d">Proof of Payment</th>
+            <th class="text-center align-middle" style="color: #0b573d">Action</th>
         </tr>
         </thead>
         <tbody>

@@ -113,21 +113,20 @@
         </div>
 
         <div class="container-fluid">
-            <div class="card shadow">
+            <div class="card shadow" style="background: linear-gradient(to top, rgb(211, 209, 209), #ffffff);">
                 <div class="card-body">
                     <table class="table table-hover table-responsive m-0">
-                        <thead class="table-dark">
                             <tr>
-                                <th scope="col" class="text-center">Room ID</th>
-                                <th scope="col" class="text-center">Room Image</th>
-                                <th scope="col">Room Name</th>
-                                <th scope="col">Room Description</th>
-                                <th scope="col">Room Type</th>
-                                <th scope="col">Room Qty</th>
-                                <th scope="col" class="text-center">Price</th>
-                                <th scope="col" class="text-center">Capacity</th>
-                                <th scope="col" class="text-center">Availability</th>
-                                <th scope="col" class="text-center">Action</th>
+                                <th scope="col" class="text-center" style="color: #0b573d">Room ID</th>
+                                <th scope="col" class="text-center" style="color: #0b573d">Room Image</th>
+                                <th scope="col" style="color: #0b573d">Room Name</th>
+                                <th scope="col" style="color: #0b573d">Room Description</th>
+                                <th scope="col" style="color: #0b573d">Room Type</th>
+                                <th scope="col" style="color: #0b573d">Room Qty</th>
+                                <th scope="col" class="text-center" style="color: #0b573d">Price</th>
+                                <th scope="col" class="text-center" style="color: #0b573d">Capacity</th>
+                                <th scope="col" class="text-center" style="color: #0b573d">Availability</th>
+                                <th scope="col" class="text-center" style="color: #0b573d">Action</th>
                             </tr>
                         </thead>
                         <tbody>

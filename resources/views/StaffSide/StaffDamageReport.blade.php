@@ -54,7 +54,7 @@
 <div class="position-relative w-100" style="margin-top: -125px; margin-bottom: 50px;">
     <div class="d-flex justify-content-center">
         <div class="w-75">
-            <div class="card border-2 shadow-lg" style="background-color: rgba(255, 255, 255, 0.95);">
+            <div class="card border-2 shadow-lg" style="background: linear-gradient(to top, rgb(211, 209, 209), #ffffff);">
                 <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
                     <h2 class="font-heading mb-0 fs-3 fw-bold" style="color: #0b573d;">DAMAGE REPORT</h2>
                     <button class="btn btn-success d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#addDamageReportModal" style="background-color: #0b573d; border: none; padding: 12px 24px; border-radius: 12px; transition: all 0.3s ease; font-size: 1.1rem; font-weight: 600; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
@@ -63,8 +63,8 @@
                     </button>
                 </div>
 
-                <div style="height: 400px; overflow-y: auto;">
-                    <div class="card-body">
+                <div style="height: 200px; overflow-y: auto;">
+                    <div class="card-body" style="background: linear-gradient(to top, rgb(211, 209, 209), #ffffff);">
                         <div class="table-responsive">
                             <table class="table table-hover">
                                 <thead style="background-color: #f5f5f5;">

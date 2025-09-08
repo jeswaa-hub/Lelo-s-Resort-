@@ -53,11 +53,11 @@
                 <div class="d-flex justify-content-center">
                     <div class="w-75">
                         <div class="card border-2 shadow-lg" style="background-color: rgba(255, 255, 255, 0.95);">
-                            <div class="card-header bg-white py-3">
+                            <div class="card-header py-3" style="background: linear-gradient(to top, rgb(211, 209, 209), #ffffff);">
                                 <h2 class="font-heading mb-0 fs-3 fw-bold" style="color: #0b573d;">Today's Reservations</h2>
                             </div>
-                            <div style="height: 150px; overflow-y: auto;">
-                            <div class="card-body">
+                            <div style="height: 150px; overflow-y: auto; background: linear-gradient(to top, rgb(211, 209, 209), #ffffff);">
+                            <div class="card-body" style="background: linear-gradient(to top, rgb(211, 209, 209), #ffffff);">
                                 @if($todayReservations->count() > 0)
                                     <div class="table-responsive">
                                         <table class="table table-hover">

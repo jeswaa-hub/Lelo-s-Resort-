@@ -25,19 +25,21 @@
     <!-- HERO BANNER -->
     <div class="row">
     <div class="col-11 mx-auto">
-        <div class="hero-banner" 
-             style="background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(34, 34, 34, 0.5)), url('{{ asset('images/DSCF2777.JPG') }}'); 
+        <div class="hero-banner position-relative" 
+             style="background-image:url('{{ asset('images/staff-admin-bg.jpg') }}'); 
                     background-size: cover; 
                     background-position: center; 
                     height: 450px; 
                     border-radius: 15px;">
-            <div class="d-flex justify-content-start align-items-center h-100">
-                <div class="ms-5">
-                    <p class="text-white mb-0" style="font-size: 2.5rem; font-family: 'Poppins', sans-serif; margin-left: 5rem;">Hello,</p>
-                    <h1 class="text-white fw-bold" style="font-size: 4.5rem; font-family: 'Poppins', sans-serif; margin-left: 5rem;">
-                        Staff002!
-                    </h1>
-                </div>
+            <div class="position-absolute d-flex flex-column align-items-start text-start" 
+                 style="top: 50%; left: 61%; transform: translate(-50%, -50%); width: 100%; padding: 0 20px;">
+                <p class="text-white" 
+                   style="font-family: 'Poppins', sans-serif; font-size: clamp(2rem, 5vw, 3rem); letter-spacing: 5px;">
+                    Hello,
+                </p>
+                <h1 class="text-capitalize fw-bolder" 
+                    style="font-family: 'Montserrat', sans-serif; font-size: clamp(3rem, 8vw, 5rem); color:#ffffff; letter-spacing: clamp(5px, 2vw, 15px); white-space: normal; overflow-wrap: break-word; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
+                </h1>
             </div>
         </div>
     </div>

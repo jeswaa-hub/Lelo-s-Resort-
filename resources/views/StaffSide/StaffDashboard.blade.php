@@ -32,7 +32,7 @@
             <!-- After the Pending Bookings Section -->
             <div class="row">
                 <div class="col-11  mx-auto">
-                    <div class="hero-banner" style="background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(34, 34, 34, 0.5)), url('{{ asset('images/DSCF2777.JPG') }}'); background-size: cover; background-position: center; height: 450px; border-radius: 15px;">
+                    <div class="hero-banner" style="background-image:url('{{ asset('images/staff-admin-bg.jpg') }}');  background-size: cover; background-position: center; height: 450px; border-radius: 15px;">
                     </div>
                 </div>
             </div>

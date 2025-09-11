@@ -298,6 +298,13 @@ public function cancelReservationWithReason(Request $request, $id)
 }
 public function reservations(Request $request)
 {
+    // Get current staff credentials
+    if (session()->has('StaffLogin')) {
+        $staffCredentials = Staff::where('id', session()->get('StaffLogin'))->first();
+    } else {
+        return redirect()->route('staff.login');
+    }
+
     // Count reservations by status
     $pendingCount = DB::table('reservation_details')
         ->where('reservation_status', 'pending')
@@ -322,7 +329,7 @@ public function reservations(Request $request)
     $reservedCount = DB::table('reservation_details')
         ->where('reservation_status', 'reserved')
         ->count();
-
+    
     $totalCount = DB::table('reservation_details')->count();
     $accommodationIdRows = DB::table('reservation_details')->pluck('accomodation_id');
     $allAccommodationIds = [];
@@ -358,12 +365,7 @@ public function reservations(Request $request)
         )
         ->orderByDesc('reservation_details.created_at');
 
-    // Add status filter
-    if ($request->has('status') && $request->status !== 'pending') {
-        $query->where('reservation_details.reservation_status', $request->status);
-    }
-
-    // Add search functionality
+    // Add search functionality FIRST (before status filter)
     if ($request->has('search')) {
         $searchTerm = $request->search;
         $query->where(function($q) use ($searchTerm) {
@@ -371,6 +373,13 @@ public function reservations(Request $request)
               ->orWhere('reservation_details.email', 'LIKE', '%' . $searchTerm . '%')
               ->orWhere('reservation_details.reservation_id', 'LIKE', '%' . $searchTerm . '%');
         });
+        
+        // If search is present, don't apply status filter (global search)
+        // This allows QR scanner to find reservations across all statuses
+    } else {
+        // Only apply status filter if no search is present
+        $status = $request->get('status', 'pending');
+        $query->where('reservation_details.reservation_status', $status);
     }
 
     // Add stay_type filter
@@ -432,6 +441,9 @@ public function reservations(Request $request)
         }
     }
 
+    $status = $request->get('status', 'pending'); // default pending
+    $reservationsPending = Reservation::where('reservation_status', $status)->get();
+
     // Debugging: Log the fetched details
     \Log::info('All Reservations:', ['reservations' => $reservations]);
     \Log::info('Pending Reservations Count:', ['count' => $pendingCount]);
@@ -448,78 +460,162 @@ public function reservations(Request $request)
         'earlyCheckedOutCount',
         'totalCount',
         'accommodationTypes',
-        'reservedCount'
+        'reservedCount',
+        'reservationsPending',
+        'status',
+        'staffCredentials'
     ));
 }
 
 
-public function accomodations()
+public function accomodations(Request $request)
 {
     // Get current staff info
     $staffId = session()->get('StaffLogin');
     $staff = Staff::find($staffId);
 
+    // Get filter parameters from request
+    $filter = $request->get('filter', 'overview'); // overview, daily, weekly, monthly
+    $date = $request->get('date', date('Y-m-d'));
+    
     // Fetch all accommodations
     $accomodations = DB::table('accomodations')->paginate(5);
+
+    // Initialize variables
+    $totalRooms = 0;
+    $vacantRooms = 0;
+    $reservedRooms = 0;
+    $activeReservations = collect();
+    $availabilityData = collect();
     
-    // Compute Room Overview
-    $totalRooms = DB::table('accomodations')->sum('quantity');
-    $vacantRooms = DB::table('accomodations')
-        ->sum('quantity');
+    // Base query for reservations
+    $reservedStatuses = ['reserved', 'checked-in'];
+    
+    if ($filter === 'overview') {
+        // Compute Room Overview (original logic)
+        $totalRooms = DB::table('accomodations')->sum('quantity');
+        $vacantRooms = DB::table('accomodations')->sum('quantity');
+
+        $reservedRoomsFromWalkin = DB::table('walkin_guests')
+            ->whereIn('reservation_status', $reservedStatuses)
+            ->sum('quantity');
+
+        $reservedRoomsFromReservations = DB::table('reservation_details')
+            ->whereIn('reservation_status', $reservedStatuses)
+            ->sum('quantity');
+
+        $reservedRooms = $reservedRoomsFromWalkin + $reservedRoomsFromReservations;
+
+        // Get active reservations for countdown timer
+        $activeReservations = DB::table('reservation_details')
+            ->leftJoin('accomodations', function($join) {
+                $join->whereRaw("JSON_CONTAINS(reservation_details.accomodation_id, CONCAT('\"', accomodations.accomodation_id, '\"'))");
+            })
+            ->whereIn('reservation_details.reservation_status', $reservedStatuses)
+            ->select([
+                'reservation_details.accomodation_id',
+                'accomodations.accomodation_name',
+                'accomodations.quantity as total_quantity', 
+                'reservation_details.quantity as reserved_quantity',
+                'reservation_details.reservation_check_out_date as next_available_date',
+                'reservation_details.reservation_status'
+            ])
+            ->orderBy('accomodations.accomodation_name')
+            ->orderBy('next_available_date')
+            ->get()
+            ->map(function($item) {
+                // Decode the JSON accomodation_id
+                $accomIds = json_decode($item->accomodation_id, true);
+                $item->accomodation_id = $accomIds[0] ?? null;
+                return $item;
+            })
+            ->groupBy('accomodation_id')
+            ->map(function ($group) {
+                return (object)[
+                    'id' => $group->first()->accomodation_id,
+                    'name' => $group->first()->accomodation_name ?? 'No accommodation found',
+                    'reserved_quantity' => $group->sum('reserved_quantity'),
+                    'next_available_time' => $group->first()->next_available_date,
+                    'total_quantity' => $group->first()->total_quantity ?? 0,
+                    'status' => $group->first()->reservation_status
+                ];
+            });
+            
+    } else {
+        // Date-based availability calculation
+        $startDate = Carbon::parse($date);
         
-    $reservedRoomsFromWalkin = DB::table('walkin_guests')
-        ->whereIn('reservation_status', ['reserved', 'checked-in'])
-        ->sum('quantity');
+        if ($filter === 'daily') {
+            $endDate = $startDate->copy()->addDay();
+        } elseif ($filter === 'weekly') {
+            $endDate = $startDate->copy()->addWeek();
+        } elseif ($filter === 'monthly') {
+            $endDate = $startDate->copy()->addMonth();
+        }
+        
+        // Calculate availability for each accommodation
+        foreach ($accomodations as $accommodation) {
+            $accommodationId = $accommodation->accomodation_id;
+            $totalRooms = (int)($accommodation->quantity ?? 0);
+            
+            // Get reservations for this period
+            $reservationQuery = DB::table('reservation_details')
+                ->whereIn('reservation_status', $reservedStatuses)
+                ->where(function($query) use ($startDate, $endDate) {
+                    $query->where(function($q) use ($startDate, $endDate) {
+                        $q->where('reservation_check_in_date', '<', $endDate)
+                          ->where('reservation_check_out_date', '>', $startDate);
+                    });
+                })
+                ->where(function($jsonQuery) use ($accommodationId) {
+                    $jsonQuery->whereJsonContains('accomodation_id', (string)$accommodationId)
+                              ->orWhereJsonContains('accomodation_id', (int)$accommodationId)
+                              ->orWhere('accomodation_id', '=', (string)$accommodationId)
+                              ->orWhere('accomodation_id', '=', (int)$accommodationId)
+                              ->orWhere('accomodation_id', 'LIKE', '%"'.$accommodationId.'"%')
+                              ->orWhere('accomodation_id', 'LIKE', '%['.$accommodationId.']%');
+                });
 
-    // Add reserved rooms from reservation_details table
-    $reservedRoomsFromReservations = DB::table('reservation_details')
-    ->whereIn('reservation_status', ['reserved', 'checked-in'])
-    ->sum('quantity');
+            $bookedFromReservations = (int)$reservationQuery->sum('quantity');
 
-    // Combine both reserved room counts
-    $reservedRooms = $reservedRoomsFromWalkin + $reservedRoomsFromReservations;
+            // Get walk-ins for this period
+            $walkinQuery = DB::table('walkin_guests')
+                ->where('accomodation_id', $accommodationId)
+                ->whereIn('reservation_status', $reservedStatuses)
+                ->where(function($query) use ($startDate, $endDate) {
+                    $query->where(function($q) use ($startDate, $endDate) {
+                        $q->where('reservation_check_in_date', '<', $endDate)
+                          ->where('reservation_check_out_date', '>', $startDate);
+                    });
+                });
 
-    // Get reservation details with checkout dates for countdown timer
-    $activeReservations = DB::table('reservation_details')
-        ->leftJoin('accomodations', function($join) {
-            $join->whereRaw("JSON_CONTAINS(reservation_details.accomodation_id, CONCAT('\"', accomodations.accomodation_id, '\"'))");
-        })
-        ->whereIn('reservation_details.reservation_status', ['reserved', 'checked-in'])
-        ->select([
-            'reservation_details.accomodation_id',
-            'accomodations.accomodation_name',
-            'accomodations.quantity as total_quantity', 
-            'reservation_details.quantity as reserved_quantity',
-            'reservation_details.reservation_check_out_date as next_available_date',
-            'reservation_details.reservation_status'
-        ])
-        ->orderBy('accomodations.accomodation_name')
-        ->orderBy('next_available_date')
-        ->get()
-        ->map(function($item) {
-            // Decode the JSON accomodation_id
-            $accomIds = json_decode($item->accomodation_id, true);
-            $item->accomodation_id = $accomIds[0] ?? null; // Get first ID since we're grouping by it
-            return $item;
-        })
-        ->groupBy('accomodation_id')
-        ->map(function ($group) {
-            return (object)[
-                'id' => $group->first()->accomodation_id,
-                'name' => $group->first()->accomodation_name ?? 'No accommodation found',
-                'reserved_quantity' => $group->sum('reserved_quantity'),
-                'next_available_time' => $group->first()->next_available_date,
-                'total_quantity' => $group->first()->total_quantity ?? 0,
-                'status' => $group->first()->reservation_status
-            ];
-        });
+            $bookedFromWalkins = (int)$walkinQuery->sum('quantity');
 
-    // Optional: Group by accommodation for easier display
-    $reservationsByAccommodation = $activeReservations->groupBy('accomodation_id');
+            $totalBooked = $bookedFromReservations + $bookedFromWalkins;
+            $availableRooms = max(0, $totalRooms - $totalBooked);
+            
+            // Store availability data
+            $availabilityData->push([
+                'id' => $accommodationId,
+                'name' => $accommodation->accomodation_name,
+                'total_rooms' => $totalRooms,
+                'booked' => $totalBooked,
+                'available' => $availableRooms,
+                'period_start' => $startDate->format('Y-m-d'),
+                'period_end' => $endDate->format('Y-m-d')
+            ]);
+            
+            // Update overall counts
+            $totalRooms += $totalRooms;
+            $reservedRooms += $totalBooked;
+        }
+        
+        $vacantRooms = $totalRooms - $reservedRooms;
+    }
 
     // Record activity with staff username if available, otherwise use 'System'
     $activityUser = $staff ? $staff->username : 'System';
-    $this->recordActivity($activityUser . ' viewed accommodations overview - Total: ' . $totalRooms . 
+    $this->recordActivity($activityUser . ' viewed accommodations ' . $filter . ' overview - Total: ' . $totalRooms . 
                          ', Vacant: ' . $vacantRooms . 
                          ', Reserved: ' . $reservedRooms);
 
@@ -529,8 +625,86 @@ public function accomodations()
         'vacantRooms', 
         'reservedRooms',
         'activeReservations',
-        'reservationsByAccommodation'
+        'availabilityData',
+        'filter',
+        'date'
     ));
+}
+public function getAvailability(Request $request)
+{
+    $filter = $request->get('filter');
+    $date = $request->get('date');
+    
+    if (!$filter || !$date) {
+        return response()->json(['error' => 'Missing parameters'], 400);
+    }
+    
+    $startDate = Carbon::parse($date);
+    
+    if ($filter === 'daily') {
+        $endDate = $startDate->copy()->addDay();
+    } elseif ($filter === 'weekly') {
+        $endDate = $startDate->copy()->addWeek();
+    } elseif ($filter === 'monthly') {
+        $endDate = $startDate->copy()->addMonth();
+    } else {
+        return response()->json(['error' => 'Invalid filter'], 400);
+    }
+    
+    $availabilityData = [];
+    $accommodations = DB::table('accomodations')->get();
+    $reservedStatuses = ['reserved', 'checked-in'];
+    
+    foreach ($accommodations as $accommodation) {
+        $accommodationId = $accommodation->accomodation_id;
+        $totalRooms = (int)($accommodation->quantity ?? 0);
+        
+        // Get reservations for this period
+        $reservationQuery = DB::table('reservation_details')
+            ->whereIn('reservation_status', $reservedStatuses)
+            ->where(function($query) use ($startDate, $endDate) {
+                $query->where(function($q) use ($startDate, $endDate) {
+                    $q->where('reservation_check_in_date', '<', $endDate)
+                      ->where('reservation_check_out_date', '>', $startDate);
+                });
+            })
+            ->where(function($jsonQuery) use ($accommodationId) {
+                $jsonQuery->whereJsonContains('accomodation_id', (string)$accommodationId)
+                          ->orWhereJsonContains('accomodation_id', (int)$accommodationId)
+                          ->orWhere('accomodation_id', '=', (string)$accommodationId)
+                          ->orWhere('accomodation_id', '=', (int)$accommodationId)
+                          ->orWhere('accomodation_id', 'LIKE', '%"'.$accommodationId.'"%')
+                          ->orWhere('accomodation_id', 'LIKE', '%['.$accommodationId.']%');
+            });
+
+        $bookedFromReservations = (int)$reservationQuery->sum('quantity');
+
+        // Get walk-ins for this period
+        $walkinQuery = DB::table('walkin_guests')
+            ->where('accomodation_id', $accommodationId)
+            ->whereIn('reservation_status', $reservedStatuses)
+            ->where(function($query) use ($startDate, $endDate) {
+                $query->where(function($q) use ($startDate, $endDate) {
+                    $q->where('reservation_check_in_date', '<', $endDate)
+                      ->where('reservation_check_out_date', '>', $startDate);
+                });
+            });
+
+        $bookedFromWalkins = (int)$walkinQuery->sum('quantity');
+
+        $totalBooked = $bookedFromReservations + $bookedFromWalkins;
+        $availableRooms = max(0, $totalRooms - $totalBooked);
+        
+        $availabilityData[] = [
+            'id' => $accommodationId,
+            'name' => $accommodation->accomodation_name,
+            'total_rooms' => $totalRooms,
+            'booked' => $totalBooked,
+            'available' => $availableRooms
+        ];
+    }
+    
+    return response()->json($availabilityData);
 }
 public function editRoom(Request $request, $accomodation_id)
 {
@@ -793,6 +967,12 @@ public function UpdateStatus(Request $request, $id)
 
     public function walkIn()
     {
+        //  Get current staff credentials
+        if (session()->has('StaffLogin')) {
+            $staffCredentials = Staff::where('id', session()->get('StaffLogin'))->first();
+        } else {
+            return redirect()->route('staff.login');
+        }
         // Get all transactions ordered by most recent first
         $transactions = DB::table('transaction')
             ->orderBy('created_at', 'desc')
@@ -824,7 +1004,8 @@ public function UpdateStatus(Request $request, $id)
             ->paginate(5);
 
         // Guest status counts
-        $totalWalkInGuests = $walkinGuest->count();
+        $totalWalkInGuests = DB::table('walkin_guests')->count();
+        $totalReservedGuests = DB::table('walkin_guests')->where('reservation_status', 'reserved')->count();
         $totalCheckedInGuests = $walkinGuest->where('reservation_status', 'checked-in')->count();
         $totalCheckedOutGuests = $walkinGuest->where('reservation_status', 'checked-out')->count();
 
@@ -844,7 +1025,9 @@ public function UpdateStatus(Request $request, $id)
             'start_time', 
             'end_time',
             'adultTransaction',
-            'kidTransaction'
+            'kidTransaction',
+            'staffCredentials',
+            'totalReservedGuests'
         ));
     }
 

@@ -14,6 +14,22 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <style>
+    .availability-table {
+        margin-top: 20px;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .availability-table th {
+        background-color: #0b573d;
+        color: white;
+    }
+    .availability-table .text-success {
+        font-weight: bold;
+    }
+    .availability-table .text-danger {
+        font-weight: bold;
+    }
 </style>
 <body style="margin: 0; padding: 0; height: 100vh; background-color: white; overflow-x: hidden;">
     @include('Alert.loginSucess')
@@ -23,7 +39,7 @@
         <div class="row">
         <div class="col-11 mx-auto">
             <div class="hero-banner d-flex flex-column justify-content-center text-white p-3 p-sm-4 p-md-5"
-            style="background-image:url('{{ asset('images/staff-admin-bg.jpg') }}');  
+             style="background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(34, 34, 34, 0.5)), url('{{ asset('images/staff-admin-bg.jpg') }}'); 
                    background-size: cover; background-position: center; min-height: 450px; border-radius: 15px;">
 
             <div class="row g-3 g-md-4">
@@ -31,25 +47,19 @@
                 <div class="col-12 col-md-6">
                     <div class="d-flex flex-column gap-3">
                         <!-- Greeting -->
-                        <div class="d-flex flex-column align-items-start text-start" style="padding: 0 20px;">
-                            <p class="text-white" style="font-family: 'Poppins', sans-serif; font-size: clamp(2rem, 5vw, 3rem); letter-spacing: 5px;">
-                                Hello,
-                            </p>
-                            <h1 class="text-capitalize fw-bolder" 
-                                style="font-family: 'Montserrat', sans-serif; font-size: clamp(3rem, 8vw, 5rem); color:#ffffff; letter-spacing: clamp(5px, 2vw, 15px); white-space: normal; overflow-wrap: break-word; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
-                                
-                            </h1>
+                        <div class="text-start">
+                            <h1 class="mb-1 display-1 fs-1 fs-md-1" style="font-size: 3.7rem !important;">Hello,</h1>
+                            <h1 class="fw-bold display-1 fs-1 fs-md-1" style="font-size: 5rem !important;">Staff User!</h1>
                         </div>
+                        
                         <!-- Total Reservations -->
-                        <div class="d-flex align-items-center rounded-3 shadow-sm" style="background: linear-gradient(135deg,rgb(75, 96, 7) 0%,rgb(129, 235, 48) 100%);">
+                        <div class="d-flex align-items-center rounded-3 shadow-sm" style="background: linear-gradient(135deg, #ffffff 50%, #f8f9fa 50%);">
                             <div class="p-3 p-md-4 p-lg-5 mt-2">
-                                <div class="d-flex align-items-baseline gap-2">
-                                    <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.8rem, 3vw, 3rem);">{{ $totalRooms ?? 0 }}</h1>
-                                    <p class="text-white text-uppercase mb-0 font-paragraph " style="font-size: 1.8rem; letter-spacing: 2px;">Total Rooms</p>
-                                </div>
+                                <h1 class="fw-bold mb-0" style="font-size: clamp(2rem, 4vw, 3rem); color: #198754;">{{ $totalRooms ?? 0 }}</h1>
+                                <p class="mb-0 fw-semibold" style="font-size: clamp(1rem, 2vw, 1.5rem); color: #198754;">Total Rooms</p>
                             </div>
-                            <div class="ms-auto p-3 p-md-4 p-lg-5 position-relative">
-                                <i class="fas fa-bed text-white opacity-25" style="font-size: 4rem; margin: -10px;"></i>
+                            <div class="ms-auto p-3 p-md-4 p-lg-5">
+                                <i class="fas fa-bed" style="font-size: clamp(2.5rem, 4vw, 4rem); background: linear-gradient(45deg, #343a40, #6c757d); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
                             </div>
                         </div>
                     </div>
@@ -60,31 +70,28 @@
                     <div class="row row-cols-1 g-3 g-md-4">
                         <!-- Walk-in Reservation -->
                         <div class="col">
-                            <div class="d-flex align-items-center text-dark rounded-3 shadow-sm h-100" style="background: linear-gradient(135deg, #43cea2 0%, #385E3C 100%);">
-                                <div class="p-3 p-md-4 p-lg-5">
-                                    <div class="d-flex align-items-baseline gap-2">
-                                        <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.8rem, 3vw, 3rem);">{{ $vacantRooms  ?? 0 }}</h1>
-                                        <p class="text-white text-uppercase mb-0 font-paragraph " style="font-size: 1.8rem; letter-spacing: 2px;">Vacant Rooms</p>
-                                    </div>
+                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100" style="background-color: #3E776E;">
+                                <div>
+                                    <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.8rem, 3vw, 3rem);">{{ $vacantRooms  ?? 0 }}</h1>
+                                    <p class="text-white text-uppercase mb-0 font-paragraph" style="font-size: 0.8rem;">Vacant<br>Rooms
+                                    </p>
                                 </div>
-                                <div class="ms-auto p-3 p-md-4 p-lg-5 position-relative">
-                                    <i class="fas fa-door-open text-white opacity-25" style="font-size: 4rem; margin: -10px;"></i>
+                                <div class="ms-auto">
+                                    <i class="fas fa-door-open fs-1 text-white ms-auto"></i>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Checked-out -->
                         <div class="col">
-                            <div class="d-flex align-items-center rounded-3 shadow-sm h-100" style="background: linear-gradient(135deg, rgb(75, 96, 7) 0%, rgb(129, 235, 48) 100%);">
-                                <div class="p-3 p-md-4 p-lg-5">
-                                    <div class="d-flex align-items-baseline gap-2">
-                                        <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.8rem, 3vw, 3rem);">{{ $reservedRooms ?? 0 }}</h1>
-                                        <p class="text-white text-uppercase mb-0 font-paragraph" style="font-size: 1.8rem; letter-spacing: 2px;">Reserved Rooms</p>
-                                    </div>
+                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100" style="background-color: #37A51F;">
+                                <div>
+                                    <h2 class="fs-1 fw-bold text-white mb-0">{{ $reservedRooms ?? 0 }}</h2>
+                                    <p class="text-white text-uppercase mb-0 font-paragraph" style="font-size: 0.8rem;">
+                                    Reserved<br>Rooms
+                                    </p>
                                 </div>
-                                <div class="ms-auto p-3 p-md-4 p-lg-5 position-relative">
-                                    <i class="fas fa-door-closed text-white opacity-25" style="font-size: 4rem; margin: -10px;"></i>
-                                </div>
+                                <i class="fas fa-door-closed fs-1 text-white ms-auto"></i>
                             </div>
                         </div>
 
@@ -98,35 +105,74 @@
 <div class="container-fluid mt-4 shadow-lg p-4 bg-white rounded" style="max-width: 91.67%; margin: 0 auto;">
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <div class="d-flex align-items-center gap-3">
+            <div class="d-flex flex-column gap-3">
                 <h2 class="fw-bold text-success mb-0 border-bottom" style="font-size: 2.5rem;">ROOM OVERVIEW</h2>
-                <select class="form-select" style="width: auto;" id="roomFilter">
-                    <option value="all" selected>All Rooms</option>
-                    @php
-                        $types = $accomodations->pluck('accomodation_type')->unique();
-                    @endphp
-                    @foreach($types as $type)
-                        <option value="{{ $type }}">{{ ucfirst($type) }}s</option>
-                    @endforeach
-                </select>
+                <div class="d-flex align-items-center gap-3">
+                    <select class="form-select" style="width: 150px;" id="roomFilter">
+                        <option value="all" selected>All Rooms</option>
+                        @php
+                            $types = $accomodations->pluck('accomodation_type')->unique();
+                        @endphp
+                        @foreach($types as $type)
+                            <option value="{{ $type }}">{{ ucfirst($type) }}s</option>
+                        @endforeach
+                    </select>
+            
+                    <select name="filter" class="form-select" style="width: 150px;" id="filterSelect">
+                        <option value="overview" {{ $filter === 'overview' ? 'selected' : '' }}>Overview</option>
+                        <option value="daily" {{ $filter === 'daily' ? 'selected' : '' }}>Daily</option>
+                        <option value="weekly" {{ $filter === 'weekly' ? 'selected' : '' }}>Weekly</option>
+                        <option value="monthly" {{ $filter === 'monthly' ? 'selected' : '' }}>Monthly</option>
+                    </select>
+
+                    <input type="date" name="date" class="form-control mt-3" id="dateInput" style="width: 150px;" value="{{ $date }}" {{ $filter === 'overview' ? 'disabled' : '' }}>
+
+                    <button type="button" class="btn text-white" style="background-color: #0b573d; width: 150px; height: 36px;" id="applyFilterBtn">
+                        Apply
+                    </button>
+                </div>
+            </div>
+            </div>
+        </div>
+
+        <!-- Availability Modal -->
+        <div class="modal fade" id="availabilityModal" tabindex="-1" aria-labelledby="availabilityModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color: #0b573d;">
+                        <h5 class="modal-title text-white" id="availabilityModalLabel">
+                            <i class="fas fa-calendar-check me-2"></i>Room Availability
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="availabilityResults">
+                            <!-- Results will be loaded here via AJAX -->
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
             </div>
         </div>
 
         <div class="container-fluid">
-            <div class="card shadow" style="background: linear-gradient(to top, rgb(211, 209, 209), #ffffff);">
+            <div class="card shadow">
                 <div class="card-body">
                     <table class="table table-hover table-responsive m-0">
+                        <thead class="table-dark">
                             <tr>
-                                <th scope="col" class="text-center" style="color: #0b573d">Room ID</th>
-                                <th scope="col" class="text-center" style="color: #0b573d">Room Image</th>
-                                <th scope="col" style="color: #0b573d">Room Name</th>
-                                <th scope="col" style="color: #0b573d">Room Description</th>
-                                <th scope="col" style="color: #0b573d">Room Type</th>
-                                <th scope="col" style="color: #0b573d">Room Qty</th>
-                                <th scope="col" class="text-center" style="color: #0b573d">Price</th>
-                                <th scope="col" class="text-center" style="color: #0b573d">Capacity</th>
-                                <th scope="col" class="text-center" style="color: #0b573d">Availability</th>
-                                <th scope="col" class="text-center" style="color: #0b573d">Action</th>
+                                <th scope="col" class="text-center">Room ID</th>
+                                <th scope="col" class="text-center">Room Image</th>
+                                <th scope="col">Room Name</th>
+                                <th scope="col">Room Description</th>
+                                <th scope="col">Room Type</th>
+                                <th scope="col">Room Qty</th>
+                                <th scope="col" class="text-center">Price</th>
+                                <th scope="col" class="text-center">Capacity</th>
+                                <th scope="col" class="text-center">Availability</th>
+                                <th scope="col" class="text-center">Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -177,7 +223,7 @@
                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            @if($activeReservations->count() > 0)
+                            @if(isset($activeReservations) && $activeReservations->count() > 0)
                                 @foreach($activeReservations as $reservation)
                                 <div class="card shadow-sm mb-3">
                                     <div class="card-body">
@@ -328,6 +374,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Room type filter
             const filterSelect = document.getElementById('roomFilter');
             const tableRows = document.querySelectorAll('tbody tr');
 
@@ -344,9 +391,105 @@
                     }
                 });
             });
+
+            // Availability filter controls
+            const filterSelectElement = document.getElementById('filterSelect');
+            const dateInput = document.getElementById('dateInput');
+            
+            filterSelectElement.addEventListener('change', function() {
+                dateInput.disabled = this.value === 'overview';
+            });
+
+            // AJAX for availability filter
+            const applyFilterBtn = document.getElementById('applyFilterBtn');
+            const availabilityModal = new bootstrap.Modal(document.getElementById('availabilityModal'));
+            
+            applyFilterBtn.addEventListener('click', function() {
+                const filter = document.getElementById('filterSelect').value;
+                const date = document.getElementById('dateInput').value;
+                
+                if (filter === 'overview') {
+                    // If overview is selected, just submit the form normally
+                    document.getElementById('availabilityFilterForm').submit();
+                    return;
+                }
+                
+                if (!date) {
+                    alert('Please select a date for the availability check.');
+                    return;
+                }
+                
+                // Show loading state
+                document.getElementById('availabilityResults').innerHTML = `
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Checking availability...</p>
+                    </div>
+                `;
+                
+                // Make AJAX request
+                fetch(`/staff/accomodations/availability?filter=${filter}&date=${date}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        let html = `
+                            <h4>Availability for ${filter} period starting ${date}</h4>
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Accommodation</th>
+                                            <th>Total Rooms</th>
+                                            <th>Booked</th>
+                                            <th>Available</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                        `;
+                        
+                        if (data.length > 0) {
+                            data.forEach(item => {
+                                html += `
+                                    <tr>
+                                        <td>${item.name}</td>
+                                        <td>${item.total_rooms}</td>
+                                        <td>${item.booked}</td>
+                                        <td class="${item.available > 0 ? 'text-success fw-bold' : 'text-danger fw-bold'}">
+                                            ${item.available}
+                                        </td>
+                                    </tr>
+                                `;
+                            });
+                        } else {
+                            html += `
+                                <tr>
+                                    <td colspan="4" class="text-center">No availability data found</td>
+                                </tr>
+                            `;
+                        }
+                        
+                        html += `
+                                    </tbody>
+                                </table>
+                            </div>
+                        `;
+                        
+                        document.getElementById('availabilityResults').innerHTML = html;
+                        availabilityModal.show();
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        document.getElementById('availabilityResults').innerHTML = `
+                            <div class="alert alert-danger">
+                                Error loading availability data. Please try again.
+                            </div>
+                        `;
+                        availabilityModal.show();
+                    });
+            });
         });
-    </script>
-    <script>
+
         // Function to update countdown for a specific element
         function updateCountdown(element, checkoutDate) {
             const now = new Date().getTime();

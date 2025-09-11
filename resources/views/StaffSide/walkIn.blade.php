@@ -124,7 +124,7 @@
             </div>
         </div>
 
-<div class="container-fluid mt-4 shadow-lg p-4 bg-white rounded" style="max-width: 91.67%; margin: 0 auto;">
+<div class="container mt-4 shadow-lg p-4 rounded" style="max-width: 1400px; margin: 0 auto; background: linear-gradient(to top, rgb(211, 209, 209), #ffffff);">
     <div class="container">
         <div class="d-flex justify-content-between align-items-center">
             <h2 class="fw-bold mb-0 border-bottom" style="font-size: 2.5rem; color: #0b573d;">WALK-IN RESERVATION</h2>
@@ -133,25 +133,26 @@
             </button>
         </div>
 
-        <div class="card shadow-sm border-0 rounded-4 mb-4 mt-4 p-2" style="background: linear-gradient(to top, rgb(211, 209, 209), #ffffff);">
-            <table class="table table-hover table-striped table-responsive table-sm">
-                <thead>
-                <tr>
-                    <th class="text-center align-middle" style="font-size: 0.85rem;">Name</th>
-                    <th class="text-center align-middle" style="font-size: 0.85rem;">Address</th>
-                    <th class="text-center align-middle" style="font-size: 0.85rem;">Phone Number</th>
-                    <th class="text-center align-middle" style="font-size: 0.85rem;">Date</th>
-                    <th class="text-center align-middle" style="font-size: 0.85rem;">Check In-Out</th>
-                    <th class="text-center align-middle" style="font-size: 0.85rem;">Room</th>
-                    <th class="text-center align-middle" style="font-size: 0.85rem;">Room Qty</th>
-                    <th class="text-center align-middle" style="font-size: 0.85rem;">Total Guest</th>
-                    <th class="text-center align-middle" style="font-size: 0.85rem;">Amount</th>
-                    <th class="text-center align-middle" style="font-size: 0.85rem;">Payment Method</th>
-                    <th class="text-center align-middle" style="font-size: 0.85rem;">Reservation Status</th>
-                    <th class="text-center align-middle" style="font-size: 0.85rem;">Payment Status</th>
-                    <th class="text-center align-middle" style="font-size: 0.85rem;">Action</th>
-                </tr>
-                </thead>
+        <div class="card shadow-sm border-0 rounded-4 mb-4 mt-4 p-2">
+            <div style="overflow-x: auto;">
+                <table class="table table-hover table-striped table-responsive table-sm">
+                    <thead style="background-color: #0b573d; color: white;">
+                    <tr>
+                        <th class="text-center align-middle" style="color: #0b573d">Name</th>
+                        <th class="text-center align-middle" style="color: #0b573d">Address</th>
+                        <th class="text-center align-middle" style="color: #0b573d">Phone Number</th>
+                        <th class="text-center align-middle" style="color: #0b573d">Date</th>
+                        <th class="text-center align-middle" style="color: #0b573d">Check In-Out</th>
+                        <th class="text-center align-middle" style="color: #0b573d">Room</th>
+                        <th class="text-center align-middle" style="color: #0b573d">Room Qty</th>
+                        <th class="text-center align-middle" style="color: #0b573d">Total Guest</th>
+                        <th class="text-center align-middle" style="color: #0b573d">Amount</th>
+                        <th class="text-center align-middle" style="color: #0b573d">Payment Method</th>
+                        <th class="text-center align-middle" style="color: #0b573d">Reservation Status</th>
+                        <th class="text-center align-middle" style="color: #0b573d">Payment Status</th>
+                        <th class="text-center align-middle" style="color: #0b573d">Action</th>
+                    </tr>
+                    </thead>
                 <tbody>
                 @foreach($walkinGuest as $guest)
                     <tr class="align-middle">

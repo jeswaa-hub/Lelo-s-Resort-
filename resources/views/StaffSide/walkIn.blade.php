@@ -43,7 +43,7 @@
                             </p>
                             <h1 class="text-capitalize fw-bolder" 
                                 style="font-family: 'Montserrat', sans-serif; font-size: clamp(3rem, 8vw, 5rem); color:#ffffff; letter-spacing: clamp(5px, 2vw, 15px); white-space: normal; overflow-wrap: break-word; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
-                                
+                                STAFF002
                             </h1>
                         </div>
                         
@@ -124,49 +124,23 @@
             </div>
         </div>
 
-<div class="container mt-4 shadow-lg p-4 rounded" style="max-width: 1400px; margin: 0 auto; background: linear-gradient(to top, rgb(211, 209, 209), #ffffff);">
+        <div class="container mt-4 shadow-lg p-3 p-md-4 rounded" style="max-width: 1400px; margin: 0 auto; background: linear-gradient(to top, rgb(211, 209, 209), #ffffff);">
     <div class="container">
-        <div class="d-flex justify-content-between align-items-center">
-            <h2 class="fw-bold mb-0 border-bottom" style="font-size: 2.5rem; color: #0b573d;">WALK-IN RESERVATION</h2>
-            <button type="button" class="btn ms-auto text-white" style="width: 200px; background-color: #0b573d;" data-bs-toggle="modal" data-bs-target="#addWalkInModal">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3">
+            <h2 class="fw-bold mb-3 mb-md-0 border-bottom pb-2" style="font-size: clamp(1.5rem, 4vw, 2.5rem); color: #0b573d;">WALK-IN RESERVATION</h2>
+            <button type="button" class="btn text-white" style="background-color: #0b573d; min-width: 200px;" data-bs-toggle="modal" data-bs-target="#addWalkInModal">
                 <i class="fas fa-user-plus me-2"></i>Add Walk-in Guest
             </button>
         </div>
 
-        <div class="card shadow-sm border-0 rounded-4 mb-4 mt-4 p-2">
-            <div style="overflow-x: auto;">
-                <table class="table table-hover table-striped table-responsive table-sm">
-                    <thead style="background-color: #0b573d; color: white;">
-                    <tr>
-                        <th class="text-center align-middle" style="color: #0b573d">Name</th>
-                        <th class="text-center align-middle" style="color: #0b573d">Address</th>
-                        <th class="text-center align-middle" style="color: #0b573d">Phone Number</th>
-                        <th class="text-center align-middle" style="color: #0b573d">Date</th>
-                        <th class="text-center align-middle" style="color: #0b573d">Check In-Out</th>
-                        <th class="text-center align-middle" style="color: #0b573d">Room</th>
-                        <th class="text-center align-middle" style="color: #0b573d">Room Qty</th>
-                        <th class="text-center align-middle" style="color: #0b573d">Total Guest</th>
-                        <th class="text-center align-middle" style="color: #0b573d">Amount</th>
-                        <th class="text-center align-middle" style="color: #0b573d">Payment Method</th>
-                        <th class="text-center align-middle" style="color: #0b573d">Reservation Status</th>
-                        <th class="text-center align-middle" style="color: #0b573d">Payment Status</th>
-                        <th class="text-center align-middle" style="color: #0b573d">Action</th>
-                    </tr>
-                    </thead>
-                <tbody>
-                @foreach($walkinGuest as $guest)
-                    <tr class="align-middle">
-                        <td class="text-center">{{ $guest->name }}</td>
-                        <td class="text-center">{{ $guest->address }}</td>
-                        <td class="text-center">{{ $guest->mobileNo }}</td>
-                        <td class="text-center">{{ date('M d, Y', strtotime($guest->reservation_check_in_date)) }}</td>
-                        <td class="text-center">{{ date('h:i A', strtotime($guest->check_in_time)) }} - {{ date('h:i A', strtotime($guest->check_out_time)) }}</td>
-                        <td class="text-center">{{ $guest->accomodation_name }}</td>
-                        <td class="text-center">{{ $guest->quantity}}</td>
-                        <td class="text-center">{{ $guest->total_guests }}</td>
-                        <td class="text-center">₱{{ number_format($guest->amount, 2) }}</td>
-                        <td class="text-center">{{ $guest->payment_method }}</td>
-                        <td class="text-center">
+        <!-- Mobile Cards View -->
+        <div class="d-md-none">
+            @foreach($walkinGuest as $guest)
+            <div class="card mb-3 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h5 class="card-title mb-0">{{ $guest->name }}</h5>
+                        <div>
                             @if($guest->reservation_status == 'checked-in')
                                 <span class="badge bg-success">{{ $guest->reservation_status }}</span>
                             @elseif($guest->reservation_status == 'checked-out')
@@ -174,126 +148,246 @@
                             @else
                                 <span class="badge bg-secondary">{{ $guest->reservation_status }}</span>
                             @endif
-                        </td>
-                        <td class="text-center">
+                            
                             @if($guest->payment_status == 'Paid')
-                                <span class="badge bg-success ">{{ $guest->payment_status }}</span>
+                                <span class="badge bg-success ms-1">{{ $guest->payment_status }}</span>
                             @elseif($guest->payment_status == 'partially-paid')
-                                <span class="badge bg-warning">{{ $guest->payment_status }}</span>
+                                <span class="badge bg-warning ms-1">{{ $guest->payment_status }}</span>
                             @else
-                                <span class="badge bg-danger">{{ $guest->payment_status }}</span>
+                                <span class="badge bg-danger ms-1">{{ $guest->payment_status }}</span>
                             @endif
-                        </td>
-                        <td class="text-center">
-                            <button type="button" class="btn btn-sm" style="background-color: #0b573d; color: white;"
-                                data-bs-toggle="modal" data-bs-target="#editModal{{ $guest->id }}">
-                                <i class="fas fa-edit"></i>
-                            </button>
-
-                            <!-- Edit Modal -->
-                            <div class="modal fade" id="editModal{{ $guest->id }}" tabindex="-1" aria-labelledby="editModalLabel{{ $guest->id }}" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered">
-                                    <div class="modal-content border-0 shadow">
-                                        <div class="modal-header bg-success bg-gradient text-white border-0">
-                                            <h5 class="modal-title" id="editModalLabel{{ $guest->id }}">
-                                                <i class="fas fa-edit me-2"></i>Update Reservation Status
-                                            </h5>
-                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <form action="{{ route('staff.updateWalkInStatus', $guest->id) }}" method="POST">
-                                            @csrf
-                                            <div class="modal-body p-4">
-                                                <div class="mb-4">
-                                                    <label for="payment_status{{ $guest->id }}" class="form-label text-muted fw-bold">
-                                                        <i class="fas fa-money-bill-wave me-2"></i>Payment Status
-                                                    </label>
-                                                    <select class="form-select form-select-lg border-success bg-light" id="payment_status{{ $guest->id }}" name="payment_status" required>
-                                                        <option value="Paid" {{ old('payment_status', $guest->payment_status) == 'Paid' ? 'selected' : '' }}>
-                                                            <i class="fas fa-check-circle text-success"></i> Paid
-                                                        </option>
-                                                        <option value="Partially Paid" {{ old('payment_status', $guest->payment_status) == 'Partially Paid' ? 'selected' : '' }}>
-                                                            <i class="fas fa-clock text-warning"></i> Partially Paid
-                                                        </option>
-                                                    </select>
-                                                </div>
-                                                <div class="mb-4">
-                                                    <label for="reservation_status{{ $guest->id }}" class="form-label text-muted fw-bold">
-                                                        <i class="fas fa-calendar-check me-2"></i>Reservation Status
-                                                    </label>
-                                                    <select class="form-select form-select-lg border-success bg-light" id="reservation_status{{ $guest->id }}" name="reservation_status" required>
-                                                        <option value="checked-in" {{ old('reservation_status', $guest->reservation_status) == 'checked-in' ? 'selected' : '' }}>
-                                                            <i class="fas fa-door-open text-success"></i> Checked In
-                                                        </option>
-                                                        <option value="checked-out" {{ old('reservation_status', $guest->reservation_status) == 'checked-out' ? 'selected' : '' }}>
-                                                            <i class="fas fa-door-closed text-danger"></i> Checked Out
-                                                        </option>
-                                                        <option value="cancelled" {{ old('reservation_status', $guest->reservation_status) == 'cancelled' ? 'selected' : '' }}>
-                                                            <i class="fas fa-ban text-danger"></i> Cancelled
-                                                        </option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer border-0 pt-0">
-                                                <button type="button" class="btn btn-light fw-bold" data-bs-dismiss="modal">
-                                                    <i class="fas fa-times me-2"></i>Cancel
-                                                </button>
-                                                <button type="submit" class="btn btn-success fw-bold">
-                                                    <i class="fas fa-save me-2"></i>Save Changes
-                                                </button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                @endforeach
-                </tbody>
-            </table>
-            <div class="mb-4"></div>
-            <div class="d-flex justify-content-end mt-1">
-                <nav aria-label="Page navigation">
-                    <ul class="pagination">
-                        {{-- Previous Page Link --}}
-                        @if ($walkinGuest->onFirstPage())
-                            <li class="page-item disabled">
-                                <span class="page-link">&laquo;</span>
-                            </li>
-                        @else
-                            <li class="page-item">
-                                <a class="page-link" href="{{ $walkinGuest->previousPageUrl() }}" rel="prev">&laquo;</a>
-                            </li>
-                        @endif
-
-                        {{-- Pagination Elements --}}
-                        @foreach ($walkinGuest->getUrlRange(1, $walkinGuest->lastPage()) as $page => $url)
-                            @if ($page == $walkinGuest->currentPage())
-                                <li class="page-item active">
-                                    <span class="page-link">{{ $page }}</span>
-                                </li>
-                            @else
-                                <li class="page-item">
-                                    <a class="page-link" href="{{ $url }}">{{ $page }}</a>
-                                </li>
-                            @endif
-                        @endforeach
-
-                        {{-- Next Page Link --}}
-                        @if ($walkinGuest->hasMorePages())
-                            <li class="page-item">
-                                <a class="page-link" href="{{ $walkinGuest->nextPageUrl() }}" rel="next">&raquo;</a>
-                            </li>
-                        @else
-                            <li class="page-item disabled">
-                                <span class="page-link">&raquo;</span>
-                            </li>
-                        @endif
-                    </ul>
-                </nav>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-6">
+                            <small class="text-muted">Address:</small>
+                            <div class="fw-semibold">{{ $guest->address }}</div>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">Phone:</small>
+                            <div class="fw-semibold">{{ $guest->mobileNo }}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-2">
+                        <div class="col-6">
+                            <small class="text-muted">Date:</small>
+                            <div class="fw-semibold">{{ date('M d, Y', strtotime($guest->reservation_check_in_date)) }}</div>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">Time:</small>
+                            <div class="fw-semibold">{{ date('h:i A', strtotime($guest->check_in_time)) }} - {{ date('h:i A', strtotime($guest->check_out_time)) }}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-2">
+                        <div class="col-6">
+                            <small class="text-muted">Room:</small>
+                            <div class="fw-semibold">{{ $guest->accomodation_name }}</div>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">Qty:</small>
+                            <div class="fw-semibold">{{ $guest->quantity}}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-2">
+                        <div class="col-6">
+                            <small class="text-muted">Guests:</small>
+                            <div class="fw-semibold">{{ $guest->total_guests }}</div>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">Amount:</small>
+                            <div class="fw-semibold">₱{{ number_format($guest->amount, 2) }}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-2">
+                        <div class="col-12">
+                            <small class="text-muted">Payment Method:</small>
+                            <div class="fw-semibold">{{ $guest->payment_method }}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end mt-3">
+                        <button type="button" class="btn btn-sm" style="background-color: #0b573d; color: white;"
+                            data-bs-toggle="modal" data-bs-target="#editModal{{ $guest->id }}">
+                            <i class="fas fa-edit me-1"></i> Edit
+                        </button>
+                    </div>
+                </div>
             </div>
+            @endforeach
+        </div>
+
+        <!-- Desktop Table View -->
+        <div class="d-none d-md-block">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped table-sm">
+                    <thead style="background-color: #0b573d; color: white;">
+                    <tr>
+                        <th class="text-center align-middle">Name</th>
+                        <th class="text-center align-middle">Address</th>
+                        <th class="text-center align-middle">Phone Number</th>
+                        <th class="text-center align-middle">Date</th>
+                        <th class="text-center align-middle">Check In-Out</th>
+                        <th class="text-center align-middle">Room</th>
+                        <th class="text-center align-middle">Room Qty</th>
+                        <th class="text-center align-middle">Total Guest</th>
+                        <th class="text-center align-middle">Amount</th>
+                        <th class="text-center align-middle">Payment Method</th>
+                        <th class="text-center align-middle">Reservation Status</th>
+                        <th class="text-center align-middle">Payment Status</th>
+                        <th class="text-center align-middle">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach($walkinGuest as $guest)
+                        <tr class="align-middle">
+                            <td class="text-center">{{ $guest->name }}</td>
+                            <td class="text-center">{{ $guest->address }}</td>
+                            <td class="text-center">{{ $guest->mobileNo }}</td>
+                            <td class="text-center">{{ date('M d, Y', strtotime($guest->reservation_check_in_date)) }}</td>
+                            <td class="text-center">{{ date('h:i A', strtotime($guest->check_in_time)) }} - {{ date('h:i A', strtotime($guest->check_out_time)) }}</td>
+                            <td class="text-center">{{ $guest->accomodation_name }}</td>
+                            <td class="text-center">{{ $guest->quantity}}</td>
+                            <td class="text-center">{{ $guest->total_guests }}</td>
+                            <td class="text-center">₱{{ number_format($guest->amount, 2) }}</td>
+                            <td class="text-center">{{ $guest->payment_method }}</td>
+                            <td class="text-center">
+                                @if($guest->reservation_status == 'checked-in')
+                                    <span class="badge bg-success">{{ $guest->reservation_status }}</span>
+                                @elseif($guest->reservation_status == 'checked-out')
+                                    <span class="badge bg-danger">{{ $guest->reservation_status }}</span>
+                                @else
+                                    <span class="badge bg-secondary">{{ $guest->reservation_status }}</span>
+                                @endif
+                            </td>
+                            <td class="text-center">
+                                @if($guest->payment_status == 'Paid')
+                                    <span class="badge bg-success ">{{ $guest->payment_status }}</span>
+                                @elseif($guest->payment_status == 'partially-paid')
+                                    <span class="badge bg-warning">{{ $guest->payment_status }}</span>
+                                @else
+                                    <span class="badge bg-danger">{{ $guest->payment_status }}</span>
+                                @endif
+                            </td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-sm" style="background-color: #0b573d; color: white;"
+                                    data-bs-toggle="modal" data-bs-target="#editModal{{ $guest->id }}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="d-flex justify-content-end mt-3">
+            <nav aria-label="Page navigation">
+                <ul class="pagination">
+                    {{-- Previous Page Link --}}
+                    @if ($walkinGuest->onFirstPage())
+                        <li class="page-item disabled">
+                            <span class="page-link">&laquo;</span>
+                        </li>
+                    @else
+                        <li class="page-item">
+                            <a class="page-link" href="{{ $walkinGuest->previousPageUrl() }}" rel="prev">&laquo;</a>
+                        </li>
+                    @endif
+
+                    {{-- Pagination Elements --}}
+                    @foreach ($walkinGuest->getUrlRange(1, $walkinGuest->lastPage()) as $page => $url)
+                        @if ($page == $walkinGuest->currentPage())
+                            <li class="page-item active">
+                                <span class="page-link">{{ $page }}</span>
+                            </li>
+                        @else
+                            <li class="page-item">
+                                <a class="page-link" href="{{ $url }}">{{ $page }}</a>
+                            </li>
+                        @endif
+                    @endforeach
+
+                    {{-- Next Page Link --}}
+                    @if ($walkinGuest->hasMorePages())
+                        <li class="page-item">
+                            <a class="page-link" href="{{ $walkinGuest->nextPageUrl() }}" rel="next">&raquo;</a>
+                        </li>
+                    @else
+                        <li class="page-item disabled">
+                            <span class="page-link">&raquo;</span>
+                        </li>
+                    @endif
+                </ul>
+            </nav>
         </div>
     </div>
 </div>
+
+<!-- Edit Modals (Same as before) -->
+@foreach($walkinGuest as $guest)
+<!-- Edit Modal -->
+<div class="modal fade" id="editModal{{ $guest->id }}" tabindex="-1" aria-labelledby="editModalLabel{{ $guest->id }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-success bg-gradient text-white border-0">
+                <h5 class="modal-title" id="editModalLabel{{ $guest->id }}">
+                    <i class="fas fa-edit me-2"></i>Update Reservation Status
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ route('staff.updateWalkInStatus', $guest->id) }}" method="POST">
+                @csrf
+                <div class="modal-body p-4">
+                    <div class="mb-4">
+                        <label for="payment_status{{ $guest->id }}" class="form-label text-muted fw-bold">
+                            <i class="fas fa-money-bill-wave me-2"></i>Payment Status
+                        </label>
+                        <select class="form-select form-select-lg border-success bg-light" id="payment_status{{ $guest->id }}" name="payment_status" required>
+                            <option value="Paid" {{ old('payment_status', $guest->payment_status) == 'Paid' ? 'selected' : '' }}>
+                                <i class="fas fa-check-circle text-success"></i> Paid
+                            </option>
+                            <option value="Partially Paid" {{ old('payment_status', $guest->payment_status) == 'Partially Paid' ? 'selected' : '' }}>
+                                <i class="fas fa-clock text-warning"></i> Partially Paid
+                            </option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label for="reservation_status{{ $guest->id }}" class="form-label text-muted fw-bold">
+                            <i class="fas fa-calendar-check me-2"></i>Reservation Status
+                        </label>
+                        <select class="form-select form-select-lg border-success bg-light" id="reservation_status{{ $guest->id }}" name="reservation_status" required>
+                            <option value="checked-in" {{ old('reservation_status', $guest->reservation_status) == 'checked-in' ? 'selected' : '' }}>
+                                <i class="fas fa-door-open text-success"></i> Checked In
+                            </option>
+                            <option value="checked-out" {{ old('reservation_status', $guest->reservation_status) == 'checked-out' ? 'selected' : '' }}>
+                                <i class="fas fa-door-closed text-danger"></i> Checked Out
+                            </option>
+                            <option value="cancelled" {{ old('reservation_status', $guest->reservation_status) == 'cancelled' ? 'selected' : '' }}>
+                                <i class="fas fa-ban text-danger"></i> Cancelled
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light fw-bold" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </button>
+                    <button type="submit" class="btn btn-success fw-bold">
+                        <i class="fas fa-save me-2"></i>Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endforeach
 
 
 <!-- Modal for adding walkin guest -->

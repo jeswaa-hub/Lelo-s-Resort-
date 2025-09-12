@@ -29,55 +29,55 @@
         <div id="mainContent" class="flex-grow-1 py-4 px-4 transition-width">
             
 
-<!-- Hero Banner Section -->
-<div class="row">
-    <div class="col-11 mx-auto position-relative">
-        <!-- Banner Image -->
-        <div class="hero-banner" style="
-            background-image: url('{{ asset('images/staff-admin-bg.jpg') }}');
-            background-size: cover;
-            background-position: center;
-            height: min(450px, 50vw);
-            border-radius: 15px;
-            max-width: 100%;
-            margin: 0 auto;
-            position: relative;">
-            
-            <!-- Welcome Text Overlay -->
-            <div class="position-absolute top-50 start-50 translate-middle text-start" style="width: 80%;">
-                <p class="text-white mb-4" style="
-                    font-family: 'Poppins', sans-serif;
-                    font-size: clamp(1.8rem, 3.5vw, 3rem);
-                    letter-spacing: 3px;
-                    margin-top: 2rem;">
-                    Hello,
-                </p>
-                <h1 class="text-capitalize fw-bolder" style="
-                    font-family: 'Montserrat', sans-serif;
-                    font-size: clamp(3rem, 7vw, 4.5rem);
-                    color: #ffffff;
-                    letter-spacing: clamp(3px, 1.5vw, 10px);
-                    white-space: normal;
-                    overflow-wrap: break-word;
-                    font-weight: 900;
-                    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-                    margin-top: 1rem;">
-                    {{ $staffCredentials->username }}!
-                </h1>
+    <!-- HERO BANNER -->
+    <div class="row">
+        <div class="col-11 mx-auto">
+            <div class="hero-banner" style="
+                background-image: url('{{ asset('images/staff-admin-bg.jpg') }}');
+                background-size: cover;
+                background-position: center;
+                height: min(450px, 50vw);
+                border-radius: 15px;
+                max-width: 100%;
+                margin: 0 auto;
+                position: relative;">
+                
+                <!-- Welcome Text Overlay -->
+                <div class="position-absolute top-50 start-50 translate-middle text-start" style="width: 90%;">
+                    <p class="text-white mb-4" style="
+                        font-family: 'Poppins', sans-serif;
+                        font-size: clamp(2rem, 4vw, 3.5rem);
+                        letter-spacing: 3px;
+                        margin-top: 2rem;
+                        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">
+                        Hello,
+                    </p>
+                    <h1 class="text-capitalize fw-bolder" style="
+                        font-family: 'Montserrat', sans-serif;
+                        font-size: clamp(3.5rem, 8vw, 5.5rem);
+                        color: #ffffff;
+                        letter-spacing: clamp(3px, 2vw, 12px);
+                        white-space: normal;
+                        overflow-wrap: break-word;
+                        font-weight: 900;
+                        text-shadow: 3px 3px 6px rgba(0,0,0,0.6);
+                        margin-top: 1rem;">
+                        {{ $staffCredentials->username }}!
+                    </h1>
+                </div>
             </div>
         </div>
+    </div>  
 
         <!-- Reservations Card -->
         <div class="card border-0 shadow-lg mx-auto" style="
-            max-width: 90%;
+            max-width: 80%;
             margin-top: -50px;
             background-color: rgba(255, 255, 255, 0.98);
             border-radius: 15px;">
             
-            <div class="card-header py-3 border-0" style="
-                background: linear-gradient(to right, #0b573d, #43cea2);
-                border-radius: 15px 15px 0 0;">
-                <h2 class="font-heading mb-0 fs-3 fw-bold text-white">Today's Reservations</h2>
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h2 class="font-heading mb-0 fs-3 fw-bold" style="color: #0b573d;">GUEST INFORMATION OVERVIEW</h2>
             </div>
 
             <div class="card-body" style="max-height: 400px; overflow-y: auto;">

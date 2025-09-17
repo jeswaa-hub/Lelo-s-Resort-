@@ -28,16 +28,9 @@ public function profilepage()
     }
 
     $latestReservation = DB::table('reservation_details')
-        ->leftJoin('activitiestbl', 'reservation_details.activity_id', '=', 'activitiestbl.id') // Corrected join condition
-        ->where('reservation_details.user_id', $userId)
-        ->select(
-            'reservation_details.*',
-            'activitiestbl.activity_name',
-            'activitiestbl.id as activity_id',
-        )
-        ->orderByDesc('reservation_details.id')
-        ->first();
-
+    ->where('user_id', $userId)
+    ->orderByDesc('id')
+    ->first();
     // --- Fetch Accommodations Safely ---
     $accommodations = [];
     if ($latestReservation && $latestReservation->accomodation_id) {
@@ -56,6 +49,24 @@ public function profilepage()
         }
     }
 
+    // --- Fetch Activities Safely ---
+    $activityIds = json_decode($latestReservation->activity_id, true);
+    $activities = [];
+
+    if (is_array($activityIds) && count($activityIds) > 0) {
+        // Convert string IDs to integers
+        $activityIds = array_map('intval', $activityIds);
+        
+        $activities = DB::table('activitiestbl')
+            ->whereIn('id', $activityIds)
+            ->pluck('activity_name')
+            ->toArray();
+    } elseif (is_numeric($activityIds)) { // Handle single integer
+        $activities = DB::table('activitiestbl')
+            ->where('id', (int)$activityIds)
+            ->pluck('activity_name')
+            ->toArray();
+    }
     // Fetch all past reservations except the latest one
     $pastReservations = [];
     if ($latestReservation) {
@@ -70,10 +81,10 @@ public function profilepage()
         'user' => $user,
         'latestReservation' => $latestReservation,
         'pastReservations' => $pastReservations,
-        'accommodations' => $accommodations
+        'accommodations' => $accommodations,
+        'activities' => $activities
     ]);
 }
-
 
     public function editProfile()
     {

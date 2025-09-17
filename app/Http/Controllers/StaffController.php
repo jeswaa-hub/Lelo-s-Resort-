@@ -37,6 +37,13 @@ class StaffController extends Controller
     }
 public function guests(Request $request)
 {
+    // Get current staff credentials
+    if (session()->has('StaffLogin')) {
+        $staffCredentials = Staff::where('id', session()->get('StaffLogin'))->first();
+    } else {
+        return redirect()->route('staff.login');
+    }
+
     // Base query for users
     $query = DB::table('users');
 
@@ -92,7 +99,7 @@ public function guests(Request $request)
             ->paginate(5);
     }
 
-    return view('StaffSide.StaffGuest', compact('guests'));
+    return view('StaffSide.StaffGuest', compact('guests', 'staffCredentials'));
 }
     public function logout(Request $request)
 {
@@ -1343,10 +1350,16 @@ public function UpdateStatus(Request $request, $id)
 
     public function DamageReport()
     {
+        // Get current staff credentials
+        if (session()->has('StaffLogin')) {
+            $staffCredentials = Staff::where('id', session()->get('StaffLogin'))->first();
+        } else {
+            return redirect()->route('staff.login');
+        }
         $damageReports = DamageReport::orderBy('created_at', 'desc')
             ->paginate(5);
 
-        return view('StaffSide.StaffDamageReport', compact('damageReports'));
+        return view('StaffSide.StaffDamageReport', compact('damageReports', 'staffCredentials'));
     }
     public function storeDamageReport(Request $request)
     {

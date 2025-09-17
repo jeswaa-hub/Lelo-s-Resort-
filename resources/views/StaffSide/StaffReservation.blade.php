@@ -37,82 +37,82 @@
         @include('Navbar.sidenavbarStaff')
 
         <!-- Status Alert Banner for Pending Reservations - Top Right Corner -->
-        @if(!request('status') || request('status') == 'pending')
-        <div class="alert alert-warning shadow-lg" 
-             style="position: fixed; 
-                    top: 20px; 
-                    right: 20px; 
-                    z-index: 1050; 
-                    max-width: 350px; 
-                    min-width: 300px;
-                    background: linear-gradient(135deg, #fff3cd, #ffeaa7); 
-                    border: 2px solid #d4a017;
-                    border-radius: 10px;
-                    animation: slideInRight 0.5s ease-out;" 
-             id="pendingAlert">
-            <div class="d-flex align-items-start justify-content-between">
-                <div class="d-flex align-items-center flex-grow-1">
-                    <i class="fas fa-exclamation-triangle me-3" style="color: #856404; font-size: 2.5rem;"></i>
-                    <div>
-                        <h6 class="fw-bold mb-1" style="color: #856404; font-size: 0.9rem;">Pending Reservations</h6>
-                        <p class="mb-0 small" style="color: #856404; font-size: 0.8rem;">These require immediate attention for processing.</p>
+        @if(request('status') == 'pending')
+            <div class="alert alert-warning shadow-lg" 
+                style="position: fixed; 
+                        top: 20px; 
+                        right: 20px; 
+                        z-index: 1050; 
+                        max-width: 350px; 
+                        min-width: 300px;
+                        background: linear-gradient(135deg, #fff3cd, #ffeaa7); 
+                        border: 2px solid #d4a017;
+                        border-radius: 10px;
+                        animation: slideInRight 0.5s ease-out;" 
+                id="pendingAlert">
+                <div class="d-flex align-items-start justify-content-between">
+                    <div class="d-flex align-items-center flex-grow-1">
+                        <i class="fas fa-exclamation-triangle me-3" style="color: #856404; font-size: 2.5rem;"></i>
+                        <div>
+                            <h6 class="fw-bold mb-1" style="color: #856404; font-size: 0.9rem;">Pending Reservations</h6>
+                            <p class="mb-0 small" style="color: #856404; font-size: 0.8rem;">These require immediate attention for processing.</p>
+                        </div>
                     </div>
+                    <button type="button" class="btn-close btn-sm ms-2 align-self-start" aria-label="Close" onclick="closePendingAlert()" style="font-size: 0.7rem;"></button>
                 </div>
-                <button type="button" class="btn-close btn-sm ms-2 align-self-start" aria-label="Close" onclick="closePendingAlert()" style="font-size: 0.7rem;"></button>
             </div>
-        </div>
 
-        <style>
-            @keyframes slideInRight {
-                from {
-                    transform: translateX(100%);
-                    opacity: 0;
+            <style>
+                @keyframes slideInRight {
+                    from {
+                        transform: translateX(100%);
+                        opacity: 0;
+                    }
+                    to {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
                 }
-                to {
-                    transform: translateX(0);
-                    opacity: 1;
+                
+                @keyframes slideOutRight {
+                    from {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                    to {
+                        transform: translateX(100%);
+                        opacity: 0;
+                    }
                 }
-            }
-            
-            @keyframes slideOutRight {
-                from {
-                    transform: translateX(0);
-                    opacity: 1;
+                
+                .slide-out {
+                    animation: slideOutRight 0.5s ease-in forwards;
                 }
-                to {
-                    transform: translateX(100%);
-                    opacity: 0;
-                }
-            }
-            
-            .slide-out {
-                animation: slideOutRight 0.5s ease-in forwards;
-            }
-        </style>
+            </style>
 
-        <script>
-            function closePendingAlert() {
-                const alert = document.getElementById('pendingAlert');
-                if (alert) {
-                    alert.classList.add('slide-out');
-                    setTimeout(function() {
-                        alert.style.display = 'none';
-                    }, 500);
+            <script>
+                function closePendingAlert() {
+                    const alert = document.getElementById('pendingAlert');
+                    if (alert) {
+                        alert.classList.add('slide-out');
+                        setTimeout(function() {
+                            alert.style.display = 'none';
+                        }, 500);
+                    }
                 }
-            }
 
-            // Auto-hide alert after 8 seconds
-            setTimeout(function() {
-                closePendingAlert();
-            }, 5000);
-        </script>
-        @endif  
+                // Auto-hide alert after 5 seconds
+                setTimeout(function() {
+                    closePendingAlert();
+                }, 5000);
+            </script>
+            @endif  
 
         <!-- HERO BANNER -->
 <div class="row">
     <div class="col-11 mx-auto">
         <div class="hero-banner d-flex flex-column justify-content-center text-white p-3 p-sm-4 p-md-5"
-            style="background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(34, 34, 34, 0.5)), url('{{ asset('images/staff-admin-bg.jpg') }}'); 
+            style="background-image:url('{{ asset('images/staff-admin-bg.jpg') }}'); 
                    background-size: cover; background-position: center; min-height: 450px; border-radius: 15px;">
 
             <div class="row g-3 g-md-4">
@@ -120,29 +120,27 @@
                 <div class="col-12 col-md-6">
                     <div class="d-flex flex-column gap-3">
                         <!-- Greeting -->
-                        <div class="text-start">
-                            <h1 class="mb-1 display-1 fs-1 fs-md-1" style="font-size: 3.7rem !important;">Hello,</h1>
-                            <h1 class="fw-bold display-1 fs-1 fs-md-1 text-capitalize" style="font-size: 4.5rem !important;">{{ $staffCredentials->username }}!</h1>
+                        <div class="d-flex flex-column align-items-start text-start" 
+                            style="padding: 0 20px;">
+                            <p class="text-white" style="font-family: 'Poppins', sans-serif; font-size: clamp(2rem, 5vw, 3rem); letter-spacing: 5px;">
+                                Hello,
+                            </p>
+                            <h1 class="text-capitalize fw-bolder" 
+                                style="font-family: 'Montserrat', sans-serif; font-size: clamp(3rem, 8vw, 5rem); color:#ffffff; letter-spacing: clamp(5px, 2vw, 15px); white-space: normal; overflow-wrap: break-word; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
+                                {{ $staffCredentials->username }}!
+                            </h1>
                         </div>
                         
                         <!-- Total Reservations -->
-                        <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-4 rounded-3 shadow-sm position-relative overflow-hidden" 
-                            style="background: linear-gradient(135deg, #ddddddff 0%, #e9ecef 100%); border: 1px solid #dee2e6; min-height: 120px;">
-                            
-                            <!-- Background Icon -->
-                            <i class="fas fa-calendar-check position-absolute" 
-                            style="font-size: 5rem; color: rgba(108, 117, 125, 0.1); top: -5px; right: 10px; transform: rotate(-15deg);"></i>
-                            
-                            <!-- Content Section -->
-                            <div class="d-flex flex-column justify-content-center flex-grow-1 position-relative" style="z-index: 2;">
-                                <!-- Large Number -->
-                                <h1 class="fw-bold mb-1" style="font-size: clamp(3rem, 5vw, 4rem); color: #28a745; line-height: 1; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                                    {{ $totalCount ?? 51 }}
-                                </h1>
-                                <!-- Label Text -->
-                                <p class="mb-0 fw-bold text-muted" style="font-size: clamp(0.9rem, 1.8vw, 1.2rem); letter-spacing: 0.5px;">
-                                    Total Reservations
-                                </p>
+                        <div class="d-flex align-items-center rounded-3 shadow-sm mt-4" style="background: linear-gradient(135deg,rgb(75, 96, 7) 0%,rgb(129, 235, 48) 100%);">
+                            <div class="p-3 p-md-4 p-lg-5">
+                                <div class="d-flex align-items-baseline gap-2">
+                                    <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.8rem, 3vw, 3rem);">{{ $totalCount ?? 0 }}</h1>
+                                    <p class="text-white text-uppercase mb-0 font-paragraph " style="font-size: 1.8rem; letter-spacing: 1px;">Total Reservations</p>
+                                </div>
+                            </div>
+                            <div class="ms-auto p-3 p-md-4 p-lg-5 position-relative">
+                                <i class="fas fa-calendar-check text-white opacity-25" style="font-size: 4rem; margin: -10px;"></i>
                             </div>
                         </div>
                     </div>
@@ -151,83 +149,55 @@
                 <!-- Right Side -->
                 <div class="col-12 col-md-6">
                     <div class="row row-cols-1 row-cols-sm-2 g-3 g-md-4">
-                        <!-- Pending -->
-                        <div class="col">
-                            <div class="d-flex align-items-center justify-content-between text-white p-3 p-md-4 rounded-3 shadow-sm h-100 position-relative overflow-hidden" 
-                                style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); min-height: 120px;">
-                                <!-- Background Icon -->
-                                <i class="fas fa-clock position-absolute" 
-                                style="font-size: 4rem; color: rgba(255,255,255,0.15); top: 10px; right: 15px;"></i>
-                                
-                                <!-- Content -->
-                                <div class="d-flex flex-column justify-content-center flex-grow-1 position-relative z-index-1">
-                                    <h1 class="fw-bold mb-1 text-white" style="font-size: clamp(2.5rem, 4vw, 3.5rem); line-height: 1;">
-                                        {{ $pendingCount ?? 8 }}
-                                    </h1>
-                                    <p class="mb-0 fw-bold text-white" style="font-size: clamp(0.85rem, 1.2vw, 1rem); opacity: 0.95;">
-                                        Pending<br>Reservations
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Reserved -->
-                        <div class="col">
-                            <div class="d-flex align-items-center justify-content-between text-white p-3 p-md-4 rounded-3 shadow-sm h-100 position-relative overflow-hidden" 
-                                style="background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%); min-height: 120px;">
-                                <!-- Background Icon -->
-                                <i class="fas fa-bookmark position-absolute" 
-                                style="font-size: 4rem; color: rgba(255,255,255,0.15); top: 10px; right: 15px;"></i>
-                                
-                                <!-- Content -->
-                                <div class="d-flex flex-column justify-content-center flex-grow-1 position-relative z-index-1">
-                                    <h1 class="fw-bold mb-1 text-white" style="font-size: clamp(2.5rem, 4vw, 3.5rem); line-height: 1;">
-                                        {{ $reservedCount ?? 25 }}
-                                    </h1>
-                                    <p class="mb-0 fw-bold text-white" style="font-size: clamp(0.85rem, 1.2vw, 1rem); opacity: 0.95;">
-                                        Reserved<br>Reservations
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
                         <!-- Checked-in -->
                         <div class="col">
-                            <div class="d-flex align-items-center justify-content-between text-white p-3 p-md-4 rounded-3 shadow-sm h-100 position-relative overflow-hidden" 
-                                style="background: linear-gradient(135deg, #6c757d 0%, #495057 100%); min-height: 120px;">
-                                <!-- Background Icon -->
-                                <i class="fas fa-sign-in-alt position-absolute" 
-                                style="font-size: 4rem; color: rgba(255,255,255,0.15); top: 10px; right: 15px;"></i>
-                                
-                                <!-- Content -->
-                                <div class="d-flex flex-column justify-content-center flex-grow-1 position-relative z-index-1">
-                                    <h1 class="fw-bold mb-1 text-white" style="font-size: clamp(2.5rem, 4vw, 3.5rem); line-height: 1;">
-                                        {{ $checkedInCount ?? 4 }}
-                                    </h1>
-                                    <p class="mb-0 fw-bold text-white" style="font-size: clamp(0.85rem, 1.2vw, 1rem); opacity: 0.95;">
-                                        Checked-in<br>Reservations
-                                    </p>
+                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg, #43cea2 0%, #385E3C 100%);">
+                                <div>
+                                    <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.8rem, 3vw, 3rem);">{{ $checkedInCount ?? 0 }}</h1>
+                                    <p class="mb-0 fw-semibold text-white" style="font-size: clamp(0.9rem, 1.5vw, 1.2rem);">Checked-in</p>
+                                </div>
+                                <div class="position-absolute top-0 end-0 opacity-25">
+                                    <i class="fas fa-user-check text-white" style="font-size: 4rem; margin: -10px;"></i>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Checked-out -->
                         <div class="col">
-                            <div class="d-flex align-items-center justify-content-between text-white p-3 p-md-4 rounded-3 shadow-sm h-100 position-relative overflow-hidden" 
-                                style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); min-height: 120px;">
-                                <!-- Background Icon -->
-                                <i class="fas fa-sign-out-alt position-absolute" 
-                                style="font-size: 4rem; color: rgba(255,255,255,0.15); top: 10px; right: 15px;"></i>
-                                
-                                <!-- Content -->
-                                <div class="d-flex flex-column justify-content-center flex-grow-1 position-relative z-index-1">
-                                    <h1 class="fw-bold mb-1 text-white" style="font-size: clamp(2.5rem, 4vw, 3.5rem); line-height: 1;">
-                                        {{ $checkedOutCount ?? 1 }}
-                                    </h1>
-                                    <p class="mb-0 fw-bold text-white" style="font-size: clamp(0.85rem, 1.2vw, 1rem); opacity: 0.95;">
-                                        Check-out<br>Reservations
-                                    </p>
+                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg,rgb(75, 96, 7) 0%,rgb(129, 235, 48) 100%);">
+                                <div>
+                                    <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.8rem, 3vw, 3rem);">{{ $checkedOutCount ?? 0 }}</h1>
+                                    <p class="mb-0 fw-semibold text-white" style="font-size: clamp(0.9rem, 1.5vw, 1.2rem);">Check-out</p>
                                 </div>
+                                <div class="position-absolute top-0 end-0 opacity-25">
+                                    <i class="fas fa-sign-out-alt text-white" style="font-size: 4rem; margin: -10px;"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pending -->
+                        <div class="col">
+                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg,rgb(75, 96, 7) 0%,rgb(129, 235, 48) 100%);">
+                                <div>
+                                    <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.8rem, 3vw, 3rem);">{{ $pendingCount ?? 0 }}</h1>
+                                    <p class="mb-0 fw-semibold text-white" style="font-size: clamp(0.9rem, 1.5vw, 1.2rem);">Pending</p>
+                                </div>
+                                <div class="position-absolute top-0 end-0 opacity-25">
+                                    <i class="fas fa-clock text-white" style="font-size: 4rem; margin: -10px;"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                            <!-- Reserved -->
+                            <div class="col">
+                                <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg, #43cea2 0%, #385E3C 100%);">
+                                    <div>
+                                        <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.8rem, 3vw, 3rem);">{{ $reservedCount ?? 0 }}</h1>
+                                        <p class="mb-0 fw-semibold text-white" style="font-size: clamp(0.9rem, 1.5vw, 1.2rem);">Reserved</p>
+                                    </div>
+                                    <div class="position-absolute top-0 end-0 opacity-25">
+                                        <i class="fas fa-bookmark text-white" style="font-size: 4rem; margin: -10px;"></i>
+                                    </div>
                             </div>
                         </div>
                     </div>
@@ -728,9 +698,9 @@
 <!-- QR Scanner Modal -->
 <div class="modal fade" id="qrScannerModal" tabindex="-1" aria-labelledby="qrScannerModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg" style="background: linear-gradient(135deg, #0b573d, #0d6b47); border-radius: 20px;">
+        <div class="modal-content border-0 shadow-lg" style="background: white; border-radius: 20px;">
             <!-- Header -->
-            <div class="modal-header border-0 text-white position-relative" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 20px 20px 0 0;">
+            <div class="modal-header border-0 text-white position-relative" style="background: linear-gradient(135deg, #0b573d, #0d6b47); backdrop-filter: blur(10px); border-radius: 20px 20px 0 0;">
                 <div class="d-flex align-items-center">
                     <div class="scanner-icon-container me-3">
                         <i class="fas fa-qrcode fs-2 text-warning"></i>
@@ -744,13 +714,13 @@
             </div>
             
             <!-- Body -->
-            <div class="modal-body p-4">
+            <div class="modal-body p-4" style="background: white;">
                 <!-- Scanner Container -->
                 <div class="scanner-container position-relative mb-4">
                     <div class="scanner-frame position-relative">
                         <!-- Video Preview -->
                         <video id="preview" class="w-100 rounded-3 shadow-sm" 
-                               style="height: 350px; object-fit: cover; background: #1a1a1a; border: 3px solid rgba(255,255,255,0.2);">
+                               style="height: 350px; object-fit: cover; background: #1a1a1a; border: 3px solid rgba(0,0,0,0.1);">
                         </video>
                         
                         <!-- Scanner Overlay -->
@@ -781,11 +751,11 @@
                 <!-- Controls -->
                 <div class="scanner-controls text-center mb-4">
                     <div class="d-flex justify-content-center gap-3">
-                        <button type="button" id="toggleCamera" class="btn btn-light btn-lg px-4 py-2 shadow-sm">
-                            <i class="fas fa-camera me-2 text-success"></i>
+                        <button type="button" id="toggleCamera" class="btn btn-success btn-lg px-4 py-2 shadow-sm">
+                            <i class="fas fa-camera me-2 text-white"></i>
                             <span class="fw-semibold">Start Scanner</span>
                         </button>
-                        <button type="button" id="stopScanner" class="btn btn-outline-light btn-lg px-4 py-2" style="display: none;">
+                        <button type="button" id="stopScanner" class="btn btn-outline-danger btn-lg px-4 py-2" style="display: none;">
                             <i class="fas fa-stop me-2"></i>
                             <span class="fw-semibold">Stop Scanner</span>
                         </button>
@@ -794,7 +764,7 @@
                 
                 <!-- Instructions -->
                 <div class="scanner-instructions text-center mb-4">
-                    <div class="alert alert-light border-0 shadow-sm" style="background: rgba(255,255,255,0.9);">
+                    <div class="alert alert-light border shadow-sm" style="background: #f8f9fa;">
                         <div class="d-flex align-items-center justify-content-center">
                             <i class="fas fa-info-circle text-primary me-3 fs-5"></i>
                             <div class="text-start">
@@ -962,7 +932,6 @@
     }
 </style>
 
-<!-- QR Code Script -->
 <script>
     let scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
     let isCameraOn = false;
@@ -1014,8 +983,11 @@
             }
             
             if (reservationId) {
-                // Update QR result display
-                document.getElementById("qrResult").innerText = reservationId;
+                // Update QR result display - with null check
+                const qrResultElement = document.getElementById("qrResult");
+                if (qrResultElement) {
+                    qrResultElement.innerText = reservationId;
+                }
                 
                 // Set the reservation ID in ALL search inputs across different layouts
                 const allSearchInputs = [
@@ -1051,13 +1023,6 @@
 
     // Fixed: Add event listeners to buttons with proper event handling
     document.addEventListener('DOMContentLoaded', function() {
-        // Remove auto-redirect logic to prevent unwanted page refreshes during search
-        // const urlParams = new URLSearchParams(window.location.search);
-        // if (!urlParams.has('status')) {
-        //     // Redirect to pending status
-        //     window.location.href = "{{ route('staff.reservation') }}?status=pending";
-        // }
-
         // Handle search input functionality for all layouts
         const searchInputs = [
             { input: document.getElementById('searchInputDesktop'), button: document.getElementById('searchButtonDesktop') },
@@ -1125,28 +1090,34 @@
         }
         
         // Toggle Camera Button Event Listener
-        document.getElementById('toggleCamera').addEventListener('click', function(event) {
-            event.preventDefault();
-            event.stopPropagation(); // Prevent event bubbling
-            
-            if (cameras.length === 0) {
-                swal("Error", "No cameras available.", "error");
-                return;
-            }
-            
-            if (isCameraOn) {
-                stopScanner();
-            } else {
-                startScanner();
-            }
-        });
+        const toggleCameraBtn = document.getElementById('toggleCamera');
+        if (toggleCameraBtn) {
+            toggleCameraBtn.addEventListener('click', function(event) {
+                event.preventDefault();
+                event.stopPropagation(); // Prevent event bubbling
+                
+                if (cameras.length === 0) {
+                    swal("Error", "No cameras available.", "error");
+                    return;
+                }
+                
+                if (isCameraOn) {
+                    stopScanner();
+                } else {
+                    startScanner();
+                }
+            });
+        }
 
         // Stop Scanner Button Event Listener  
-        document.getElementById('stopScanner').addEventListener('click', function(event) {
-            event.preventDefault();
-            event.stopPropagation(); // Prevent event bubbling
-            stopScanner();
-        });
+        const stopScannerBtn = document.getElementById('stopScanner');
+        if (stopScannerBtn) {
+            stopScannerBtn.addEventListener('click', function(event) {
+                event.preventDefault();
+                event.stopPropagation(); // Prevent event bubbling
+                stopScanner();
+            });
+        }
     });
 
     // Start scanner function
@@ -1154,8 +1125,11 @@
         if (cameras.length > 0) {
             scanner.start(cameras[0]).then(() => {
                 isCameraOn = true;
-                document.getElementById("toggleCamera").style.display = 'none';
-                document.getElementById("stopScanner").style.display = 'block';
+                const toggleBtn = document.getElementById("toggleCamera");
+                const stopBtn = document.getElementById("stopScanner");
+                
+                if (toggleBtn) toggleBtn.style.display = 'none';
+                if (stopBtn) stopBtn.style.display = 'block';
                 
                 // Update status indicator
                 updateScannerStatus('active', 'Camera Active', 'text-success');
@@ -1174,8 +1148,11 @@
     function stopScanner() {
         scanner.stop();
         isCameraOn = false;
-        document.getElementById("toggleCamera").style.display = 'block';
-        document.getElementById("stopScanner").style.display = 'none';
+        const toggleBtn = document.getElementById("toggleCamera");
+        const stopBtn = document.getElementById("stopScanner");
+        
+        if (toggleBtn) toggleBtn.style.display = 'block';
+        if (stopBtn) stopBtn.style.display = 'none';
         
         // Update status indicator
         updateScannerStatus('inactive', 'Camera Off', 'text-danger');
@@ -1187,24 +1164,31 @@
     // Update scanner status indicator
     function updateScannerStatus(status, text, colorClass) {
         const statusElement = document.getElementById('scannerStatus');
-        const icon = statusElement.querySelector('i');
-        const span = statusElement.querySelector('span');
-        
-        // Remove existing color classes
-        icon.className = 'fas fa-circle me-2';
-        icon.classList.add(colorClass);
-        span.textContent = text;
+        if (statusElement) {
+            const icon = statusElement.querySelector('i');
+            const span = statusElement.querySelector('span');
+            
+            if (icon && span) {
+                // Remove existing color classes
+                icon.className = 'fas fa-circle me-2';
+                icon.classList.add(colorClass);
+                span.textContent = text;
+            }
+        }
     }
 
     // Update result status badge
     function updateResultStatus(status, text, badgeClass) {
         const resultStatus = document.getElementById('resultStatus');
-        const badge = resultStatus.querySelector('.badge');
-        
-        // Remove existing badge classes
-        badge.className = 'badge';
-        badge.classList.add(badgeClass);
-        badge.textContent = text;
+        if (resultStatus) {
+            const badge = resultStatus.querySelector('.badge');
+            if (badge) {
+                // Remove existing badge classes
+                badge.className = 'badge';
+                badge.classList.add(badgeClass);
+                badge.textContent = text;
+            }
+        }
     }
 
     // Auto-stop scanner when modal is closed
@@ -1217,88 +1201,24 @@
     // Reset camera state when modal is opened
     $('#qrScannerModal').on('shown.bs.modal', function () {
         // Reset QR result display
-        document.getElementById("qrResult").innerText = "No QR code scanned yet";
+        const qrResultElement = document.getElementById("qrResult");
+        if (qrResultElement) {
+            qrResultElement.innerText = "No QR code scanned yet";
+        }
         
         // Reset status indicators
         updateScannerStatus('inactive', 'Camera Off', 'text-danger');
         updateResultStatus('ready', 'Ready to scan', 'bg-secondary');
         
         // Ensure buttons are in correct state
-        document.getElementById("toggleCamera").style.display = 'block';
-        document.getElementById("stopScanner").style.display = 'none';
+        const toggleBtn = document.getElementById("toggleCamera");
+        const stopBtn = document.getElementById("stopScanner");
+        
+        if (toggleBtn) toggleBtn.style.display = 'block';
+        if (stopBtn) stopBtn.style.display = 'none';
         isCameraOn = false;
     });
 </script>
-<script>
-        // Add pulse animation for pending reservations
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes pulse {
-                0% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7); }
-                70% { box-shadow: 0 0 0 10px rgba(255, 193, 7, 0); }
-                100% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0); }
-            }
-        `;
-        document.head.appendChild(style);
-
-        function openModal(id) {
-            document.getElementById('id').value = id;
-            var myModal = new bootstrap.Modal(document.getElementById('exampleModal'));
-            myModal.show();
-        }
-
-        function closeModal() {
-            var myModal = new bootstrap.Modal(document.getElementById('exampleModal'));
-            myModal.hide();
-        }
-        function openReservationStatusModal(id) {
-            document.getElementById('reservation_id').value = id;
-            var myModal = new bootstrap.Modal(document.getElementById('reservationStatusModal'));
-            myModal.show();
-        }
-
-        function closeReservationStatusModal() {
-            var myModal = new bootstrap.Modal(document.getElementById('reservationStatusModal'));
-            myModal.hide();
-        }
-        
-    </script>
-
-<script>
-        // Extension date calculation script
-        document.addEventListener('DOMContentLoaded', function() {
-            // Add event listener for each reservation's date input
-            document.querySelectorAll('input[name="new_checkout_date"]').forEach(function(input) {
-                input.addEventListener('change', function() {
-                    const modal = this.closest('.modal');
-                    const reservationId = modal.id.replace('viewReservationModal', '');
-                    
-                    // You'll need to pass the reservation data to calculate this properly
-                    // This is a simplified version - you may need to adjust based on your data structure
-                    const currentCheckOut = new Date(this.getAttribute('min')).getTime() - (24 * 60 * 60 * 1000);
-                    const newCheckOut = new Date(this.value);
-                    
-                    const diffTime = newCheckOut - currentCheckOut;
-                    const diffDays = Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
-                    
-                    // Update the display elements in this specific modal
-                    const additionalNights = modal.querySelector('#additional_nights');
-                    const totalExtensionCost = modal.querySelector('#total_extension_cost');
-                    const additionalPaymentInput = modal.querySelector('#additional_payment');
-                    
-                    if (additionalNights && totalExtensionCost && additionalPaymentInput) {
-                        const extensionFeeText = modal.querySelector('#extension_fee').textContent;
-                        const extensionFee = parseFloat(extensionFeeText.replace(/[^0-9.-]+/g, ""));
-                        const totalCost = extensionFee * diffDays;
-                        
-                        additionalNights.textContent = diffDays;
-                        totalExtensionCost.textContent = totalCost.toFixed(2);
-                        additionalPaymentInput.value = totalCost.toFixed(2);
-                    }
-                });
-            });
-        });
-    </script>
 
 </body>
 </html>

@@ -30,6 +30,49 @@
     .availability-table .text-danger {
         font-weight: bold;
     }
+    .controls-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .left-controls, .right-controls {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+     #availabilityModal .modal-content {
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    #availabilityModal .modal-body table {
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    #availabilityModal .modal-body table thead {
+        background: linear-gradient(135deg, #0b573d, #198754);
+        color: #fff;
+    }
+
+    #availabilityModal .modal-body table tbody tr:hover {
+        background-color: rgba(11, 87, 61, 0.05);
+        transition: 0.3s ease;
+    }
+
+    #availabilityModal h4 {
+        font-weight: 600;
+        color: #0b573d;
+        margin-bottom: 1rem;
+    }
+    body {
+        overflow-x: hidden !important;
+    }
 </style>
 <body style="margin: 0; padding: 0; height: 100vh; background-color: white; overflow-x: hidden;">
     @include('Alert.loginSucess')
@@ -103,64 +146,58 @@
         </div>
 
 <div class="container-fluid mt-4 shadow-lg p-4 bg-white rounded" style="max-width: 91.67%; margin: 0 auto;">
-    <div class="container">
-        <!-- FILTER CONTROLS -->
-        <div class="filter-controls mb-4">
-            <form id="availabilityFilterForm" method="GET" action="{{ route('staff.accomodations') }}">
-                <div class="row align-items-center">
-                    <div class="col-md-3 mb-2">
-                        <select name="filter" class="form-control" id="filterSelect">
-                            <option value="overview" {{ $filter === 'overview' ? 'selected' : '' }}>Overview</option>
-                            <option value="daily" {{ $filter === 'daily' ? 'selected' : '' }}>Daily Availability</option>
-                            <option value="weekly" {{ $filter === 'weekly' ? 'selected' : '' }}>Weekly Availability</option>
-                            <option value="monthly" {{ $filter === 'monthly' ? 'selected' : '' }}>Monthly Availability</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3 mb-2">
-                        <input type="date" name="date" class="form-control" id="dateInput" 
-                               value="{{ $date }}" {{ $filter === 'overview' ? 'disabled' : '' }}>
-                    </div>
-                    <div class="col-md-2 mb-2">
-                        <button type="button" class="btn btn-primary" id="applyFilterBtn">
-                            Apply Filter
-                        </button>
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="d-flex flex-column gap-3 w-100">
+                    <h2 class="fw-bold text-success mb-0 border-bottom" style="font-size: 2.5rem;">ROOM OVERVIEW</h2>
+                    
+                    <!-- Fixed Controls Container -->
+                    <div class="controls-container">
+                        <!-- Left Controls: View Active Reservations Button -->
+                        <div class="left-controls">
+                            <button type="button" class="btn text-white" style="background-color: #0b573d;" data-bs-toggle="modal" data-bs-target="#activeReservationsModal">
+                                <i class="fas fa-list me-2"></i>View Active Reservations
+                            </button>
+                        </div>
+                        
+                        <!-- Right Controls: Filters and Apply Button -->
+                        <div class="right-controls">
+                            <select class="form-select" style="width: 150px;" id="roomFilter">
+                                <option value="all" selected>All Rooms</option>
+                                <option value="standard">Standards</option>
+                                <option value="deluxe">Deluxes</option>
+                                <option value="suite">Suites</option>
+                            </select>
+                    
+                            <select name="filter" class="form-select" style="width: 150px;" id="filterSelect">
+                                <option value="overview" selected>Overview</option>
+                                <option value="daily">Daily</option>
+                            </select>
+
+                            <input type="date" name="date" class="form-control" id="dateInput" style="width: 150px;" value="2023-11-15" disabled>
+
+                            <button type="button" class="btn text-white" style="background-color: #0b573d; width: 150px; height: 38px;" id="applyFilterBtn">
+                                Apply
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </form>
-        </div>
-
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div class="d-flex align-items-center gap-3">
-                <h2 class="fw-bold text-success mb-0 border-bottom" style="font-size: 2.5rem;">ROOM OVERVIEW</h2>
-                <select class="form-select" style="width: auto;" id="roomFilter">
-                    <option value="all" selected>All Rooms</option>
-                    @php
-                        $types = $accomodations->pluck('accomodation_type')->unique();
-                    @endphp
-                    @foreach($types as $type)
-                        <option value="{{ $type }}">{{ ucfirst($type) }}s</option>
-                    @endforeach
-                </select>
             </div>
-        </div>
 
         <!-- Availability Modal -->
         <div class="modal fade" id="availabilityModal" tabindex="-1" aria-labelledby="availabilityModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header" style="background-color: #0b573d;">
-                        <h5 class="modal-title text-white" id="availabilityModalLabel">
-                            <i class="fas fa-calendar-check me-2"></i>Room Availability
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content shadow-lg border-0 rounded-4">
+                    <div class="modal-header border-0" style="background: linear-gradient(135deg, #0b573d, #198754);">
+                        <h5 class="modal-title text-white fw-bold d-flex align-items-center" id="availabilityModalLabel">
+                            <i class="fas fa-calendar-check me-2"></i> Room Availability
                         </h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="modal-body">
-                        <div id="availabilityResults">
-                            <!-- Results will be loaded here via AJAX -->
+                    <div class="modal-body p-4">
+                        <div id="availabilityResults" class="rounded-3 p-3 bg-light border border-success-subtle shadow-sm">
+                            <!-- Results will load here -->
                         </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     </div>
                 </div>
             </div>
@@ -217,68 +254,65 @@
                         </tbody>
                     </table>
                     <div class="mt-3">
-                        <button type="button" class="btn text-white" style="background-color: #0b573d;" data-bs-toggle="modal" data-bs-target="#activeReservationsModal">
-                            <i class="fas fa-list me-2"></i>View Active Reservations
-                        </button>
-
                         <!-- Active Reservations Modal -->
-            <div class="modal fade" id="activeReservationsModal" tabindex="-1" aria-labelledby="activeReservationsModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-lg modal-dialog-scrollable">
-                    <div class="modal-content">
-                        <div class="modal-header" style="background-color: #0b573d;">
-                            <h5 class="modal-title text-white" id="activeReservationsModalLabel">
-                                <i class="fas fa-calendar-check me-2"></i>Active Reservations
-                            </h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            @if(isset($activeReservations) && $activeReservations->count() > 0)
-                                @foreach($activeReservations as $reservation)
-                                <div class="card shadow-sm mb-3">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between align-items-start">
-                                            <div>
-                                                <h3 class="h5 mb-1">{{ $reservation->name }}</h3>
-                                                <p class="text-muted mb-0">
-                                                    <span class="fw-medium">{{ $reservation->reserved_quantity }}</span> of 
-                                                    <span class="fw-medium">{{ $reservation->total_quantity }}</span> rooms occupied
-                                                </p>
+                        <div class="modal fade" id="activeReservationsModal" tabindex="-1" aria-labelledby="activeReservationsModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                                <div class="modal-content">
+                                    <div class="modal-header" style="background-color: #0b573d;">
+                                        <h5 class="modal-title text-white" id="activeReservationsModalLabel">
+                                            <i class="fas fa-calendar-check me-2"></i>Active Reservations
+                                        </h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        @if(isset($activeReservations) && $activeReservations->count() > 0)
+                                            @foreach($activeReservations as $reservation)
+                                            <div class="card shadow-sm mb-3">
+                                                <div class="card-body">
+                                                    <div class="d-flex justify-content-between align-items-start">
+                                                        <div>
+                                                            <h3 class="h5 mb-1">{{ $reservation->name }}</h3>
+                                                            <p class="text-muted mb-0">
+                                                                <span class="fw-medium">{{ $reservation->reserved_quantity }}</span> of 
+                                                                <span class="fw-medium">{{ $reservation->total_quantity }}</span> rooms occupied
+                                                            </p>
+                                                        </div>
+                                                        <span class="badge {{ $reservation->status == 'checked-in' ? 'bg-success' : 'bg-warning' }}">
+                                                            {{ ucfirst($reservation->status) }}
+                                                        </span>
+                                                    </div>
+                                                    
+                                                    <hr>
+                                                    
+                                                    <div class="d-flex align-items-center text-muted mb-2">
+                                                        <i class="far fa-calendar-alt me-2"></i>
+                                                        Check-out: {{ \Carbon\Carbon::parse($reservation->next_available_time)->format('M j, Y H:i') }}
+                                                    </div>
+                                                    
+                                                    <div class="d-flex align-items-center">
+                                                        <i class="far fa-clock me-2"></i>
+                                                        <div class="countdown-timer" data-checkout="{{ $reservation->next_available_time }}" id="countdown-{{ $loop->index }}">
+                                                            <span class="countdown-display text-primary fw-medium">Calculating time remaining...</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <span class="badge {{ $reservation->status == 'checked-in' ? 'bg-success' : 'bg-warning' }}">
-                                                {{ ucfirst($reservation->status) }}
-                                            </span>
-                                        </div>
-                                        
-                                        <hr>
-                                        
-                                        <div class="d-flex align-items-center text-muted mb-2">
-                                            <i class="far fa-calendar-alt me-2"></i>
-                                            Check-out: {{ \Carbon\Carbon::parse($reservation->next_available_time)->format('M j, Y H:i') }}
-                                        </div>
-                                        
-                                        <div class="d-flex align-items-center">
-                                            <i class="far fa-clock me-2"></i>
-                                            <div class="countdown-timer" data-checkout="{{ $reservation->next_available_time }}" id="countdown-{{ $loop->index }}">
-                                                <span class="countdown-display text-primary fw-medium">Calculating time remaining...</span>
+                                            @endforeach
+                                        @else
+                                            <div class="text-center py-5">
+                                                <i class="far fa-calendar-times fa-3x text-muted mb-3"></i>
+                                                <h3 class="h5">No active reservations</h3>
+                                                <p class="text-muted mb-0">There are currently no reservations with 'reserved' or 'checked-in' status.</p>
                                             </div>
-                                        </div>
+                                        @endif
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                     </div>
                                 </div>
-                                @endforeach
-                            @else
-                                <div class="text-center py-5">
-                                    <i class="far fa-calendar-times fa-3x text-muted mb-3"></i>
-                                    <h3 class="h5">No active reservations</h3>
-                                    <p class="text-muted mb-0">There are currently no reservations with 'reserved' or 'checked-in' status.</p>
-                                </div>
-                            @endif
+                            </div>
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                    
 
             <script>
             document.addEventListener('DOMContentLoaded', function() {

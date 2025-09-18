@@ -18,6 +18,15 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <style>
+        h1, h2, h3, h4, h5, h6 {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700;
+    }
+
+    p {
+        font-family: 'Open Sans', sans-serif;
+        font-weight: 400;
+    }
 </style>
 <body style="margin: 0; padding: 0; height: 100vh; background-color: white; overflow-x: hidden;">
     @include('Alert.loginSucess')
@@ -79,7 +88,7 @@
         <h2 class="font-heading mb-0 fs-3 fw-bold" style="color: #0b573d;">DAMAGE REPORT</h2>
         
         <button class="btn btn-success d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#addDamageReportModal" 
-                style="background-color: #0b573d;
+                style="background-coloR:;
                        border: none;
                        padding: 12px 24px;
                        border-radius: 12px;
@@ -87,8 +96,8 @@
                        font-size: 1.1rem;
                        font-weight: 600;
                        box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-            <i class="fas fa-plus"></i>
-            <span>Add Report</span>
+            <i class="fas fa-plus" style="color: white;"></i>
+            <span style="color: white;">Add Report</span>
         </button>
     </div>
 
@@ -140,7 +149,7 @@
                                 <button class="btn btn-sm btn-primary rounded-3" 
                                         data-bs-toggle="modal" 
                                         data-bs-target="#editReportModal{{ $report->id }}" 
-                                        style="background-color: #0b573d; 
+                                        style="background-color: ; 
                                                border: none; 
                                                transition: all 0.3s ease;
                                                width: 32px; 

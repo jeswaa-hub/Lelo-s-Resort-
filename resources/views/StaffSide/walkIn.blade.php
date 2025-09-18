@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Reservations</title>
+    <title> Walk-In Reservations</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Anton&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -17,6 +17,17 @@
     <script src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
+<STYLE>
+        h1, h2, h3, h4, h5, h6 {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700;
+    }
+
+    p {
+        font-family: 'Open Sans', sans-serif;
+        font-weight: 400;
+    }
+</STYLE>
 <body style="margin: 0; padding: 0; height: 100vh; background-color: white; overflow-x: hidden;">
     @include('Alert.errorLogin')
     @include('Alert.loginSuccessUser')
@@ -48,75 +59,106 @@
                         </div>
                         
                         <!-- Total Reservations -->
-                        <div class="d-flex align-items-center rounded-3 shadow-sm mt-4" 
-                             style="background: linear-gradient(135deg,rgb(75, 96, 7) 0%,rgb(129, 235, 48) 100%);">
-                            <div class="p-3 p-md-4 p-lg-5">
+                        <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" 
+                             style="background: linear-gradient(135deg, #ffffff 50%, #f8f9fa 50%);">
+                            <div class="d-flex align-items-center justify-content-between w-100">
                                 <div class="d-flex align-items-baseline gap-2">
-                                    <h1 class="fw-bold mb-0 text-white" 
-                                        style="font-size: clamp(1.8rem, 3vw, 3rem);">
+                                    <h1 class="fw-bold mb-0 text-success" 
+                                        style="font-size: clamp(1.5rem, 2.5vw, 3rem);">
                                         {{ $totalCount ?? 0 }}
                                     </h1>
-                                    <p class="text-white text-uppercase mb-0 font-paragraph "
-                                       style="font-size: 1.8rem; letter-spacing: 1px;">
+                                    <p class="mb-0 text-uppercase fw-semibold text-success" style="font-size: clamp(0.8rem, 1.2vw, 1.2rem);">
                                         Total Reservations
                                     </p>
                                 </div>
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-calendar-check text-success" 
+                                       style="font-size: clamp(2rem, 4vw, 4rem);">
+                                    </i>
+                                </div>
                             </div>
-                            <div class="ms-auto p-3 p-md-4 p-lg-5 position-relative">
-                                <i class="fas fa-calendar-check text-white opacity-25" 
-                                   style="font-size: 4rem; margin: -10px;">
+                            <div class="position-absolute top-0 end-0 opacity-25 d-none d-md-block">
+                                <i class="fas fa-calendar-check text-success" 
+                                   style="font-size: 5rem; margin: -10px;">
                                 </i>
                             </div>
                         </div>
                     </div>
                 </div>
-
                 <!-- Right Side -->
                 <div class="col-12 col-md-6">
                     <div class="row row-cols-1 row-cols-sm-2 g-3 g-md-4">
                         <!-- Walk-in Reservation -->
                         <div class="col">
-                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg, #43cea2 0%, #385E3C 100%);">
-                                <div>
-                                    <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.8rem, 3vw, 3rem);">{{ $totalWalkInGuests ?? 0 }}</h1>
-                                    <p class="text-white text-uppercase mb-0 font-paragraph" style="font-size: 0.8rem;">Total Walk-In<br>Reservations
-                                    </p>
+                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg, #ffffff 50%, #f8f9fa 50%);">
+                                <div class="d-flex align-items-center justify-content-between w-100">
+                                    <div class="d-flex flex-column gap-2">
+                                        <h1 class="fw-bold mb-0 text-success" style="font-size: clamp(1.5rem, 2.5vw, 3rem);">{{ $totalWalkInGuests ?? 0 }}</h1>
+                                        <p class="mb-0 text-uppercase fw-semibold text-success" style="font-size: clamp(0.8rem, 1.2vw, 1.2rem);">Walk-In</p>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-user-check text-success" style="font-size: clamp(2rem, 4vw, 2.5rem);"></i>
+                                    </div>
                                 </div>
-                                <div class="position-absolute top-0 end-0 opacity-25">
-                                    <i class="fas fa-user-check text-white" style="font-size: 4rem; margin: -10px;"></i>
+                                <div class="position-absolute top-0 end-0 opacity-25 d-none d-md-block">
+                                    <i class="fas fa-user-check text-success" style="font-size: 4rem; margin: -10px;"></i>
                                 </div>
                             </div>
                         </div>
+                        
+
 
                         <!-- Checked-out -->
                         <div class="col">
-                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg,rgb(75, 96, 7) 0%,rgb(129, 235, 48) 100%);">
-                                <div>
-                                    <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.8rem, 3vw, 3rem);">{{ $totalCheckedOutGuests ?? 0 }}</h1>
-                                    <p class="text-white text-uppercase mb-0 font-paragraph" style="font-size: 0.8rem;">
-                                        Check-out<br>Reservations
-                                    </p>
+                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg, #ffffff 50%, #f8f9fa 50%);">
+                                <div class="d-flex align-items-center justify-content-between w-100">
+                                    <div class="d-flex flex-column gap-2">
+                                        <h1 class="fw-bold mb-0 text-success" style="font-size: clamp(1.5rem, 2.5vw, 3rem);">{{ $totalCheckedOutGuests ?? 0 }}</h1>
+                                        <p class="mb-0 text-uppercase fw-semibold text-success" style="font-size: clamp(0.8rem, 1.2vw, 1.2rem);">Check-out</p>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-sign-out-alt text-success" style="font-size: clamp(2rem, 4vw, 2.5rem);"></i>
+                                    </div>
                                 </div>
-                                <div class="position-absolute top-0 end-0 opacity-25">
-                                    <i class="fas fa-sign-out-alt text-white" style="font-size: 4rem; margin: -10px;"></i>
+                                <div class="position-absolute top-0 end-0 opacity-25 d-none d-md-block">
+                                    <i class="fas fa-sign-out-alt text-success" style="font-size: 4rem; margin: -10px;"></i>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Checked-in Reservations -->
                         <div class="col">
-                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg,rgb(75, 96, 7) 0%,rgb(129, 235, 48) 100%);">
-                                <div>
-                                    <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.8rem, 3vw, 3rem);">{{ $totalCheckedInGuests ?? 0 }}</h1>
-                                    <p class="text-white text-uppercase mb-0 font-paragraph" style="font-size: 0.8rem;">
-                                        Checked-in<br>Reservations
-                                    </p>
+                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg, #ffffff 50%, #f8f9fa 50%);">
+                                <div class="d-flex align-items-center justify-content-between w-100">
+                                    <div class="d-flex flex-column gap-2">
+                                        <h1 class="fw-bold mb-0 text-success" style="font-size: clamp(1.5rem, 2.5vw, 3rem);">{{ $totalCheckedInGuests ?? 0 }}</h1>
+                                        <p class="mb-0 text-uppercase fw-semibold text-success" style="font-size: clamp(0.8rem, 1.2vw, 1.2rem);">Checked-in</p>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-user-check text-success" style="font-size: clamp(2rem, 4vw, 2.5rem);"></i>
+                                    </div>
                                 </div>
-                                <div class="position-absolute top-0 end-0 opacity-25">
-                                    <i class="fas fa-user-check text-white" style="font-size: 4rem; margin: -10px;"></i>
+                                <div class="position-absolute top-0 end-0 opacity-25 d-none d-md-block">
+                                    <i class="fas fa-user-check text-success" style="font-size: 4rem; margin: -10px;"></i>
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Total Walk-in -->
+                        <div class="col">
+                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg, #ffffff 50%, #f8f9fa 50%);">
+                                <div class="d-flex align-items-center justify-content-between w-100">
+                                    <div class="d-flex flex-column gap-2">
+                                        <h1 class="fw-bold mb-0 text-success" style="font-size: clamp(1.5rem, 2.5vw, 3rem);">{{ $totalWalkInGuests ?? 0 }}</h1>
+                                        <p class="mb-0 text-uppercase fw-semibold text-success" style="font-size: clamp(0.8rem, 1.2vw, 1.2rem);">Walk-In</p>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-user-check text-success" style="font-size: clamp(2rem, 4vw, 2.5rem);"></i>
+                                    </div>
+                                </div>
+                                <div class="position-absolute top-0 end-0 opacity-25 d-none d-md-block">
+                                    <i class="fas fa-user-check text-success" style="font-size: 4rem; margin: -10px;"></i>
+                                </div>
                             </div>
                         </div>
                     </div>

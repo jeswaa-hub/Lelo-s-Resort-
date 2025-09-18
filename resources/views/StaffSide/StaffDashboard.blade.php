@@ -17,7 +17,15 @@
     <title>Staff Dashboard</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 <style>
-    
+            h1, h2, h3, h4, h5, h6 {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700;
+    }
+
+    p {
+        font-family: 'Open Sans', sans-serif;
+        font-weight: 400;
+    }
 </style>
 <body style="margin: 0; padding: 0; height: 100vh; background-color: white; overflow-x: hidden;">
     @include('Alert.loginSucess')

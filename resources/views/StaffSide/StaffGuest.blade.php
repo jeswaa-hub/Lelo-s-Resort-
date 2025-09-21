@@ -55,7 +55,7 @@
                         font-weight: 900;
                         text-shadow: 3px 3px 6px rgba(0,0,0,0.6);
                         margin-top: 1rem;">
-                         {{ $staffCredentials->username }}!
+                       {{$staffCredentials->username}}
                     </h1>
                 </div>
             </div>

@@ -127,82 +127,114 @@
                             </p>
                             <h1 class="text-capitalize fw-bolder" 
                                 style="font-family: 'Montserrat', sans-serif; font-size: clamp(3rem, 8vw, 5rem); color:#ffffff; letter-spacing: clamp(5px, 2vw, 15px); white-space: normal; overflow-wrap: break-word; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
-                                {{ $staffCredentials->username }}!
+                                {{$staffCredentials->username}}
                             </h1>
                         </div>
                         
                         <!-- Total Reservations -->
-                        <div class="d-flex align-items-center rounded-3 shadow-sm mt-4" style="background: linear-gradient(135deg,rgb(75, 96, 7) 0%,rgb(129, 235, 48) 100%);">
-                            <div class="p-3 p-md-4 p-lg-5">
+                        <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" 
+                             style="background: linear-gradient(135deg, #ffffff 50%, #f8f9fa 50%);">
+                            <div class="d-flex align-items-center justify-content-between w-100">
                                 <div class="d-flex align-items-baseline gap-2">
-                                    <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.8rem, 3vw, 3rem);">{{ $totalCount ?? 0 }}</h1>
-                                    <p class="text-white text-uppercase mb-0 font-paragraph " style="font-size: 1.8rem; letter-spacing: 1px;">Total Reservations</p>
+                                    <h1 class="fw-bold mb-0 text-success" 
+                                        style="font-size: clamp(1.5rem, 2.5vw, 3rem);">
+                                        {{ $totalCount ?? 0 }}
+                                    </h1>
+                                    <p class="mb-0 text-uppercase fw-semibold text-success" style="font-size: clamp(0.8rem, 1.2vw, 1.2rem);">
+                                        Total Reservations
+                                    </p>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-calendar-check text-success" 
+                                       style="font-size: clamp(2rem, 4vw, 4rem);">
+                                    </i>
                                 </div>
                             </div>
-                            <div class="ms-auto p-3 p-md-4 p-lg-5 position-relative">
-                                <i class="fas fa-calendar-check text-white opacity-25" style="font-size: 4rem; margin: -10px;"></i>
+                            <div class="position-absolute top-0 end-0 opacity-25 d-none d-md-block">
+                                <i class="fas fa-calendar-check text-success" 
+                                   style="font-size: 5rem; margin: -10px;">
+                                </i>
                             </div>
                         </div>
                     </div>
                 </div>
+                
 
                 <!-- Right Side -->
                 <div class="col-12 col-md-6">
                     <div class="row row-cols-1 row-cols-sm-2 g-3 g-md-4">
                         <!-- Checked-in -->
                         <div class="col">
-                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg, #43cea2 0%, #385E3C 100%);">
-                                <div>
-                                    <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.8rem, 3vw, 3rem);">{{ $checkedInCount ?? 0 }}</h1>
-                                    <p class="mb-0 fw-semibold text-white" style="font-size: clamp(0.9rem, 1.5vw, 1.2rem);">Checked-in</p>
+                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg, #ffffff 50%, #f8f9fa 50%);">
+                                <div class="d-flex align-items-center justify-content-between w-100">
+                                    <div class="d-flex flex-column gap-2">
+                                        <h1 class="fw-bold mb-0 text-success" style="font-size: clamp(1.5rem, 2.5vw, 3rem);">{{ $checkedInCount ?? 0 }}</h1>
+                                        <p class="mb-0 text-uppercase fw-semibold text-success" style="font-size: clamp(0.8rem, 1.2vw, 1.2rem);">Check-in</p>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-user-check text-success" style="font-size: clamp(2rem, 4vw, 2.5rem);"></i>
+                                    </div>
                                 </div>
-                                <div class="position-absolute top-0 end-0 opacity-25">
-                                    <i class="fas fa-user-check text-white" style="font-size: 4rem; margin: -10px;"></i>
+                                <div class="position-absolute top-0 end-0 opacity-25 d-none d-md-block">
+                                    <i class="fas fa-user-check text-success" style="font-size: 4rem; margin: -10px;"></i>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Checked-out -->
                         <div class="col">
-                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg,rgb(75, 96, 7) 0%,rgb(129, 235, 48) 100%);">
-                                <div>
-                                    <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.8rem, 3vw, 3rem);">{{ $checkedOutCount ?? 0 }}</h1>
-                                    <p class="mb-0 fw-semibold text-white" style="font-size: clamp(0.9rem, 1.5vw, 1.2rem);">Check-out</p>
+                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg, #ffffff 50%, #f8f9fa 50%);">
+                                <div class="d-flex align-items-center justify-content-between w-100">
+                                    <div class="d-flex flex-column gap-2">
+                                        <h1 class="fw-bold mb-0 text-success" style="font-size: clamp(1.5rem, 2.5vw, 3rem);">{{ $checkedOutCount ?? 0 }}</h1>
+                                        <p class="mb-0 text-uppercase fw-semibold text-success" style="font-size: clamp(0.8rem, 1.2vw, 1.2rem);">Check-out</p>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-sign-out-alt text-success" style="font-size: clamp(2rem, 4vw, 5rem);"></i>
+                                    </div>
                                 </div>
-                                <div class="position-absolute top-0 end-0 opacity-25">
-                                    <i class="fas fa-sign-out-alt text-white" style="font-size: 4rem; margin: -10px;"></i>
+                                <div class="position-absolute top-0 end-0 opacity-25 d-none d-md-block">
+                                    <i class="fas fa-sign-out-alt text-success" style="font-size: 4rem; margin: -10px;"></i>
                                 </div>
                             </div>
                         </div>
-
                         <!-- Pending -->
                         <div class="col">
-                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg,rgb(75, 96, 7) 0%,rgb(129, 235, 48) 100%);">
-                                <div>
-                                    <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.8rem, 3vw, 3rem);">{{ $pendingCount ?? 0 }}</h1>
-                                    <p class="mb-0 fw-semibold text-white" style="font-size: clamp(0.9rem, 1.5vw, 1.2rem);">Pending</p>
+                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg, #ffffff 50%, #f8f9fa 50%);">
+                                <div class="d-flex align-items-center justify-content-between w-100">
+                                    <div class="d-flex flex-column gap-2">
+                                        <h1 class="fw-bold mb-0 text-success" style="font-size: clamp(1.5rem, 2.5vw, 3rem);">{{ $pendingCount ?? 0 }}</h1>
+                                        <p class="mb-0 text-uppercase fw-semibold text-success" style="font-size: clamp(0.8rem, 1.2vw, 1.2rem);">Pending</p>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-clock text-success" style="font-size: clamp(2rem, 4vw, 2.5rem);"></i>
+                                    </div>
                                 </div>
-                                <div class="position-absolute top-0 end-0 opacity-25">
-                                    <i class="fas fa-clock text-white" style="font-size: 4rem; margin: -10px;"></i>
+                                <div class="position-absolute top-0 end-0 opacity-25 d-none d-md-block">
+                                    <i class="fas fa-clock text-success" style="font-size: 4rem; margin: -10px;"></i>
                                 </div>
                             </div>
                         </div>
 
-                            <!-- Reserved -->
-                            <div class="col">
-                                <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg, #43cea2 0%, #385E3C 100%);">
-                                    <div>
-                                        <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.8rem, 3vw, 3rem);">{{ $reservedCount ?? 0 }}</h1>
-                                        <p class="mb-0 fw-semibold text-white" style="font-size: clamp(0.9rem, 1.5vw, 1.2rem);">Reserved</p>
+                        <!-- Reserved -->
+                        <div class="col">
+                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg, #ffffff 50%, #f8f9fa 50%);">
+                                <div class="d-flex align-items-center justify-content-between w-100">
+                                    <div class="d-flex flex-column gap-2">
+                                        <h1 class="fw-bold mb-0 text-success" style="font-size: clamp(1.5rem, 2.5vw, 3rem);">{{ $reservedCount ?? 0 }}</h1>
+                                        <p class="mb-0 text-uppercase fw-semibold text-success" style="font-size: clamp(0.8rem, 1.2vw, 1.2rem);">Reserved</p>
                                     </div>
-                                    <div class="position-absolute top-0 end-0 opacity-25">
-                                        <i class="fas fa-bookmark text-white" style="font-size: 4rem; margin: -10px;"></i>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-bookmark text-success" style="font-size: clamp(2rem, 4vw, 2.5rem);"></i>
                                     </div>
+                                </div>
+                                <div class="position-absolute top-0 end-0 opacity-25 d-none d-md-block">
+                                    <i class="fas fa-bookmark text-success" style="font-size: 4rem; margin: -10px;"></i>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
 
@@ -497,9 +529,9 @@
                                                 </span>
                                             </td>
                                             <td class="text-center align-middle">
-                                                @if ($reservation->upload_payment)
-                                                    <a href="{{ route('payment.proof', ['filename' => basename($reservation->upload_payment)]) }}" target="_blank" class="btn btn-sm btn-outline-info">
-                                                        <i class="fas fa-image me-1"></i>View
+                                                @if ($reservation->upload_payment && file_exists(public_path('storage/payments/' . basename($reservation->upload_payment))))
+                                                    <a href="#" data-bs-toggle="modal" data-bs-target="#paymentProofModal{{ $reservation->id }}">
+                                                        <img src="{{ asset('storage/payments/' . basename($reservation->upload_payment)) }}" alt="Proof of Payment" class="img-thumbnail" style="width: 60px; height: 60px; object-fit: cover; cursor: pointer;">
                                                     </a>
                                                 @else
                                                     <span class="text-muted small">No proof uploaded</span>
@@ -529,6 +561,24 @@
                                             </td>
                                         </tr>
 
+                                        <!-- Payment Proof Modal -->
+                                        @if ($reservation->upload_payment)
+                                        <div class="modal fade" id="paymentProofModal{{ $reservation->id }}" tabindex="-1" aria-labelledby="paymentProofModalLabel{{ $reservation->id }}" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered modal-lg">
+                                                <div class="modal-content border-0 shadow-lg rounded-4">
+                                                    <div class="modal-header text-white border-0" style="background: linear-gradient(135deg, #0b573d, #198754);">
+                                                        <h5 class="modal-title fw-bold" id="paymentProofModalLabel{{ $reservation->id }}">
+                                                            <i class="fas fa-receipt me-2"></i>Payment Proof for Reservation #{{ $reservation->reservation_id }}
+                                                        </h5>
+                                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body p-4 text-center" style="background-color: #f8f9fa;">
+                                                        <img src="{{ asset('storage/payments/' . basename($reservation->upload_payment)) }}" alt="Proof of Payment" class="img-fluid rounded shadow-sm" style="max-height: 75vh; object-fit: contain; border: 3px solid white;">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @endif
                                         <!-- Update Reservation and Payment Status Modal -->
                                         <div class="modal fade" id="updateReservationStatusModal{{ $reservation->id }}" tabindex="-1" aria-labelledby="updateReservationStatusModalLabel" aria-hidden="true">
                                             <div class="modal-dialog modal-dialog-centered">
@@ -683,11 +733,53 @@
                     </div>
                     
                     <!-- Pagination -->
-                    @if($reservations->hasPages())
-                        <div class="d-flex justify-content-center mt-4">
-                            {{ $reservations->links() }}
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-4 px-3">
+                        <!-- Pagination Info -->
+                        <div class="text-muted small mb-2 mb-md-0">
+                            @if($reservations->total() > 0)
+                                Showing <strong>{{ $reservations->firstItem() }}</strong> to <strong>{{ $reservations->lastItem() }}</strong> of <strong>{{ $reservations->total() }}</strong> entries
+                            @else
+                                No entries found
+                            @endif
                         </div>
-                    @endif
+
+                        <!-- Custom Pagination -->
+                        @if ($reservations->hasPages())
+                            <nav>
+                                <ul class="pagination pagination-sm mb-0">
+                                    {{-- Previous Page Link --}}
+                                    <li class="page-item {{ $reservations->onFirstPage() ? 'disabled' : '' }}">
+                                        <a class="page-link" href="{{ $reservations->appends(request()->query())->previousPageUrl() }}" aria-label="Previous" style="color: #0b573d;">
+                                            <span aria-hidden="true">&laquo;</span>
+                                        </a>
+                                    </li>
+
+                                    {{-- Pagination Elements --}}
+                                    @foreach ($reservations->links()->elements as $element)
+                                        @if (is_string($element))
+                                            <li class="page-item disabled"><span class="page-link">{{ $element }}</span></li>
+                                        @endif
+                                        @if (is_array($element))
+                                            @foreach ($element as $page => $url)
+                                                @if ($page == $reservations->currentPage())
+                                                    <li class="page-item active"><span class="page-link" style="background-color: #0b573d; border-color: #0b573d;">{{ $page }}</span></li>
+                                                @else
+                                                    <li class="page-item"><a class="page-link" href="{{ $reservations->appends(request()->query())->url($page) }}" style="color: #0b573d;">{{ $page }}</a></li>
+                                                @endif
+                                            @endforeach
+                                        @endif
+                                    @endforeach
+
+                                    {{-- Next Page Link --}}
+                                    <li class="page-item {{ !$reservations->hasMorePages() ? 'disabled' : '' }}">
+                                        <a class="page-link" href="{{ $reservations->appends(request()->query())->nextPageUrl() }}" aria-label="Next" style="color: #0b573d;">
+                                            <span aria-hidden="true">&raquo;</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>

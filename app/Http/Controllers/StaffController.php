@@ -481,6 +481,13 @@ public function accomodations(Request $request)
     $staffId = session()->get('StaffLogin');
     $staff = Staff::find($staffId);
 
+    // Get current staff credentials
+    if (session()->has('StaffLogin')) {
+        $staffCredentials = Staff::where('id', session()->get('StaffLogin'))->first();
+    } else {
+        return redirect()->route('staff.login');
+    }
+
     // Get filter parameters from request
     $filter = $request->get('filter', 'overview'); // overview, daily, weekly, monthly
     $date = $request->get('date', date('Y-m-d'));
@@ -634,7 +641,8 @@ public function accomodations(Request $request)
         'activeReservations',
         'availabilityData',
         'filter',
-        'date'
+        'date',
+        'staffCredentials'
     ));
 }
 public function getAvailability(Request $request)

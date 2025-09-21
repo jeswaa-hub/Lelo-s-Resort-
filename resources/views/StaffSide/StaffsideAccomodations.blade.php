@@ -79,10 +79,10 @@
         <!-- NAVBAR -->
         @include('Navbar.sidenavbarStaff')
 
-        <div class="row">
+         <div class="row">
         <div class="col-11 mx-auto">
             <div class="hero-banner d-flex flex-column justify-content-center text-white p-3 p-sm-4 p-md-5"
-             style="background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(34, 34, 34, 0.5)), url('{{ asset('images/staff-admin-bg.jpg') }}'); 
+             style="background-image:url('{{ asset('images/staff-admin-bg.jpg') }}'); 
                    background-size: cover; background-position: center; min-height: 450px; border-radius: 15px;">
 
             <div class="row g-3 g-md-4">
@@ -90,19 +90,41 @@
                 <div class="col-12 col-md-6">
                     <div class="d-flex flex-column gap-3">
                         <!-- Greeting -->
-                        <div class="text-start">
-                            <h1 class="mb-1 display-1 fs-1 fs-md-1" style="font-size: 3.7rem !important;">Hello,</h1>
-                            <h1 class="fw-bold display-1 fs-1 fs-md-1" style="font-size: 5rem !important;">Staff User!</h1>
+                        <div class="d-flex flex-column align-items-start text-start" 
+                            style="padding: 0 20px;">
+                            <p class="text-white" style="font-family: 'Poppins', sans-serif; font-size: clamp(2rem, 5vw, 3rem); letter-spacing: 5px;">
+                                Hello,
+                            </p>
+                            <h1 class="text-capitalize fw-bolder" 
+                                style="font-family: 'Montserrat', sans-serif; font-size: clamp(3rem, 8vw, 5rem); color:#ffffff; letter-spacing: clamp(5px, 2vw, 15px); white-space: normal; overflow-wrap: break-word; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
+                                {{$staffCredentials->username}}
+                            </h1>
                         </div>
                         
                         <!-- Total Reservations -->
-                        <div class="d-flex align-items-center rounded-3 shadow-sm" style="background: linear-gradient(135deg, #ffffff 50%, #f8f9fa 50%);">
-                            <div class="p-3 p-md-4 p-lg-5 mt-2">
-                                <h1 class="fw-bold mb-0" style="font-size: clamp(2rem, 4vw, 3rem); color: #198754;">{{ $totalRooms ?? 0 }}</h1>
-                                <p class="mb-0 fw-semibold" style="font-size: clamp(1rem, 2vw, 1.5rem); color: #198754;">Total Rooms</p>
+                        <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" 
+                             style="background: linear-gradient(135deg, #ffffff 50%, #f8f9fa 50%);">
+                            <div class="d-flex align-items-center justify-content-between w-100">
+                                <div class="d-flex align-items-baseline gap-2">
+                                    <h1 class="fw-bold mb-0 text-success" 
+                                        style="font-size: clamp(1.5rem, 2.5vw, 3rem);">
+                                        {{ $totalRooms ?? 0 }}
+                                    </h1>
+                                    <p class="mb-0 text-uppercase fw-semibold text-success" 
+                                       style="font-size: clamp(0.8rem, 1.2vw, 1.2rem);">
+                                        Total Rooms
+                                    </p>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-bed text-success" 
+                                       style="font-size: clamp(2rem, 4vw, 4rem);">
+                                    </i>
+                                </div>
                             </div>
-                            <div class="ms-auto p-3 p-md-4 p-lg-5">
-                                <i class="fas fa-bed" style="font-size: clamp(2.5rem, 4vw, 4rem); background: linear-gradient(45deg, #343a40, #6c757d); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+                            <div class="position-absolute top-0 end-0 opacity-25 d-none d-md-block">
+                                <i class="fas fa-bed text-success" 
+                                   style="font-size: 5rem; margin: -10px;">
+                                </i>
                             </div>
                         </div>
                     </div>
@@ -113,28 +135,37 @@
                     <div class="row row-cols-1 g-3 g-md-4">
                         <!-- Walk-in Reservation -->
                         <div class="col">
-                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100" style="background-color: #3E776E;">
-                                <div>
-                                    <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.8rem, 3vw, 3rem);">{{ $vacantRooms  ?? 0 }}</h1>
-                                    <p class="text-white text-uppercase mb-0 font-paragraph" style="font-size: 0.8rem;">Vacant<br>Rooms
-                                    </p>
+                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg, #ffffff 50%, #f8f9fa 50%);">
+                                <div class="d-flex align-items-center justify-content-between w-100">
+                                    <div class="d-flex flex-column gap-2">
+                                        <h1 class="fw-bold mb-0 text-success" style="font-size: clamp(1.5rem, 2.5vw, 3rem);">{{ $vacantRooms ?? 0 }}</h1>
+                                        <p class="mb-0 text-uppercase fw-semibold text-success" style="font-size: clamp(0.8rem, 1.2vw, 1.2rem);">Vacant Rooms</p>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-door-open text-success" style="font-size: clamp(2rem, 4vw, 2.5rem);"></i>
+                                    </div>
                                 </div>
-                                <div class="ms-auto">
-                                    <i class="fas fa-door-open fs-1 text-white ms-auto"></i>
+                                <div class="position-absolute top-0 end-0 opacity-25 d-none d-md-block">
+                                    <i class="fas fa-door-open text-success" style="font-size: 4rem; margin: -10px;"></i>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Checked-out -->
                         <div class="col">
-                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100" style="background-color: #37A51F;">
-                                <div>
-                                    <h2 class="fs-1 fw-bold text-white mb-0">{{ $reservedRooms ?? 0 }}</h2>
-                                    <p class="text-white text-uppercase mb-0 font-paragraph" style="font-size: 0.8rem;">
-                                    Reserved<br>Rooms
-                                    </p>
+                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg, #ffffff 50%, #f8f9fa 50%);">
+                                <div class="d-flex align-items-center justify-content-between w-100">
+                                    <div class="d-flex flex-column gap-2">
+                                        <h1 class="fw-bold mb-0 text-success" style="font-size: clamp(1.5rem, 2.5vw, 3rem);">{{ $reservedRooms ?? 0 }}</h1>
+                                        <p class="mb-0 text-uppercase fw-semibold text-success" style="font-size: clamp(0.8rem, 1.2vw, 1.2rem);">Reserved Rooms</p>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-door-closed text-success" style="font-size: clamp(2rem, 4vw, 2.5rem);"></i>
+                                    </div>
                                 </div>
-                                <i class="fas fa-door-closed fs-1 text-white ms-auto"></i>
+                                <div class="position-absolute top-0 end-0 opacity-25 d-none d-md-block">
+                                    <i class="fas fa-door-closed text-success" style="font-size: 4rem; margin: -10px;"></i>
+                                </div>
                             </div>
                         </div>
 
@@ -144,6 +175,7 @@
                 </div>
             </div>
         </div>
+
 
 <div class="container-fluid mt-4 shadow-lg p-4 bg-white rounded" style="max-width: 91.67%; margin: 0 auto;">
         <div class="container">

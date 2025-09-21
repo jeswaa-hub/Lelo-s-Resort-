@@ -24,7 +24,7 @@
         @include('Navbar.sidenavbarStaff')
         <!-- Main Content  -->
 
-        <div class="row">
+       <div class="row">
         <div class="col-11 mx-auto">
             <div class="hero-banner d-flex flex-column justify-content-center text-white p-3 p-sm-4 p-md-5"
              style="background-image:url('{{ asset('images/staff-admin-bg.jpg') }}'); 
@@ -42,86 +42,118 @@
                             </p>
                             <h1 class="text-capitalize fw-bolder" 
                                 style="font-family: 'Montserrat', sans-serif; font-size: clamp(3rem, 8vw, 5rem); color:#ffffff; letter-spacing: clamp(5px, 2vw, 15px); white-space: normal; overflow-wrap: break-word; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
-                                STAFF002
+                                {{$staffCredentials->username}}
                             </h1>
                         </div>
                         
                         <!-- Total Reservations -->
-                        <div class="d-flex align-items-center rounded-3 shadow-sm mt-4" 
-                             style="background: linear-gradient(135deg,rgb(75, 96, 7) 0%,rgb(129, 235, 48) 100%);">
-                            <div class="p-3 p-md-4 p-lg-5">
+                        <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" 
+                             style="background: linear-gradient(135deg, #ffffff 50%, #f8f9fa 50%);">
+                            <div class="d-flex align-items-center justify-content-between w-100">
                                 <div class="d-flex align-items-baseline gap-2">
-                                    <h1 class="fw-bold mb-0 text-white" 
-                                        style="font-size: clamp(1.8rem, 3vw, 3rem);">
-                                        {{ $totalCount ?? 0 }}
+                                    <h1 class="fw-bold mb-0 text-success" 
+                                        style="font-size: clamp(1.5rem, 2.5vw, 3rem);">
+                                        {{ $totalWalkInGuests ?? 0 }}
                                     </h1>
-                                    <p class="text-white text-uppercase mb-0 font-paragraph "
-                                       style="font-size: 1.8rem; letter-spacing: 1px;">
+                                    <p class="mb-0 text-uppercase fw-semibold text-success" style="font-size: clamp(0.8rem, 1.2vw, 1.2rem);">
                                         Total Reservations
                                     </p>
                                 </div>
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-calendar-check text-success" 
+                                       style="font-size: clamp(2rem, 4vw, 4rem);">
+                                    </i>
+                                </div>
                             </div>
-                            <div class="ms-auto p-3 p-md-4 p-lg-5 position-relative">
-                                <i class="fas fa-calendar-check text-white opacity-25" 
-                                   style="font-size: 4rem; margin: -10px;">
+                            <div class="position-absolute top-0 end-0 opacity-25 d-none d-md-block">
+                                <i class="fas fa-calendar-check text-success" 
+                                   style="font-size: 5rem; margin: -10px;">
                                 </i>
                             </div>
                         </div>
                     </div>
                 </div>
-
                 <!-- Right Side -->
                 <div class="col-12 col-md-6">
                     <div class="row row-cols-1 row-cols-sm-2 g-3 g-md-4">
                         <!-- Walk-in Reservation -->
                         <div class="col">
-                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg, #43cea2 0%, #385E3C 100%);">
-                                <div>
-                                    <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.8rem, 3vw, 3rem);">{{ $totalWalkInGuests ?? 0 }}</h1>
-                                    <p class="text-white text-uppercase mb-0 font-paragraph" style="font-size: 0.8rem;">Total Walk-In<br>Reservations
-                                    </p>
+                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg, #ffffff 50%, #f8f9fa 50%);">
+                                <div class="d-flex align-items-center justify-content-between w-100">
+                                    <div class="d-flex flex-column gap-2">
+                                        <h1 class="fw-bold mb-0 text-success" style="font-size: clamp(1.5rem, 2.5vw, 3rem);">{{ $totalWalkInGuests ?? 0 }}</h1>
+                                        <p class="mb-0 text-uppercase fw-semibold text-success" style="font-size: clamp(0.8rem, 1.2vw, 1.2rem);">Walk-In</p>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-user-check text-success" style="font-size: clamp(2rem, 4vw, 2.5rem);"></i>
+                                    </div>
                                 </div>
-                                <div class="position-absolute top-0 end-0 opacity-25">
-                                    <i class="fas fa-user-check text-white" style="font-size: 4rem; margin: -10px;"></i>
+                                <div class="position-absolute top-0 end-0 opacity-25 d-none d-md-block">
+                                    <i class="fas fa-user-check text-success" style="font-size: 4rem; margin: -10px;"></i>
                                 </div>
                             </div>
                         </div>
+                        
+
 
                         <!-- Checked-out -->
                         <div class="col">
-                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg,rgb(75, 96, 7) 0%,rgb(129, 235, 48) 100%);">
-                                <div>
-                                    <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.8rem, 3vw, 3rem);">{{ $totalCheckedOutGuests ?? 0 }}</h1>
-                                    <p class="text-white text-uppercase mb-0 font-paragraph" style="font-size: 0.8rem;">
-                                        Check-out<br>Reservations
-                                    </p>
+                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg, #ffffff 50%, #f8f9fa 50%);">
+                                <div class="d-flex align-items-center justify-content-between w-100">
+                                    <div class="d-flex flex-column gap-2">
+                                        <h1 class="fw-bold mb-0 text-success" style="font-size: clamp(1.5rem, 2.5vw, 3rem);">{{ $totalCheckedOutGuests ?? 0 }}</h1>
+                                        <p class="mb-0 text-uppercase fw-semibold text-success" style="font-size: clamp(0.8rem, 1.2vw, 1.2rem);">Check-out</p>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-sign-out-alt text-success" style="font-size: clamp(2rem, 4vw, 2.5rem);"></i>
+                                    </div>
                                 </div>
-                                <div class="position-absolute top-0 end-0 opacity-25">
-                                    <i class="fas fa-sign-out-alt text-white" style="font-size: 4rem; margin: -10px;"></i>
+                                <div class="position-absolute top-0 end-0 opacity-25 d-none d-md-block">
+                                    <i class="fas fa-sign-out-alt text-success" style="font-size: 4rem; margin: -10px;"></i>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Checked-in Reservations -->
                         <div class="col">
-                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg,rgb(75, 96, 7) 0%,rgb(129, 235, 48) 100%);">
-                                <div>
-                                    <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.8rem, 3vw, 3rem);">{{ $totalCheckedInGuests ?? 0 }}</h1>
-                                    <p class="text-white text-uppercase mb-0 font-paragraph" style="font-size: 0.8rem;">
-                                        Checked-in<br>Reservations
-                                    </p>
+                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg, #ffffff 50%, #f8f9fa 50%);">
+                                <div class="d-flex align-items-center justify-content-between w-100">
+                                    <div class="d-flex flex-column gap-2">
+                                        <h1 class="fw-bold mb-0 text-success" style="font-size: clamp(1.5rem, 2.5vw, 3rem);">{{ $totalCheckedInGuests ?? 0 }}</h1>
+                                        <p class="mb-0 text-uppercase fw-semibold text-success" style="font-size: clamp(0.8rem, 1.2vw, 1.2rem);">Checked-in</p>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-user-check text-success" style="font-size: clamp(2rem, 4vw, 2.5rem);"></i>
+                                    </div>
                                 </div>
-                                <div class="position-absolute top-0 end-0 opacity-25">
-                                    <i class="fas fa-user-check text-white" style="font-size: 4rem; margin: -10px;"></i>
+                                <div class="position-absolute top-0 end-0 opacity-25 d-none d-md-block">
+                                    <i class="fas fa-user-check text-success" style="font-size: 4rem; margin: -10px;"></i>
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Total Walk-in -->
+                        <div class="col">
+                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg, #ffffff 50%, #f8f9fa 50%);">
+                                <div class="d-flex align-items-center justify-content-between w-100">
+                                    <div class="d-flex flex-column gap-2">
+                                        <h1 class="fw-bold mb-0 text-success" style="font-size: clamp(1.5rem, 2.5vw, 3rem);">{{ $totalReservedGuests ?? 0 }}</h1>
+                                        <p class="mb-0 text-uppercase fw-semibold text-success" style="font-size: clamp(0.8rem, 1.2vw, 1.2rem);">Reserved</p>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-user-check text-success" style="font-size: clamp(2rem, 4vw, 2.5rem);"></i>
+                                    </div>
+                                </div>
+                                <div class="position-absolute top-0 end-0 opacity-25 d-none d-md-block">
+                                    <i class="fas fa-user-check text-success" style="font-size: 4rem; margin: -10px;"></i>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
 
 
 <div class="container-fluid mt-4 shadow-lg p-4 bg-white rounded" style="max-width: 91.67%; margin: 0 auto;">
@@ -189,7 +221,7 @@
                                 <i class="fas fa-edit"></i>
                             </button>
 
-                            <!-- Edit Modal -->
+                            <!-- Editing Status Modal -->
                             <div class="modal fade" id="editModal{{ $guest->id }}" tabindex="-1" aria-labelledby="editModalLabel{{ $guest->id }}" aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-centered">
                                     <div class="modal-content border-0 shadow">
@@ -960,7 +992,7 @@ document.getElementById('number_of_children').addEventListener('input', function
 });
 
 // Form submission handler
-document.querySelector('form').addEventListener('submit', function(e) {
+document.querySelector('#addWalkInModal form').addEventListener('submit', function(e) {
     if (!validateCapacity()) {
         e.preventDefault();
         alert('Cannot submit form: Total guests exceeds accommodation capacity!');
@@ -1354,11 +1386,12 @@ function validatePhoneNumber(input) {
 
 // Additional validation on form submit
 document.addEventListener('DOMContentLoaded', function() {
-    const form = document.querySelector('form');
+    const form = document.querySelector('#addWalkInModal form');
     if (form) {
         form.addEventListener('submit', function(e) {
             const phoneInput = document.getElementById('phone');
-            if (phoneInput.value.length !== 11) {
+            // This validation should only apply to the add walk-in form which has the phone input
+            if (phoneInput && phoneInput.value.length !== 11) {
                 e.preventDefault();
                 phoneInput.classList.add('is-invalid');
                 document.getElementById('phone_error').style.display = 'block';

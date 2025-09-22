@@ -164,7 +164,7 @@
                 <div class="offcanvas-header" style="background-color: #0b573d; padding: 1.5rem;">
                     <div class="d-flex align-items-center w-100 justify-content-between">
                         <div class="d-flex align-items-center">
-                            <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" class="me-3"
+                            <img src="{{ asset('images/logo new.png') }}" alt="Lelo's Resort Logo" class="me-3"
                                 style="width: 60px; height: auto; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));">
                             <h5 class="offcanvas-title text-white mb-0" id="sideNavbarLabel"
                                 style="font-size: 1.5rem; font-weight: 700; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">
@@ -256,7 +256,7 @@
                                 }
                             </style>
                             <div class="d-flex justify-content-center align-items-center mt-1">
-                                <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" class="mx-3"
+                                <img src="{{ asset('images/logo new.png') }}" alt="Lelo's Resort Logo" class="mx-3"
                                     style="width: 120px; height: auto; @media (max-width: 768px) { width: 100px; }">
                             </div>
                             <div class="d-flex justify-content-center align-items-center">
@@ -684,7 +684,7 @@
                     <!-- Second section content -->
                     <div class="p-4 h-100">
                         <div class="d-flex flex-column h-100">
-                            <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" class="img-fluid mb-4"
+                            <img src="{{ asset('images/logo new.png') }}" alt="Lelo's Resort Logo" class="img-fluid mb-4"
                                 style="height: 150px; width: auto; margin: -20px auto; display: block;">
 
                             <div class="text-start">
@@ -777,7 +777,7 @@
             <div class="row align-items-center">
                 <!-- Left: Logo -->
                 <div class="col-md-4 mb-2 text-md-start text-center">
-                    <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" class="img-fluid"
+                    <img src="{{ asset('images/logo new.png') }}" alt="Lelo's Resort Logo" class="img-fluid"
                         style="max-width: 110px;">
                 </div>
                 <!-- Center: Contact Info -->

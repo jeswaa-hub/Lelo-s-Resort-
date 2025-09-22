@@ -27,10 +27,14 @@
         border-color: #ffc107 !important;
         box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25) !important;
     }
+
+    body{
+        overflow-x: hidden !important;
+    }
     
 </style>
 
-<body style="margin: 0; padding: 0; height: 100vh; background-color: white; overflow-x: hidden;">
+<body style="margin: 0; padding: 0; height: 100vh; background-color: white; overflow-x: hidden; overflow-y: scroll;">
     @include('Alert.errorLogin')
     @include('Alert.loginSuccessUser')
         <!-- NAVBAR -->
@@ -598,7 +602,7 @@
                                                                 </label>
                                                                 <select class="form-select form-select-lg border-2" name="payment_status" id="payment_status" style="border-color: #0b573d">
                                                                     <option value="" disabled selected hidden>Choose payment status</option>
-                                                                    <option value="on-hold" {{ old('payment_status', $reservation->payment_status) == 'on-hold' ? 'selected' : '' }}>On-Hold</option>
+                                                                    <option value="pending" {{ old('payment_status', $reservation->payment_status) == 'pending' ? 'selected' : '' }}>Pending</option>
                                                                     <option value="paid" {{ old('payment_status', $reservation->payment_status) == 'paid' ? 'selected' : '' }}>Paid</option>
                                                                     <option value="partial" {{ old('payment_status', $reservation->payment_status) == 'partial' ? 'selected' : '' }}>Partial</option>
                                                                     <option value="unpaid" {{ old('payment_status', $reservation->payment_status) == 'unpaid' ? 'selected' : '' }}>Unpaid</option>

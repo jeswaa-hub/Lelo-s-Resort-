@@ -75,6 +75,24 @@ public function profilepage()
             ->where('reservation_details.id', '!=', $latestReservation->id)
             ->orderBy('reservation_details.reservation_check_in_date', 'desc')
             ->get();
+
+        // Process accommodations for each past reservation
+        foreach ($pastReservations as $reservation) {
+            $accommodationIds = json_decode($reservation->accomodation_id, true);
+            $reservation->accommodations = []; // Add a new property to the object
+
+            if (is_array($accommodationIds) && count($accommodationIds) > 0) {
+                $reservation->accommodations = DB::table('accomodations')
+                    ->whereIn('accomodation_id', $accommodationIds)
+                    ->pluck('accomodation_name')
+                    ->toArray();
+            } elseif (is_numeric($accommodationIds)) {
+                $reservation->accommodations = DB::table('accomodations')
+                    ->where('accomodation_id', $accommodationIds)
+                    ->pluck('accomodation_name')
+                    ->toArray();
+            }
+        }
     }
 
     return view('FrontEnd.profilepage', [

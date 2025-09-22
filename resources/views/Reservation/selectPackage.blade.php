@@ -390,8 +390,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-success" id="confirmPayment">Confirm Payment</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Edit</button>
+                    <button type="button" class="btn btn-success" id="confirmPayment">Confirm</button>
                 </div>
             </div>
         </div>

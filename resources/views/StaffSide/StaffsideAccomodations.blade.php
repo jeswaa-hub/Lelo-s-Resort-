@@ -194,19 +194,18 @@
                         
                         <!-- Right Controls: Filters and Apply Button -->
                         <div class="right-controls">
-                            <select class="form-select" style="width: 150px;" id="roomFilter">
-                                <option value="all" selected>All Rooms</option>
-                                <option value="standard">Standards</option>
-                                <option value="deluxe">Deluxes</option>
-                                <option value="suite">Suites</option>
+                            <select class="form-select" style="width: 150px;" id="roomFilter" name="accomodation_type" onchange="this.form.submit()">
+                                <option value="all" {{ ($accomodation_type ?? 'all') === 'all' ? 'selected' : '' }}>All Rooms</option>
+                                @foreach($accommodationTypes as $type)
+                                    <option value="{{ $type }}" {{ ($accomodation_type ?? '') === $type ? 'selected' : '' }}>{{ ucfirst($type) }}</option>
+                                @endforeach
                             </select>
                     
                             <select name="filter" class="form-select" style="width: 150px;" id="filterSelect">
-                                <option value="overview" selected>Overview</option>
-                                <option value="daily">Daily</option>
+                                <option value="daily" selected>Daily</option>
                             </select>
 
-                            <input type="date" name="date" class="form-control" id="dateInput" style="width: 150px;" value="2023-11-15" disabled>
+                            <input type="date" name="date" class="form-control mt-3" id="dateInput" style="width: 150px;" value="{{ now()->format('Y-m-d') }}">
 
                             <button type="button" class="btn text-white" style="background-color: #0b573d; width: 150px; height: 38px;" id="applyFilterBtn">
                                 Apply
@@ -236,10 +235,10 @@
         </div>
 
         <div class="container-fluid">
-            <div class="card shadow">
-                <div class="card-body">
-                    <table class="table table-hover table-responsive m-0">
-                        <thead class="table-dark">
+            <div class="card shadow-sm border-0 rounded-4 mb-4 mt-4 p-2">
+                <div class="card-body" style="overflow-x: auto;">
+                    <table class="table table-hover table-striped table-responsive table-sm">
+                        <thead style="background-color: #0b573d; color: white;">
                             <tr>
                                 <th scope="col" class="text-center">Room ID</th>
                                 <th scope="col" class="text-center">Room Image</th>
@@ -250,7 +249,6 @@
                                 <th scope="col" class="text-center">Price</th>
                                 <th scope="col" class="text-center">Capacity</th>
                                 <th scope="col" class="text-center">Availability</th>
-                                <th scope="col" class="text-center">Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -273,13 +271,6 @@
                                         <span class="badge rounded-pill {{ $accomodation->accomodation_status == 'available' ? 'bg-success' : ($accomodation->accomodation_status == 'maintenance' ? 'bg-warning' : 'bg-danger') }}">
                                             {{ ucfirst($accomodation->accomodation_status) }}
                                         </span>
-                                    </td>
-                                    <td class="text-center align-middle">
-                                        <button class="btn btn-warning btn-sm text-white" 
-                                                data-bs-toggle="modal" 
-                                                data-bs-target="#editRoomModal{{ $accomodation->accomodation_id }}">
-                                            <i class="fa-solid fa-pen-to-square"></i>
-                                        </button>
                                     </td>
                                 </tr>
                             @endforeach

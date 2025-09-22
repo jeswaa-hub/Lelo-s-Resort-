@@ -17,7 +17,14 @@
     <title>Staff Dashboard</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 <style>
-    
+   .dashboard-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        
+    }
+    .dashboard-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 20px rgba(0,0,0,0.2) !important;
+    }
 </style>
 <body style="margin: 0; padding: 0; height: 100vh; background-color: white; overflow-x: hidden;">
     @include('Alert.loginSucess')
@@ -140,98 +147,106 @@
                     <div class="row g-4">
                         <!-- Column 1: Total Reservations -->
                         <div class="col-6">
-                            <div class="flex-grow-1 p-4 rounded-4 shadow-lg position-relative overflow-hidden" 
-                                style="background: linear-gradient(135deg,rgb(75, 96, 7) 0%,rgb(129, 235, 48) 100%); border: none;">
-                                
-                                <div class="position-absolute top-0 end-0 opacity-25">
-                                    <i class="fas fa-clock" style="font-size: 4rem; margin: -10px;"></i>
-                                </div>
+                            <a href="{{ route('staff.reservation', ['status' => 'pending']) }}" class="text-decoration-none ">
+                                <div class="flex-grow-1 p-4 rounded-4 shadow-lg position-relative overflow-hidden dashboard-card" 
+                                    style="background: linear-gradient(135deg,rgb(75, 96, 7) 0%,rgb(129, 235, 48) 100%); border: none;">
+                                    
+                                    <div class="position-absolute top-0 end-0 opacity-25">
+                                        <i class="fas fa-clock" style="font-size: 4rem; margin: -10px;"></i>
+                                    </div>
 
-                                <div class="d-flex align-items-center position-relative">
-                                    <div>
-                                        <h2 class="fs-1 fw-bold text-white mb-2 position-relative" 
-                                            style="text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
-                                            {{$pendingReservations ?? 0}}
-                                        </h2>
-                                        <p class="text-white text-uppercase mb-0 font-paragraph fw-bold position-relative" 
-                                        style="font-size: 0.85rem; opacity: 0.95;">
-                                            Pending<br>Reservations
-                                        </p>
+                                    <div class="d-flex align-items-center position-relative">
+                                        <div>
+                                            <h2 class="fs-1 fw-bold text-white mb-2 position-relative" 
+                                                style="text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+                                                {{$pendingReservations ?? 0}}
+                                            </h2>
+                                            <p class="text-white text-uppercase mb-0 font-paragraph fw-bold position-relative" 
+                                            style="font-size: 0.85rem; opacity: 0.95;">
+                                                Pending<br>Reservations
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            </a>
                         </div>
 
                         <!-- Column 2: Checked-in Guests -->
                         <div class="col-6">
-                            <div class="flex-grow-1 p-4 rounded-4 shadow-lg position-relative overflow-hidden" 
-                            style="background: linear-gradient(135deg, #43cea2 0%, #385E3C 100%); border: none;">
-                                
-                                <div class="position-absolute top-0 end-0 opacity-25">
-                                    <i class="fas fa-user-check" style="font-size: 4rem; margin: -10px;"></i>
-                                </div>
+                            <a href="{{ route('staff.reservation', ['status' => 'checked-in']) }}" class="text-decoration-none">
+                                <div class="flex-grow-1 p-4 rounded-4 shadow-lg position-relative overflow-hidden dashboard-card" 
+                                style="background: linear-gradient(135deg, #43cea2 0%, #385E3C 100%); border: none;">
+                                    
+                                    <div class="position-absolute top-0 end-0 opacity-25">
+                                        <i class="fas fa-user-check" style="font-size: 4rem; margin: -10px;"></i>
+                                    </div>
 
-                                <div class="d-flex align-items-center position-relative">
-                                    <div>
-                                        <h2 class="fs-1 fw-bold text-white mb-2 position-relative" 
-                                            style="text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
-                                            {{ $checkedInGuests ?? 0}}
-                                        </h2>
-                                        <p class="text-white text-uppercase mb-0 font-paragraph fw-bold position-relative" 
-                                        style="font-size: 0.85rem; opacity: 0.95;">
-                                            Checked-in<br>Guests
-                                        </p>
+                                    <div class="d-flex align-items-center position-relative">
+                                        <div>
+                                            <h2 class="fs-1 fw-bold text-white mb-2 position-relative" 
+                                                style="text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+                                                {{ $checkedInGuests ?? 0}}
+                                            </h2>
+                                            <p class="text-white text-uppercase mb-0 font-paragraph fw-bold position-relative" 
+                                            style="font-size: 0.85rem; opacity: 0.95;">
+                                                Checked-in<br>Guests
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            </a>
                         </div>
 
                         <!-- Column 3: Total Rooms Available -->
                         <div class="col-6">
-                            <div class="flex-grow-1 p-4 rounded-4 shadow-lg position-relative overflow-hidden" 
-                                style="background: linear-gradient(135deg, #43cea2 0%, #385E3C 100%); border: none;">
-                                
-                                <div class="position-absolute top-0 end-0 opacity-25">
-                                    <i class="fas fa-bed" style="font-size: 4rem; margin: -10px;"></i>
-                                </div>
+                            <a href="{{ route('staff.accomodations') }}" class="text-decoration-none">
+                                <div class="flex-grow-1 p-4 rounded-4 shadow-lg position-relative overflow-hidden dashboard-card" 
+                                    style="background: linear-gradient(135deg, #43cea2 0%, #385E3C 100%); border: none;">
+                                    
+                                    <div class="position-absolute top-0 end-0 opacity-25">
+                                        <i class="fas fa-bed" style="font-size: 4rem; margin: -10px;"></i>
+                                    </div>
 
-                                <div class="d-flex align-items-center position-relative">
-                                    <div>
-                                        <h2 class="fs-1 fw-bold text-white mb-2 position-relative" 
-                                            style="text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
-                                            {{ $availableAccommodations ?? 0 }}
-                                        </h2>
-                                        <p class="text-white text-uppercase mb-0 font-paragraph fw-bold position-relative" 
-                                        style="font-size: 0.85rem; opacity: 0.95;">
-                                            Total Rooms<br>Available
-                                        </p>
+                                    <div class="d-flex align-items-center position-relative">
+                                        <div>
+                                            <h2 class="fs-1 fw-bold text-white mb-2 position-relative" 
+                                                style="text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+                                                {{ $availableAccommodations ?? 0 }}
+                                            </h2>
+                                            <p class="text-white text-uppercase mb-0 font-paragraph fw-bold position-relative" 
+                                            style="font-size: 0.85rem; opacity: 0.95;">
+                                                Total Rooms<br>Available
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            </a>
                         </div>
 
                         <!-- Column 4: Check-outs Today -->
                         <div class="col-6">
-                            <div class="flex-grow-1 p-4 rounded-4 shadow-lg position-relative overflow-hidden" 
-                            style="background: linear-gradient(135deg,rgb(75, 96, 7) 0%,rgb(129, 235, 48) 100%); border: none;">
-                                
-                                <div class="position-absolute top-0 end-0 opacity-25">
-                                    <i class="fas fa-sign-out-alt" style="font-size: 4rem; margin: -10px;"></i>
-                                </div>
+                            <a href="{{ route('staff.reservation', ['status' => 'checked-out']) }}" class="text-decoration-none">
+                                <div class="flex-grow-1 p-4 rounded-4 shadow-lg position-relative overflow-hidden dashboard-card" 
+                                style="background: linear-gradient(135deg,rgb(75, 96, 7) 0%,rgb(129, 235, 48) 100%); border: none;">
+                                    
+                                    <div class="position-absolute top-0 end-0 opacity-25">
+                                        <i class="fas fa-sign-out-alt" style="font-size: 4rem; margin: -10px;"></i>
+                                    </div>
 
-                                <div class="d-flex align-items-center position-relative">
-                                    <div>
-                                        <h2 class="fs-1 fw-bold text-white mb-2 position-relative" 
-                                            style="text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
-                                            {{ $checkedOutGuests ?? 0 }}
-                                        </h2>
-                                        <p class="text-white text-uppercase mb-0 font-paragraph fw-bold position-relative" 
-                                        style="font-size: 0.85rem; opacity: 0.95;">
-                                            Check-outs<br>Today
-                                        </p>
+                                    <div class="d-flex align-items-center position-relative">
+                                        <div>
+                                            <h2 class="fs-1 fw-bold text-white mb-2 position-relative" 
+                                                style="text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+                                                {{ $checkedOutGuests ?? 0 }}
+                                            </h2>
+                                            <p class="text-white text-uppercase mb-0 font-paragraph fw-bold position-relative" 
+                                            style="font-size: 0.85rem; opacity: 0.95;">
+                                                Check-outs<br>Today
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            </a>
                         </div>
                     </div>
                 </div>

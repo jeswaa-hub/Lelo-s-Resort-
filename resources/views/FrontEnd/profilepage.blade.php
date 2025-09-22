@@ -81,7 +81,7 @@
     @endphp
     <!-- Main Content -->
     <div class="d-flex justify-content-center">
-        <div class="mt-5 d-block d-lg-flex align-items-lg-center">
+        <div class="mt-2 d-block d-lg-flex align-items-lg-center">
         <!-- Left Side Profile Image -->
             <div class="profile-image-wrapper border border-white overflow-hidden position-relative rounded-3 rounded-lg-end-0 mx-auto">
 
@@ -114,8 +114,16 @@
                     <!-- View Button -->
                     <a type="button" class="btn btn-outline-dark btn-sm d-flex align-items-center"
                         data-bs-toggle="modal" data-bs-target="#viewReservationModal" style="height: 38px;" title="View Your Reservation">
-                        <i class="fas fa-eye me-1"></i>
+                        <i class="fas fa-calendar-check me-1"></i>
                     </a>
+
+                    <!-- History Button -->
+                    <a type="button" class="btn btn-outline-dark btn-sm d-flex align-items-center"
+                        data-bs-toggle="modal" data-bs-target="#viewPastReservationModal" style="height: 38px;" title="View Your Past Reservation">
+                        <i class="fas fa-box-archive me-1"></i>
+                    </a>
+
+                    <!-- Cancel Button -->
                     @if(!in_array($latestReservation->reservation_status, ['reserved', 'checked-in', 'cancelled', 'early-checked-out']))
                         <button type="button" 
                                 class="btn btn-danger btn-sm d-flex align-items-center" 
@@ -761,7 +769,145 @@
             </div>
         </div>
     </div>
-               
+
+    <!-- Past Reservations Modal -->
+    <div class="modal fade" id="viewPastReservationModal" tabindex="-1" aria-labelledby="viewPastReservationModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content border-0 shadow-lg" style="background-color: #f8f9fa;">
+                <div class="modal-header border-0" style="background: linear-gradient(135deg, #6c757d 0%, #343a40 100%); color: white;">
+                    <h5 class="modal-title fw-bold" id="viewPastReservationModalLabel">
+                        <i class="fas fa-history me-2"></i>
+                        Reservation History
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    @if(isset($pastReservations) && $pastReservations->count() > 0)
+                        <div class="row g-4">
+                            @foreach($pastReservations as $reservation)
+                                <div class="col-lg-6">
+                                    <div class="card h-100 shadow-sm border-0" style="border-radius: 15px; overflow: hidden;">
+                                        <div class="card-header d-flex justify-content-between align-items-center text-white" style="background-color: #0b573d;">
+                                            <h6 class="mb-0 fw-bold">Reservation #{{ $reservation->reservation_id }}</h6>
+                                            <span class="badge bg-light text-dark">{{ ucfirst($reservation->reservation_status) }}</span>
+                                        </div>
+                                        <div class="card-body p-4">
+                                            <div class="row">
+                                                <div class="col-6">
+                                                    <p class="mb-1 small text-muted">Check-in</p>
+                                                    <p class="fw-semibold">{{ \Carbon\Carbon::parse($reservation->reservation_check_in_date)->format('M d, Y') }}</p>
+                                                </div>
+                                                <div class="col-6">
+                                                    <p class="mb-1 small text-muted">Check-out</p>
+                                                    <p class="fw-semibold">{{ \Carbon\Carbon::parse($reservation->reservation_check_out_date)->format('M d, Y') }}</p>
+                                                </div>
+                                            </div>
+                                            <hr class="my-3">
+                                            <p class="mb-1 small text-muted">Accommodation</p>
+                                            <p class="fw-semibold">
+                                                @if(!empty($reservation->accommodations))
+                                                    {{ implode(', ', $reservation->accommodations) }}
+                                                @else
+                                                    N/A
+                                                @endif
+                                                (x{{ $reservation->quantity }})
+                                            </p>
+                                            <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+                                                <p class="mb-0 small text-muted">Total Amount</p>
+                                                <p class="mb-0 fw-bold fs-5" style="color: #0b573d;">₱{{ number_format($reservation->amount, 2) }}</p>
+                                            </div>
+                                        </div>
+<div class="modal fade" id="viewPastReservationModal" tabindex="-1" aria-labelledby="viewPastReservationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg" style="background-color: #f8f9fa;">
+            <div class="modal-header border-0" style="background: linear-gradient(135deg, #6c757d 0%, #343a40 100%); color: white;">
+                <h5 class="modal-title fw-bold" id="viewPastReservationModalLabel">
+                    <i class="fas fa-history me-2"></i>
+                    Reservation History
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                @if(isset($pastReservations) && $pastReservations->count() > 0)
+                    <div class="list-group">
+                        @foreach($pastReservations as $reservation)
+                            @php
+                                $statusColor = 'secondary';
+                                $statusIcon = 'fa-clock';
+                                if ($reservation->reservation_status == 'checked-out') {
+                                    $statusColor = 'success';
+                                    $statusIcon = 'fa-check-circle';
+                                } elseif ($reservation->reservation_status == 'cancelled') {
+                                    $statusColor = 'danger';
+                                    $statusIcon = 'fa-times-circle';
+                                }
+                            @endphp
+                            <div class="list-group-item list-group-item-action flex-column align-items-start mb-3 border-start-4 border-{{ $statusColor }} shadow-sm rounded-3">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5 class="mb-1 fw-bold" style="color: #0b573d;">Reservation #{{ $reservation->reservation_id }}</h5>
+                                    <small class="text-muted">{{ \Carbon\Carbon::parse($reservation->reservation_check_in_date)->diffForHumans() }}</small>
+                                </div>
+                                <div class="row g-3 mt-2">
+                                    <div class="col-md-4">
+                                        <p class="mb-1 small text-muted">Stay</p>
+                                        <p class="fw-semibold mb-0">
+                                            {{ \Carbon\Carbon::parse($reservation->reservation_check_in_date)->format('M d, Y') }}
+                                            <i class="fas fa-arrow-right mx-1"></i>
+                                            {{ \Carbon\Carbon::parse($reservation->reservation_check_out_date)->format('M d, Y') }}
+                                        </p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <p class="mb-1 small text-muted">Accommodation</p>
+                                        <p class="fw-semibold mb-0">
+                                            @if(!empty($reservation->accommodations))
+                                                {{ implode(', ', $reservation->accommodations) }} (x{{ $reservation->quantity }})
+                                            @else
+                                                N/A
+                                            @endif
+                                        </p>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <p class="mb-1 small text-muted">Total</p>
+                                        <p class="fw-bold mb-0" style="color: #0b573d;">₱{{ number_format($reservation->amount, 2) }}</p>
+                                    </div>
+                                    <div class="col-md-2 text-end">
+                                        <span class="badge bg-{{ $statusColor }} px-3 py-2 rounded-pill">
+                                            <i class="fas {{ $statusIcon }} me-1"></i>
+                                            {{ ucfirst($reservation->reservation_status) }}
+                                        </span>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="text-center py-5">
+                            <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No Past Reservations Found</h5>
+                            <p class="text-muted">Your reservation history is empty.</p>
+                        </div>
+                    @endif
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="text-center py-5">
+                        <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No Past Reservations Found</h5>
+                        <p class="text-muted">Your reservation history is empty.</p>
+                    </div>
+                @endif
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <!-- Script Part -->
 

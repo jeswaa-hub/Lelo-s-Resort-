@@ -198,25 +198,37 @@
                     </div>
                     @endif
 
-                    <!-- Instructions Section -->
-                    <div class="mb-3">
-                        <h6 class="text-success mb-2">Instructions:</h6>
-                        <div class="alert alert-info " style="font-size: 0.9rem;">
-                            <ol class="mb-0 ps-2 pe-2">
-                                <li class="mb-1">Download your QR code by clicking the button below</li>
-                                <li class="">Present this QR code upon check-in at our resort</li>
-                            </ol>
-                        </div>
-                    </div>
+                    <!-- Instructions and QR Code Section -->
+                    @if(isset($reservationDetails->reservation_status))
+                        @if($reservationDetails->reservation_status == 'reserved' || $reservationDetails->reservation_status == 'checked-in' || $reservationDetails->reservation_status == 'on-hold')
+                            <!-- Instructions Section -->
+                            <div class="mb-3">
+                                <h6 class="text-success mb-2">Instructions:</h6>
+                                <div class="alert alert-info " style="font-size: 0.9rem;">
+                                    <ol class="mb-0 ps-2 pe-2">
+                                        <li class="mb-1">Download your QR code by clicking the button below</li>
+                                        <li class="">Present this QR code upon check-in at our resort</li>
+                                    </ol>
+                                </div>
+                            </div>
 
-                    <!-- QR Code Section -->
-                    @if(!empty($reservationDetails->reservation_id))
-                    <div class="text-center">
-                        <canvas id="qr-code" class="mb-3"></canvas>
-                        <button id="download-qr" class="btn btn-success w-100" onclick="downloadQRCode()">
-                            <i class="fa-solid fa-download me-2"></i>DOWNLOAD QR
-                        </button>
-                    </div>
+                            <!-- QR Code Section -->
+                            @if(!empty($reservationDetails->reservation_id))
+                            <div class="text-center">
+                                <canvas id="qr-code" class="mb-3"></canvas>
+                                <button id="download-qr" class="btn btn-success w-100" onclick="downloadQRCode()">
+                                    <i class="fa-solid fa-download me-2"></i>DOWNLOAD QR
+                                </button>
+                            </div>
+                            @endif
+                        @elseif($reservationDetails->reservation_status == 'pending')
+                            <div class="mb-3">
+                                <h6 class="text-warning mb-2">Awaiting Approval:</h6>
+                                <div class="alert alert-warning" style="font-size: 0.9rem;">
+                                    <p class="mb-0">Your reservation is currently pending for approval. We will notify you once it has been confirmed.</p>
+                                </div>
+                            </div>
+                        @endif
                     @endif
                 </div>
             </div>

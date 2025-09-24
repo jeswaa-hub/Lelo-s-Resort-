@@ -76,7 +76,7 @@
 
       <!-- Logo always visible -->
       <a class="navbar-brand d-flex align-items-center ms-3" href="#">
-        <img src="{{ asset('images/logo2.png') }}" alt="Logo" width="100" height="100" class="rounded-circle">
+        <img src="{{ asset('images/logo new.png') }}" alt="Logo" width="100" height="100" class="rounded-circle">
       </a>
 
       <!-- Burger toggler (opens offcanvas) -->
@@ -101,13 +101,25 @@
               </a>
             </li>
 
-            <li class="nav-item">
-              <a href="{{ route('reservations') }}" class="nav-link text-black px-3 py-2 d-flex align-items-center {{ request()->routeIs('reservations') ? 'bg-white bg-opacity-10' : '' }}">
-                <i class="fas fa-calendar-alt fs-5"></i>
-                <span class="ms-2">Reservations</span>
+            <li class="nav-item dropdown">
+              <a href="{{ route('reservations') }}" 
+                class="nav-link text-black px-3 py-2 d-flex align-items-center dropdown-toggle"
+                data-bs-toggle="dropdown"
+                onclick="window.location.href='{{ route('reservations') }}'">
+                <i class="fas fa-chart-line fs-5"></i>
+                <span class="ms-2">Reservation</span>
+                <i class="fas fa-chevron-down ms-2" style="font-size:10px;"></i>
               </a>
+              <ul class="dropdown-menu border-0 shadow">
+                <li>
+                  <a class="dropdown-item py-2" href="{{ route('rooms') }}">Rooms</a>
+                </li>
+                <li>
+                  <a class="dropdown-item py-2" href="{{ route('addActivities') }}">Activities</a>
+                </li>
+              </ul>
             </li>
-
+            
             <li class="nav-item">
               <a href="{{ route('staff.guests') }}" class="nav-link text-black px-3 py-2 d-flex align-items-center {{ Request::routeIs('staff.guests') ? 'active bg-white bg-opacity-10' : '' }}">
                 <i class="fas fa-users fs-5"></i>

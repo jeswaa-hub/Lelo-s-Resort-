@@ -86,7 +86,7 @@
                             <td>{{ $report->damage_description }}</td>
                             <td>{{ $report->created_at->format('M d, Y h:i A') }}</td>
                             <td>
-                                <span class="badge text-capitalize {{ $report->status == 'pending' ? 'bg-warning' : ($report->status == 'in progress' ? 'bg-info' : 'bg-success') }}">
+                                <span class="badge text-capitalize {{ $report->status == 'pending' ? 'bg-warning' : ($report->status == 'in-progress' ? 'bg-info' : 'bg-success') }}">
                                     {{ $report->status }}
                                 </span>
                             </td>

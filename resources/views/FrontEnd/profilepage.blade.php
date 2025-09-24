@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" href="{{ asset('images/logo new.png') }}">
     <title>{{$user->name}} - Profile</title>
     <link
         href="https://fonts.googleapis.com/css2?family=Anton&family=Montserrat:wght@100..900&family=Poppins:wght@100..900&display=swap"
@@ -69,7 +70,7 @@
     <div class="d-flex justify-content-between mt-2 p-3">
          <!-- Back Button to Homepage-->
         <a href="{{ route('homepage') }}" class="text-decoration-none">
-            <i class="fa-solid fa-circle-chevron-left text-color-2 fs-2 mb-3 ms-5 mt-2"></i>
+            <i class="text-color-2 fa-2x fa-circle-left fa-solid ms-5 mb-3 me-5 mt-2"></i>
         </a>
         <!-- Logout Button -->
         <a href="{{ route('logout.user') }}" class="text-decoration-none text-white">

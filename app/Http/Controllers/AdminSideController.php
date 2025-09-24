@@ -29,89 +29,197 @@ class AdminSideController extends Controller
 
     public function reservations(Request $request) 
     {
-        // Kunin lahat ng users para sa dropdown
-        $users = DB::table('users')->get();
-    
-        // Simulan ang query para sa reservations
-        $query = DB::table('reservation_details')
-            ->leftJoin('users', 'reservation_details.user_id', '=', 'users.id')  // Join users
-            ->select(
-                'reservation_details.*',
-                'users.name as user_name'
-            )
-            ->orderByDesc('reservation_details.created_at');
-    
-        // Variable para sa message kapag walang reservation ang user
-        $noReservationMessage = null;
-        
-        // Check if a user is selected
-        if ($request->has('user_id') && !empty($request->user_id)) {
-            $filteredReservations = clone $query;
-            $filteredReservations = $filteredReservations->where('reservation_details.user_id', $request->user_id);
-    
-            if ($filteredReservations->count() > 0) {
-                $query = $filteredReservations;
-            } else {
-                // Show all reservations if the user has no reservations
-                $noReservationMessage = "No reservation for this user. Displaying all reservations.";
-            }
+        $adminCredentials = DB::table('admintbl')->first();
+        if (!$adminCredentials) {
+            abort(404, 'Admin credentials not found');
         }
-    
-        // Paginate the results
-        $reservations = $query->paginate(5);
 
-    
-        // Fetch accommodation names for each reservation
+        $online_reservations = DB::table('reservation_details')
+            ->leftJoin('users', 'reservation_details.user_id', '=', 'users.id')
+            ->select(
+                'reservation_details.id',
+                'reservation_details.name',
+                'reservation_details.reservation_check_in_date',
+                'reservation_details.reservation_check_out_date',
+                'reservation_details.reservation_check_in',
+                'reservation_details.reservation_check_out',
+                'reservation_details.accomodation_id',
+                'reservation_details.quantity',
+                'reservation_details.mobileNo',
+                'reservation_details.reference_num',
+                'reservation_details.payment_status',
+                'reservation_details.reservation_status',
+                'reservation_details.amount',
+                'reservation_details.created_at',
+                DB::raw("'online' as reservation_type")
+            );
+
+        $walkin_reservations = DB::table('walkin_guests')
+            ->select(
+                'walkin_guests.id',
+                'walkin_guests.name',
+                'walkin_guests.reservation_check_in_date',
+                'walkin_guests.reservation_check_out_date',
+                'walkin_guests.check_in_time as reservation_check_in',
+                'walkin_guests.check_out_time as reservation_check_out',
+                'walkin_guests.accomodation_id',
+                'walkin_guests.quantity',
+                'walkin_guests.mobileNo',
+                DB::raw("NULL as reference_num"),
+                'walkin_guests.payment_status',
+                'walkin_guests.reservation_status',
+                'walkin_guests.amount',
+                'walkin_guests.created_at',
+                DB::raw("'walkin' as reservation_type")
+            );
+
+        $unionQuery = $online_reservations->unionAll($walkin_reservations);
+
+        // Create a new query from the union
+        $query = DB::query()->fromSub($unionQuery, 'reservations');
+
+        if ($request->filled('type')) {
+            $query->where('reservation_type', $request->type);
+        }
+
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        $query->orderByDesc('created_at');
+
+        $allReservationsForCalendar = $query->get();
+
+        // Create a paginator manually
+        $perPage = 5;
+        $currentPage = request()->get('page', 1);
+        $currentPageItems = $allReservationsForCalendar->slice(($currentPage - 1) * $perPage, $perPage);
+        $reservations = new \Illuminate\Pagination\LengthAwarePaginator(
+            $currentPageItems,
+            $allReservationsForCalendar->count(),
+            $perPage,
+            $currentPage,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
+
         foreach ($reservations as $reservation) {
-            // Convert JSON or comma-separated IDs into an array
             $accomodationIds = json_decode($reservation->accomodation_id, true);
             
             if (!is_array($accomodationIds)) {
-                $accomodationIds = explode(',', $reservation->accomodation_id); // If stored as comma-separated
+                $accomodationIds = explode(',', $reservation->accomodation_id);
             }
     
-            // Fetch the names from the accommodations table
             $reservation->accomodation_names = DB::table('accomodations')
                 ->whereIn('accomodation_id', $accomodationIds)
                 ->pluck('accomodation_name')
                 ->toArray();
         }
     
-        // Fetch calendar data
         $events = [];
-        foreach ($reservations as $reservation) {
-            // Get all rooms
-            $allRooms = DB::table('accomodations')
-                ->where('accomodation_status', 'available')
-                ->pluck('accomodation_name')
-                ->toArray();
-
-            // Get reserved room IDs for this reservation
+        foreach ($allReservationsForCalendar as $reservation) {
+            $checkInDate = Carbon::parse($reservation->reservation_check_in_date);
+            $checkOutDate = Carbon::parse($reservation->reservation_check_out_date);
+        
             $reservedRoomIds = json_decode($reservation->accomodation_id, true);
             if (!is_array($reservedRoomIds)) {
                 $reservedRoomIds = explode(',', $reservation->accomodation_id);
             }
-
-            // Get reserved room names
-            $reservedRooms = DB::table('accomodations')
+            $reservedRoomIds = array_filter($reservedRoomIds);
+        
+            $reservedRoomName = DB::table('accomodations')
                 ->whereIn('accomodation_id', $reservedRoomIds)
-                ->pluck('accomodation_name')
-                ->toArray();
+                ->value('accomodation_name');
 
-            // Get available rooms by removing reserved rooms from all rooms
-            $availableRooms = array_diff($allRooms, $reservedRooms);
+            $reservedRoomsString = $reservedRoomName ? $reservedRoomName . ' (' . $reservation->quantity . ')' : 'Unknown Room';
+
+            $allAccommodations = DB::table('accomodations')->get();
+            $availableRoomsList = [];
+            foreach ($allAccommodations as $accom) {
+                $totalQuantity = $accom->quantity;
+        
+                $eventCheckIn = $checkInDate->toDateString();
+                $eventCheckOut = $checkOutDate->toDateString();
+        
+                if ($checkInDate->isSameDay($checkOutDate)) {
+                    $bookedOnline = DB::table('reservation_details')
+                        ->whereIn('reservation_status', ['reserved', 'checked-in'])
+                        ->where(function($query) use ($eventCheckIn) {
+                            $query->where(function($q) use ($eventCheckIn) {
+                                $q->where('reservation_check_in_date', '<=', $eventCheckIn)
+                                  ->where('reservation_check_out_date', '>', $eventCheckIn);
+                            })->orWhere(function($q) use ($eventCheckIn) {
+                                $q->where('reservation_check_in_date', '=', $eventCheckIn)
+                                  ->where('reservation_check_out_date', '=', $eventCheckIn);
+                            });
+                        })
+                        ->whereJsonContains('accomodation_id', (string)$accom->accomodation_id)
+                        ->sum('quantity');
+        
+                    $bookedWalkin = DB::table('walkin_guests')
+                        ->whereIn('reservation_status', ['reserved', 'checked-in'])
+                        ->where(function($query) use ($eventCheckIn) {
+                            $query->where(function($q) use ($eventCheckIn) {
+                                $q->where('reservation_check_in_date', '<=', $eventCheckIn)
+                                  ->where('reservation_check_out_date', '>', $eventCheckIn);
+                            })->orWhere(function($q) use ($eventCheckIn) {
+                                $q->where('reservation_check_in_date', '=', $eventCheckIn)
+                                  ->where('reservation_check_out_date', '=', $eventCheckIn);
+                            });
+                        })
+                        ->where(function ($query) use ($accom) {
+                            $query->where('accomodation_id', $accom->accomodation_id)
+                                  ->orWhereJsonContains('accomodation_id', (string)$accom->accomodation_id);
+                        })
+                        ->sum('quantity');
+                } else {
+                    $bookedOnline = DB::table('reservation_details')
+                        ->whereIn('reservation_status', ['reserved', 'checked-in'])
+                        ->where('reservation_check_in_date', '<', $eventCheckOut)
+                        ->where('reservation_check_out_date', '>', $eventCheckIn)
+                        ->whereJsonContains('accomodation_id', (string)$accom->accomodation_id)
+                        ->sum('quantity');
+        
+                    $bookedWalkin = DB::table('walkin_guests')
+                        ->whereIn('reservation_status', ['reserved', 'checked-in'])
+                        ->where('reservation_check_in_date', '<', $eventCheckOut)
+                        ->where('reservation_check_out_date', '>', $eventCheckIn)
+                        ->where(function ($query) use ($accom) {
+                            $query->where('accomodation_id', $accom->accomodation_id)
+                                  ->orWhereJsonContains('accomodation_id', (string)$accom->accomodation_id);
+                        })
+                        ->sum('quantity');
+                }
+                $bookedQuantity = $bookedOnline + $bookedWalkin;
+        
+                $availableCount = $totalQuantity - $bookedQuantity;
+                if ($availableCount > 0) {
+                    $availableRoomsList[] = $accom->accomodation_name . " (" . $availableCount . ")";
+                }
+            }
+        
+            $checkInTime = Carbon::parse($reservation->reservation_check_in)->format('h:i A');
+            $checkOutTime = Carbon::parse($reservation->reservation_check_out)->format('h:i A');
 
             $events[] = [
-                'title' => 'Reservation',
+                'title' => $reservation->name . ': ' . $checkInTime . ' - ' . $checkOutTime,
                 'start' => $reservation->reservation_check_in_date,
                 'end' => $reservation->reservation_check_out_date,
-                'description' => 'Reserved Rooms: ' . implode(', ', $reservedRooms) . 
-                               "\nAvailable Rooms: " . implode(', ', $availableRooms),
+                'allDay' => true,
+                'description' => 'Reserved Rooms: ' . $reservedRoomsString . "\nAvailable Rooms: " . implode(', ', $availableRoomsList),
+                'extendedProps' => [
+                    'name' => $reservation->name,
+                    'quantity' => $reservation->quantity,
+                    'check_in_date' => $reservation->reservation_check_in_date,
+                    'check_out_date' => $reservation->reservation_check_out_date,
+                    'reservation_type' => $reservation->reservation_type
+                ]
             ];
         }
     
-        // Return view with data
-        return view('AdminSide.Reservation', compact('reservations', 'users', 'noReservationMessage', 'events'));
+        $users = DB::table('users')->get();
+        $noReservationMessage = null;
+
+        return view('AdminSide.Reservation', compact('reservations', 'users', 'noReservationMessage', 'events', 'adminCredentials'));
     }
 
     public function roomAvailability(){
@@ -1018,20 +1126,38 @@ public function login(Request $request) {
         ->whereIn('reservation_status', ['checked-in','reserved']) // Get reservations with booked or paid status
         ->get();
     
-    // Get total number of rooms
-    $totalRooms = DB::table('accomodations')->count();
+    // Get total number of rooms by summing up quantities
+    $totalRooms = DB::table('accomodations')->sum('quantity');
+
+    // Get all walk-in reservations for the year
+    $walkinReservations = DB::table('walkin_guests')
+        ->where(function($query) use ($startDate, $endDate) {
+            $query->where(function($q) use ($startDate, $endDate) {
+                $q->whereDate('reservation_check_in_date', '<=', $endDate)
+                  ->whereDate('reservation_check_out_date', '>=', $startDate);
+            });
+        })
+        ->whereIn('reservation_status', ['checked-in', 'reserved'])
+        ->get();
 
     // Build calendar data for the entire year
     $currentDate = $startDate->copy();
     while ($currentDate <= $endDate) {
         $dateKey = $currentDate->format('Y-m-d');
         
-        // Count bookings for this specific date
-        $bookedRooms = $selectedReservations->filter(function($reservation) use ($currentDate) {
+        // Sum quantities for online reservations on this specific date
+        $bookedOnline = $selectedReservations->filter(function($reservation) use ($currentDate) {
             $checkIn = Carbon::parse($reservation->reservation_check_in_date)->startOfDay();
             $checkOut = Carbon::parse($reservation->reservation_check_out_date)->endOfDay();
             return $currentDate->between($checkIn, $checkOut);
-        })->count();
+        })->sum('quantity');
+
+        // Sum quantities for walk-in reservations on this specific date
+        $bookedWalkin = $walkinReservations->filter(function($reservation) use ($currentDate) {
+            return $currentDate->between(Carbon::parse($reservation->reservation_check_in_date)->startOfDay(), Carbon::parse($reservation->reservation_check_out_date)->endOfDay());
+        })->sum('quantity');
+
+        $bookedRooms = $bookedOnline + $bookedWalkin;
 
         // Determine availability status
         if ($bookedRooms == 0) {

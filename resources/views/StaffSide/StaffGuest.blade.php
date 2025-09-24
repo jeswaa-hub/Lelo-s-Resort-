@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Guest</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/logo new.png') }}">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Anton&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -14,9 +15,11 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <style>
-
+    body{
+        overflow-x: hidden !important;
+    }
 </style>
-<body style="margin: 0; padding: 0; height: 100vh; background-color: white; overflow-x: hidden;">
+<body style="margin: 0; padding: 0; height: 100vh; background-color: white; overflow-x: hidden !important;">
     @include('Alert.loginSucess')
 
     <!-- NAVBAR -->
@@ -55,7 +58,7 @@
                         font-weight: 900;
                         text-shadow: 3px 3px 6px rgba(0,0,0,0.6);
                         margin-top: 1rem;">
-                       {{$staffCredentials->username}}
+                       {{   $staffCredentials->username }}!
                     </h1>
                 </div>
             </div>
@@ -69,78 +72,66 @@
             background-color: rgba(255, 255, 255, 0.98);
             border-radius: 15px;">
             
-<div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+<div class="card-header bg-white py-3 d-flex justify-content-between align-items-center flex-wrap">
     <h2 class="font-heading mb-0 fs-3 fw-bold" style="color: #0b573d;">GUEST INFORMATION OVERVIEW</h2>
     
     <div class="position-relative">
-        <form action="{{ route('staff.guests') }}" method="GET">
-            <!-- Desktop Search Box -->
-            <div class="input-group shadow-sm shadow-hover d-none d-md-flex" 
-                 style="border-radius: 8px; 
-                        overflow: hidden;
-                        width: clamp(250px, 30vw, 350px);
-                        transition: all 0.3s ease-in-out;
-                        background: rgba(255, 255, 255, 0.95);
-                        backdrop-filter: blur(5px);
-                        border: 1px solid rgba(0, 0, 0, 0.1);">
+        <!-- Desktop Search Form -->
+        <form action="{{ route('staff.guests') }}" method="GET" class="d-none d-md-flex">
+            <div class="input-group shadow-sm shadow-hover" 
+                 style="border-radius: 8px; overflow: hidden; width: clamp(250px, 30vw, 350px); border: 1px solid rgba(0, 0, 0, 0.1);">
                 <input type="text" 
                        name="search" 
                        class="form-control border-0 ps-4" 
                        placeholder="🔍 Search guest..." 
                        value="{{ request('search') }}" 
-                       oninput="toggleClearButton(this)"
-                       style="border-radius: 0; height: 30px;">
+                       style="height: 40px;">
                 <button type="submit" 
                         class="btn px-4"
-                        style="border-radius: 0; 
-                               height: 45px; 
-                               transition: 0.3s;
-                               background-color: #0b573d;
-                               color: white;">
+                        style="background-color: #0b573d; color: white;">
                     <i class="fas fa-search"></i>
                 </button>
             </div>
+        </form>
 
-            <!-- Mobile Search Icon -->
-            <div class="d-md-none">
-                <button type="button" 
-                        class="btn rounded-circle p-3"
-                        data-bs-toggle="modal" 
-                        data-bs-target="#mobileSearchModal"
-                        style="background: #0b573d;
-                               color: white;
-                               border: none;
-                               box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                    <i class="fas fa-search" style="font-size: 1.2rem;"></i>
-                </button>
+        <!-- Mobile Search Icon -->
+        <div class="d-md-none">
+            <button type="button" 
+                    class="btn rounded-circle p-3"
+                    data-bs-toggle="modal" 
+                    data-bs-target="#mobileSearchModal"
+                    style="background: #0b573d; color: white; border: none;">
+                <i class="fas fa-search" style="font-size: 1.2rem;"></i>
+            </button>
+        </div>
 
-                <!-- Mobile Search Modal -->
-                <div class="modal fade" id="mobileSearchModal" tabindex="-1" aria-labelledby="mobileSearchModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="mobileSearchModalLabel">Search Guest</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <!-- Mobile Search Modal -->
+        <div class="modal fade" id="mobileSearchModal" tabindex="-1" aria-labelledby="mobileSearchModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="mobileSearchModalLabel">Search Guest</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="{{ route('staff.guests') }}" method="GET">
+                            <div class="input-group">
+                                <input type="text" 
+                                       name="search" 
+                                       class="form-control" 
+                                       placeholder="Enter guest name..."
+                                       value="{{ request('search') }}">
+                                <button type="submit" 
+                                        class="btn"
+                                        style="background-color: #0b573d; color: white;">
+                                    <i class="fas fa-search"></i>
+                                </button>
                             </div>
-                            <div class="modal-body">
-                                <div class="input-group">
-                                    <input type="text" 
-                                           name="search" 
-                                           class="form-control" 
-                                           placeholder="Enter guest name..."
-                                           value="{{ request('search') }}">
-                                    <button type="submit" 
-                                            class="btn"
-                                            style="background-color: #0b573d; color: white;">
-                                        <i class="fas fa-search"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+                        </form>
                     </div>
                 </div>
             </div>
-        </form>
+        </div>
     </div>
 </div>
 

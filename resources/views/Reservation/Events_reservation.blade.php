@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reservation Calendar</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/logo new.png') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
@@ -112,8 +113,8 @@
     <nav class="navbar navbar-expand-lg py-3">
         <div class="container">
             <a href="{{ route('homepage') }}" class="navbar-brand">
-                <div class="profile-icon">
-                    <i class="fa-solid fa-arrow-left"></i>
+                <div class="">
+                    <i class="color-3 fa-2x fa-circle-left fa-solid icon icon-hover"></i>
                 </div>
             </a>
                 <img src="{{ asset('images/logo new.png') }}" alt="App Logo" class="app-logo">

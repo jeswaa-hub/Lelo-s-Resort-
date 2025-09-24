@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use App\Models\Accomodation;
 use App\Models\Staff;
@@ -1494,6 +1495,27 @@ public function UpdateStatus(Request $request, $id)
         return redirect()->back()->with('error', 'Error updating damage report: ' . $e->getMessage());
     }
 }
+    public function deleteDamageReport($id)
+    {
+        try {
+            $report = DamageReport::findOrFail($id);
+            
+            // Delete the image if it exists from public storage
+            if ($report->damage_photos) {
+                Storage::disk('public')->delete($report->damage_photos);
+            }
+            
+            $report->delete();
+            
+            // Record activity
+            $this->recordActivity('Deleted damage report #' . $id);
+
+            return redirect()->back()->with('success', 'Damage report deleted successfully');
+        } catch (\Exception $e) {
+            Log::error('Error deleting damage report: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error deleting damage report: ' . $e->getMessage());
+        }
+    }
     
     public function AutoCancellation()
     {

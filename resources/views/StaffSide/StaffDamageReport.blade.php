@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="{{ asset('images/logo new.png') }}">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Anton&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -20,8 +21,8 @@
 <style>
 </style>
 <body style="margin: 0; padding: 0; height: 100vh; background-color: white; overflow-x: hidden;">
-    @include('Alert.loginSucess')
-    @include('Alert.notification')
+    @include('Alert.errorLogin')
+    @include('Alert.loginSuccessUser')
     <!-- NAVBAR -->
      @include('Navbar.sidenavbarStaff')
         <!-- Main Content -->
@@ -131,7 +132,7 @@
                         </td>
                         <td class="py-3">
                             <span class="badge rounded-pill text-capitalize px-3 py-2 
-                                {{ $report->status == 'pending' ? 'bg-warning' : ($report->status == 'in progress' ? 'bg-info' : 'bg-success') }}">
+                                {{ $report->status == 'pending' ? 'bg-warning' : ($report->status == 'in-progress' ? 'bg-info' : 'bg-success') }}">
                                 {{ strtoupper($report->status) }}
                             </span>
                         </td>
@@ -189,8 +190,8 @@
                             <small class="text-muted">Status:</small>
                             <div>
                                 <span class="badge rounded-pill text-capitalize px-3 py-2 
-                                    {{ $report->status == 'pending' ? 'bg-warning' : ($report->status == 'in progress' ? 'bg-info' : 'bg-success') }}">
-                                    {{ strtoupper($report->status) }}
+                                    {{ $report->status == 'pending' ? 'bg-warning' : ($report->status == 'in-progress' ? 'bg-info' : 'bg-success') }}">
+                                    {{ ($report->status) }}
                                 </span>
                             </div>
                         </div>
@@ -266,7 +267,10 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-danger" onclick="deleteReport({{ $report->id }})">Delete</button>
+                        <form action="{{ route('staff.deleteDamageReport', $report->id) }}" method="POST" class="d-inline">
+                            @csrf
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -309,9 +313,9 @@
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Status</label>
                         <select class="form-select" name="status">
-                            <option value="Pending">Pending</option>
-                            <option value="In Progress">In Progress</option>
-                            <option value="Resolved">Resolved</option>
+                            <option value="pending">Pending</option>
+                            <option value="in-progress">In Progress</option>
+                            <option value="resolved">Resolved</option>
                         </select>
                     </div>
                     <div class="mb-3">
@@ -364,7 +368,6 @@
     </div>
 </div>
 @endforeach
-
 
 </body>
 </html>

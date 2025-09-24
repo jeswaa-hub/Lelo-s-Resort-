@@ -186,6 +186,7 @@ Route::middleware(['IsStaff' , 'prevent.back'])->group(function () {
     Route::get('/staff/damage-report', [StaffController::class, 'damageReport'])->name('staff.damageReport');
     Route::post('/staff/damage-report', [StaffController::class, 'storeDamageReport'])->name('staff.storeDamageReport');
     Route::post('/staff/damage-report/edit/{id}', [StaffController::class, 'editDamageReport'])->name('staff.editDamageReport');
+    Route::post('/staff/damage-report/delete/{id}', [StaffController::class, 'deleteDamageReport'])->name('staff.deleteDamageReport');
     Route::get('/staff/guests', [StaffController::class, 'guests'])->name('staff.guests');
     Route::get('/staff/logout', [StaffController::class, 'logout'])->name('staff.logout');
 });

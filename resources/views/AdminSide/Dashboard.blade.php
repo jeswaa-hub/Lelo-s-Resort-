@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <link rel="icon" type="image/png" href="{{ asset('images/logo new.png') }}">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Anton&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -36,14 +37,30 @@
         flex-grow: 1;
         max-height: 280px !important;
     }
-    
+    #reservationChart {
+        height: 300px !important;
+    }
+
+    /* Medium screens and below */
+    @media (max-width: 768px) {
+        #reservationChart {
+            height: 300px !important; /* taller for tablets/small screens */
+        }
+    }
+
+    /* Extra small screens */
+    @media (max-width: 576px) {
+        #reservationChart {
+            height: 350px !important; /* even taller for phones */
+        }
+    }
     /* Custom legend styling */
     .custom-legend {
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
         margin-top: 15px;
-        gap: 10px;
+        gap:10px;
     }
     
     .legend-item {
@@ -84,9 +101,9 @@
 <!-- Main Content -->
 <div id="mainContent" class="flex-grow-1 py-4 px-4 transition-width">
     <div class="row">
-        <div class="col-12 col-lg-11 mx-auto mt-n4">
+        <div class="col-12 col-lg-11 mx-auto mt-4">
             <div class="hero-banner d-flex align-items-center"
-                 style="background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(34,34,34,0.5)), url('{{ asset('images/DSCF2777.JPG') }}'); 
+                 style="background-image: url('{{ asset('images/staff-admin-bg.jpg') }}'); 
                         background-size: cover; 
                         background-position: center; 
                         min-height: 450px; 
@@ -95,9 +112,8 @@
 
                 <div class="container-fluid">
                     <div class="row g-4">
-                        
                         <!-- LEFT SIDE -->
-                        <div class="col-lg-5 d-flex flex-column">
+                        <div class="col-12 col-lg-5 d-flex flex-column">
                             <!-- Greeting -->
                             <p class="text-white mb-1" 
                                style="font-family: 'Poppins', sans-serif; font-size: clamp(1.2rem, 3vw, 2rem); letter-spacing: 2px;">
@@ -105,7 +121,7 @@
                             </p>
                             <h1 class="fw-bolder mb-4 text-white text-capitalize" 
                                 style="font-family: 'Montserrat', sans-serif; font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 900;">
-                                {{ $adminCredentials->username }}<span>👋</span>
+                                {{ $adminCredentials->username }}
                             </h1>
 
                             <!-- Pending Reservations -->
@@ -152,7 +168,7 @@
                         </div>
 
                         <!-- RIGHT SIDE (STAT BOXES 2x3) -->
-                        <div class="col-lg-7">
+                        <div class="col-12 col-lg-7">
                             <div class="row g-3">
                                 <!-- Box 1 -->
                                 <div class="col-6">
@@ -291,37 +307,40 @@
 </div>
 
 <!-- Online Reservation Section -->
-<div class="row">
+<div class="row mt-4">
     <div class="col-12 col-lg-11 mx-auto">
         <div class="shadow-lg p-4 bg-white rounded">
             <div class="container">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2 class="fw-bold text-black mb-0 border-bottom" style="font-size: 2.5rem;">RESERVATION OVERVIEW</h2>
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+                    <h2 class="fw-bold text-black mb-0 border-bottom text-center text-md-start" style="font-size: 2rem;">
+                        RESERVATION OVERVIEW
+                    </h2>
+
                     <!-- Filter Dropdowns: labels beside select -->
-                    <div class="d-flex align-items-center">
+                    <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3 w-100 w-md-auto">
                         <!-- Filter By -->
-                        <div class="me-3 d-flex align-items-center gap-2">
+                        <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-2 w-100 w-sm-auto">
                             <label for="timeFilter" class="form-label font-paragraph fw-semibold mb-0" style="white-space: nowrap;">Filter By:</label>
                             <select id="timeFilter" class="form-control" style="min-width: 100px; height: 50px;">
-                            <option value="daily">Daily</option>
-                            <option value="weekly">Weekly</option>
-                            <option value="monthly">Monthly</option>
+                                <option value="daily">Daily</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="monthly">Monthly</option>
                             </select>
                         </div>
 
                         <!-- Year -->
-                        <div class="d-flex align-items-center me-3">
-                            <label for="yearFilter" class="form-label mb-0 me-2 font-paragraph fw-semibold">Year:</label>
+                        <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-2 w-100 w-sm-auto">
+                            <label for="yearFilter" class="form-label mb-0 font-paragraph fw-semibold">Year:</label>
                             <select id="yearFilter" class="form-control" style="min-width: 150px; height: 50px;">
-                            @foreach($availableYears as $year)
-                                <option value="{{ $year }}" {{ $year == $selectedYear ? 'selected' : '' }}>{{ $year }}</option>
-                            @endforeach
+                                @foreach($availableYears as $year)
+                                    <option value="{{ $year }}" {{ $year == $selectedYear ? 'selected' : '' }}>{{ $year }}</option>
+                                @endforeach
                             </select>
                         </div>
 
                         <!-- Reservation Type -->
-                        <div class="d-flex align-items-center">
-                            <label for="reservationType" class="form-label font-paragraph fw-semibold mb-0 me-3" style="white-space: nowrap;">Reservation Type:</label>
+                        <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-2 w-100 w-sm-auto">
+                            <label for="reservationType" class="form-label font-paragraph fw-semibold mb-0" style="white-space: nowrap;">Reservation Type:</label>
                             <select id="reservationType" class="form-control" style="min-width: 100px; height: 50px;">
                                 <option value="">All Reservations</option>
                                 <option value="walkin">Walk-in</option>
@@ -330,20 +349,21 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="row g-4">
                     <!-- Left Side - Graph -->
-                    <div class="col-md-6">
-                        <div class="card shadow-lg rounded-4 border-0">
+                    <div class="col-12 col-md-6">
+                        <div class="card shadow-lg rounded-4 border-0 h-100">
                             <div class="card-body p-4">
                                 <h5 class="card-title fw-bold mb-4">Reservation Breakdown Status</h5>
                                 <canvas id="statusChart"></canvas>
-                                <div id="statusLegend" class="custom-legend mt-3"></div>
+                                <div id="statusLegend" class="custom-legend text-capitalize"></div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Right Side - Graph -->
-                    <div class="col-md-6">
+                    <div class="col-12 col-md-6">
                         <div class="card shadow-lg rounded-4 border-0 w-100">
                             <div class="card-body p-4">
                                 <h5 class="card-title fw-bold mb-4">Reservation And Rooms</h5>
@@ -357,17 +377,21 @@
     </div>
 </div>
 
+
 <!-- Revenue Overview Section -->
 <div class="row mt-4">
     <div class="col-12 col-lg-11 mx-auto">
         <div class="shadow-lg p-4 bg-white rounded">
             <div class="container">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2 class="fw-bold text-black mb-0 border-bottom" style="font-size: 2.5rem;">REVENUE OVERVIEW</h2>
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+                    <h2 class="fw-bold text-black mb-0 border-bottom text-center text-md-start" style="font-size: 2rem;">
+                        REVENUE OVERVIEW
+                    </h2>
+
                     <!-- Filter Dropdowns for Revenue -->
-                    <div class="d-flex align-items-center">
+                    <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3 w-100 w-md-auto">
                         <!-- Filter By -->
-                        <div class="me-3 d-flex align-items-center gap-2">
+                        <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-2 w-100 w-sm-auto">
                             <label for="revenueTimeFilter" class="form-label font-paragraph fw-semibold mb-0" style="white-space: nowrap;">Filter By:</label>
                             <select id="revenueTimeFilter" class="form-control" style="min-width: 100px; height: 50px;">
                                 <option value="daily">Daily</option>
@@ -377,8 +401,8 @@
                         </div>
 
                         <!-- Year -->
-                        <div class="d-flex align-items-center me-3">
-                            <label for="revenueYearFilter" class="form-label mb-0 me-2 font-paragraph fw-semibold">Year:</label>
+                        <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-2 w-100 w-sm-auto">
+                            <label for="revenueYearFilter" class="form-label mb-0 font-paragraph fw-semibold">Year:</label>
                             <select id="revenueYearFilter" class="form-control" style="min-width: 150px; height: 50px;">
                                 @foreach($availableYears as $year)
                                     <option value="{{ $year }}" {{ $year == $selectedYear ? 'selected' : '' }}>{{ $year }}</option>
@@ -387,8 +411,8 @@
                         </div>
 
                         <!-- Revenue Type -->
-                        <div class="d-flex align-items-center">
-                            <label for="revenueType" class="form-label font-paragraph fw-semibold mb-0 me-3" style="white-space: nowrap;">Revenue Type:</label>
+                        <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-2 w-100 w-sm-auto">
+                            <label for="revenueType" class="form-label font-paragraph fw-semibold mb-0" style="white-space: nowrap;">Revenue Type:</label>
                             <select id="revenueType" class="form-control" style="min-width: 100px; height: 50px;">
                                 <option value="">All Revenue</option>
                                 <option value="walkin">Walk-in</option>
@@ -397,13 +421,11 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="row">
                     <div class="col-12">
                         <div class="card shadow-lg rounded-4 border-0">
-                            <div class="card-body p-4">
-                                <h5 class="card-title fw-bold mb-4">Revenue Breakdown</h5>
-                                <canvas id="revenueChart"></canvas>
-                            </div>
+                            <canvas id="revenueChart"></canvas>
                         </div>
                     </div>
                 </div>

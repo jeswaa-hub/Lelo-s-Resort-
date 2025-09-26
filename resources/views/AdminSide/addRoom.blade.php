@@ -111,7 +111,7 @@
                             <!-- Cards -->
                             <div>
                                 <div class="card text-white rounded-4 shadow p-4 mb-3"
-                                    style="background-color: #226214;">
+                                    style="background: linear-gradient(180deg, #226214, #43cc25);">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
                                             <h2 class="fw-bold font-paragraph">{{$countAvailableRoom}}</h2>

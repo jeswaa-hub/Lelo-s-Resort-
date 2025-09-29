@@ -987,8 +987,12 @@
                     day: 'numeric'
                 });
             } else if (timeFilter === 'weekly') {
-                const weekNum = parseInt(dateStr.split(' ')[1]);
-                return `W${weekNum}`;
+                // The weekly data is in YEARWEEK format (e.g., 202423)
+                // We can extract the week number for the label.
+                if (typeof dateStr === 'string' && dateStr.length > 4) {
+                    const weekNum = parseInt(dateStr.substring(4));
+                    return `W${weekNum}`;
+                }
             } else if (timeFilter === 'monthly') {
                 return dateStr; // Already formatted as 'Jan', 'Feb', etc.
             }

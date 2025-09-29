@@ -657,6 +657,7 @@ public function getAvailableQuantities(Request $request)
     // Convert stdClass to array for consistency
     $reservationDetails = (array) $reservationDetails;
 
+    $user = auth()->user();
     $packages = Package::all();
 
     // Ensure accommodation IDs are properly handled
@@ -701,6 +702,7 @@ public function getAvailableQuantities(Request $request)
         'totalEntranceFee', 
         'totalAccomodationPrice', 
         'accomodations',
+        'user',
         'numberOfNights',
         'baseAccomodationPrice'
     ));
@@ -831,7 +833,7 @@ public function savePaymentProcess(Request $request)
         'upload_payment' => 'required|image|mimes:jpeg,png,jpg',
         'reference_num' => 'required|string|size:13',
         'balance' => 'required|numeric',
-        'downpayment' => 'required|numeric|min:0' // Downpayment is a numeric amount
+        'downpayment' => 'required|numeric|min:0'
     ]);
 
     // Get the latest reservation for the user
@@ -852,17 +854,8 @@ public function savePaymentProcess(Request $request)
         'reference_num' => $request->input('reference_num'),
         'downpayment' => $downpaymentAmount, // Store the actual amount paid
         'balance' => $balance,
-        'payment_status' => $request->input('payment_status'),
         'updated_at' => now()
     ];
-
-    // If partial payment, set reservation status to on-hold
-    if (!$isFullPayment) {
-        $data['reservation_status'] = 'on-hold';
-    } else {
-        // If full payment, set reservation status to reserved
-        $data['reservation_status'] = 'reserved';
-    }
 
     // Handle file upload for proof of payment
     if ($request->hasFile('upload_payment')) {

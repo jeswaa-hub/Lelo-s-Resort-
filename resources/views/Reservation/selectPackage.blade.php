@@ -330,11 +330,11 @@
                                         <div class="row g-1">
                                             <div class="col-md-12">
                                                 <label for="reservation_date">Check-in Date:</label>
-                                                <input type="date" id="reservation_date" class="form-control" required>
+                                                <input type="date" id="reservation_date" class="form-control" required readonly>
                                             </div>
                                             <div class="col-md-12">
                                                 <label for="check_out_date" class="form-label">Check-out Date:</label>
-                                                <input type="date" id="check_out_date" class="form-control">
+                                                <input type="date" id="check_out_date" class="form-control" readonly>
                                             </div>
                                         </div>
                                     </div>

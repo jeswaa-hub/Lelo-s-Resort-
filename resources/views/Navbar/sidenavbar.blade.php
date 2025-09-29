@@ -160,7 +160,7 @@
             </li>
 
             <li class="nav-item">
-              <a class="nav-link text-black px-5 py-2" href="{{ route('staff.logout')}}"
+              <a class="nav-link text-black px-5 py-2" href="{{ route('logout')}}"
                 data-bs-toggle="tooltip" data-bs-placement="bottom" title="Log out">
                 <i class="fas fa-sign-out-alt"></i>
               </a>

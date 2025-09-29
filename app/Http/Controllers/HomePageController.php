@@ -31,6 +31,9 @@ public function profilepage()
     ->where('user_id', $userId)
     ->orderByDesc('id')
     ->first();
+
+    $activities = [];
+    $pastReservations = [];
     // --- Fetch Accommodations Safely ---
     $accommodations = [];
     if ($latestReservation && $latestReservation->accomodation_id) {
@@ -50,25 +53,25 @@ public function profilepage()
     }
 
     // --- Fetch Activities Safely ---
-    $activityIds = json_decode($latestReservation->activity_id, true);
-    $activities = [];
+    if ($latestReservation && $latestReservation->activity_id) {
+        $activityIds = json_decode($latestReservation->activity_id, true);
 
-    if (is_array($activityIds) && count($activityIds) > 0) {
-        // Convert string IDs to integers
-        $activityIds = array_map('intval', $activityIds);
-        
-        $activities = DB::table('activitiestbl')
-            ->whereIn('id', $activityIds)
-            ->pluck('activity_name')
-            ->toArray();
-    } elseif (is_numeric($activityIds)) { // Handle single integer
-        $activities = DB::table('activitiestbl')
-            ->where('id', (int)$activityIds)
-            ->pluck('activity_name')
-            ->toArray();
+        if (is_array($activityIds) && count($activityIds) > 0) {
+            // Convert string IDs to integers
+            $activityIds = array_map('intval', $activityIds);
+            
+            $activities = DB::table('activitiestbl')
+                ->whereIn('id', $activityIds)
+                ->pluck('activity_name')
+                ->toArray();
+        } elseif (is_numeric($activityIds)) { // Handle single integer
+            $activities = DB::table('activitiestbl')
+                ->where('id', (int)$activityIds)
+                ->pluck('activity_name')
+                ->toArray();
+        }
     }
     // Fetch all past reservations except the latest one
-    $pastReservations = [];
     if ($latestReservation) {
         $pastReservations = DB::table('reservation_details')
             ->where('reservation_details.user_id', $userId)
@@ -179,7 +182,7 @@ public function profilepage()
 
         // Handle regular form response
         if ($updated) {
-            return redirect()->route('profile')->with('success', 'Profile updated successfully.');
+            return redirect()->back()->with('success', 'Profile updated successfully.');
         } else {
             return redirect()->back()->with('error', 'No changes made.');
         }

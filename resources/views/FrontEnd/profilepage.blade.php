@@ -125,7 +125,7 @@
                     </a>
 
                     <!-- Cancel Button -->
-                    @if(!in_array($latestReservation->reservation_status, ['reserved', 'checked-in', 'cancelled', 'early-checked-out']))
+                    @if($latestReservation && in_array($latestReservation->reservation_status, ['pending', 'on-hold', 'reserved']))
                         <button type="button" 
                                 class="btn btn-danger btn-sm d-flex align-items-center" 
                                 data-bs-toggle="modal" 
@@ -146,18 +146,25 @@
                     <h1 class="text-uppercase fs-6 fw-bold fs-xs-5" style="color:#8a848f;">
                         Check-In Details
                     </h1>
+                    @if($latestReservation)
+                @php
+                    $activeStatuses = ['pending', 'on-hold', 'reserved', 'checked-in'];
+                @endphp
+                @if(in_array($latestReservation->reservation_status, $activeStatuses))
                     <span class="badge text-capitalize mb-2 ms-2
-                        @if($latestReservation->reservation_status === 'checked-in')
+                        @if($latestReservation?->reservation_status === 'checked-in')
                             bg-success
-                        @elseif($latestReservation->reservation_status === 'pending' || $latestReservation->reservation_status === 'on-hold')
+                        @elseif($latestReservation?->reservation_status === 'pending' || $latestReservation?->reservation_status === 'on-hold')
                             bg-warning
-                        @elseif($latestReservation->reservation_status === 'reserved')
+                        @elseif($latestReservation?->reservation_status === 'reserved')
                             bg-primary
                         @else
                             bg-danger
                         @endif">
-                        {{ ucfirst($latestReservation->reservation_status) }}
+                        {{ ucfirst($latestReservation->reservation_status ?? 'No Reservation') }}
                     </span>
+                @endif
+                @endif
                 </div>
 
                 <!-- Right Side -->
@@ -166,6 +173,12 @@
                     <div id="date" class="" style="font-size: .8em;"></div>
                 </div>
             </div>
+            @php
+                // Re-check if the latest reservation has an active status to show details
+                $activeStatuses = ['pending', 'on-hold', 'reserved', 'checked-in'];
+                $showLatestReservation = $latestReservation && in_array($latestReservation->reservation_status, $activeStatuses);
+            @endphp
+            @if($showLatestReservation)
             <div class="bg-white d-flex flex-column flex-md-row justify-content-between align-items-center rounded shadow-sm m-2">
                 <!-- Check-in -->
                 <div class="p-3 d-flex align-items-center flex-fill justify-content-center">
@@ -173,7 +186,7 @@
                     <div class="ms-3">
                         <h1 class="fw-bold text-color-2" style="font-size: 1rem;">Check-in</h1>
                         <h1 class="fw-semibold" style="font-size: .9rem;">
-                            {{ date('j M Y', strtotime($latestReservation->reservation_check_in_date)) }}
+                            {{ $latestReservation ? date('j M Y', strtotime($latestReservation->reservation_check_in_date)) : 'N/A' }}
                         </h1>
                     </div>
                 </div>
@@ -187,13 +200,14 @@
                     <div class="ms-3">
                         <h1 class="fw-bold text-color-2" style="font-size: 1rem;">Check-out</h1>
                         <h1 class="fw-semibold" style="font-size: .9rem;">
-                            {{ date('j M Y', strtotime($latestReservation->reservation_check_out_date)) }}
+                            {{ $latestReservation ? date('j M Y', strtotime($latestReservation->reservation_check_out_date)) : 'N/A' }}
                         </h1>
                     </div>
                 </div>
             </div>
 
             <div class="mt-2">
+                @if(!empty($accommodations) || !empty($activities))
                 <h1 class="text-uppercase fs-6 fw-bold ms-2 mt-2" style="color:#8a848f;">
                     Rooms And Activities
                 </h1>
@@ -206,7 +220,7 @@
                         <h1 class="fw-bold text-color-2" style="font-size: 1rem;">@foreach($accommodations as $accommodation){{ $accommodation }}@endforeach</h1>
                         
                         <h1 class="fw-semibold" style="font-size: .9rem;">
-                            <span class="">Quantity :</span>{{ ($latestReservation->quantity?? 0 ) }}
+                            <span class="">Quantity :</span>{{ ($latestReservation?->quantity ?? 0 ) }}
                         </h1>
                     </div>
                 </div>
@@ -225,6 +239,8 @@
                     </div>
                 </div>
             </div>
+                @endif
+            @endif
 
             <div class="mt-2">
                 <h1 class="text-uppercase fs-6 fw-bold ms-2 mt-2" style="color:#8a848f;">
@@ -243,19 +259,19 @@
                     </div>
                 </div>
 
-                <!-- Divider -->
-                <div class="border-start d-none d-md-block" style="height: 50px;"></div>
+                @if(!empty($user->mobileNo))
+                    <!-- Divider -->
+                    <div class="border-start d-none d-md-block" style="height: 50px;"></div>
 
-                <!-- Check-out -->
-                <div class="p-3 d-flex align-items-center flex-fill justify-content-center">
-                    <i class="fa-solid fa-phone text-color-2 fs-3"></i>
-                    <div class="ms-3">
-                        <h1 class="fw-bold text-color-2" style="font-size: 1rem;">Contact Number</h1>
-                        <h1 class="fw-semibold" style="font-size: .9rem;">
-                            {{($user->mobileNo)}}
-                        </h1>
+                    <!-- Contact Number -->
+                    <div class="p-3 d-flex align-items-center flex-fill justify-content-center">
+                        <i class="fa-solid fa-phone text-color-2 fs-3"></i>
+                        <div class="ms-3">
+                            <h1 class="fw-bold text-color-2" style="font-size: 1rem;">Contact Number</h1>
+                            <h1 class="fw-semibold" style="font-size: .9rem;">{{ $user->mobileNo }}</h1>
+                        </div>
                     </div>
-                </div>
+                @endif
             </div>
             </div>
         </div>
@@ -368,7 +384,7 @@
                     <div>
                         <h4 class="modal-title text-white mb-1 fw-bold"
                             id="viewReservationModalLabel">
-                            Reservation Details
+                            @if($latestReservation) Reservation Details @else No Active Reservation @endif
                         </h4>
                         <p class="text-white-50 mb-0 small">Reservation ID:
                             {{ $latestReservation->reservation_id ?? 'N/A' }}</p>
@@ -390,6 +406,7 @@
                 </div>
             </div>
 
+            @if($latestReservation)
             <div class="modal-body p-0">
                 <!-- Reservation Type Badge -->
                 <div class="px-4 pt-3 pb-2">
@@ -437,9 +454,9 @@
                                         <div class="flex-grow-1">
                                             <small class="text-muted d-block">Check-in
                                                 Time</small>
-                                            <strong style="color: #0b573d;">
+                                            <strong style="color: #0b573d;"> 
                                                 {{ date('h:i A', strtotime($latestReservation->reservation_check_in)) }}
-                                                -
+                                                 - 
                                                 {{ date('h:i A', strtotime($latestReservation->reservation_check_out)) }}
                                             </strong>
                                         </div>
@@ -709,6 +726,13 @@
                     </div>
                 </div>
             </div>
+            @else
+            <div class="modal-body p-5 text-center">
+                <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No Active Reservation Found</h5>
+                <p class="text-muted">You do not have any current reservations to display.</p>
+            </div>
+            @endif
 
             <!-- Enhanced Footer -->
             <div class="modal-footer border-0 bg-light">
@@ -716,7 +740,7 @@
                     <small class="text-muted">
                         <i class="fas fa-calendar me-1"></i>
                         Created:
-                        {{ \Carbon\Carbon::parse($latestReservation->created_at)->format('M j, Y') }}
+                        {{ $latestReservation ? \Carbon\Carbon::parse($latestReservation->created_at)->format('M j, Y') : 'N/A' }}
                     </small>
                     <button type="button" class="btn btn-outline-secondary px-4"
                         data-bs-dismiss="modal">
@@ -783,7 +807,7 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
-                    @if(isset($pastReservations) && $pastReservations->count() > 0)
+                @if(isset($pastReservations) && count($pastReservations) > 0)
                         <div class="row g-4">
                             @foreach($pastReservations as $reservation)
                                 <div class="col-lg-6">
@@ -829,7 +853,7 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-4">
-                @if(isset($pastReservations) && $pastReservations->count() > 0)
+            @if(isset($pastReservations) && count($pastReservations) > 0)
                     <div class="list-group">
                         @foreach($pastReservations as $reservation)
                             @php
@@ -1016,7 +1040,7 @@
 <!-- Qr Code -->
  <script>
     // Generate QR code when modal is shown
-    document.getElementById('viewReservationModal').addEventListener('shown.bs.modal', function () {
+    document.getElementById('viewReservationModal')?.addEventListener('shown.bs.modal', function () {
         let reservationId = '{{ $latestReservation->reservation_id ?? '' }}';
         if (reservationId) {
             let qr = new QRious({

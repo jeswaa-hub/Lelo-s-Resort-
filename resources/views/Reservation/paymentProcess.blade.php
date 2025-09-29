@@ -8,6 +8,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&family=Poppins:wght@100;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <!-- Add Bootstrap JS from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
 </head>
 <style>
     .submit-button {
@@ -436,7 +438,8 @@
                         <div class="mt-3">
                             <label class="fw-bold">Sender's Number</label>
                             <input type="number" class="form-control bg-secondary-subtle border-0" name="mobileNo" id="mobileNo" 
-                                   value="{{ auth()->user() ? auth()->user()->mobileNo : '' }}" placeholder="ex: 09xxxxxxxxx" readonly>
+                                   value="{{ auth()->user() ? auth()->user()->mobileNo : '' }}" placeholder="ex: 09xxxxxxxxx" readonly
+                                   id="senderNumber">
                         </div>
                         
                         <div class="mt-3">
@@ -453,7 +456,15 @@
                         </div>
                         
                         <div class="d-grid gap-2 mt-3">
-                            <button class="submit-button" type="submit" data-bs-toggle="modal" data-bs-target="#feedbackModal">
+                            <button class="submit-button @if(empty($user->mobileNo) || empty($user->address)) opacity-50 cursor-not-allowed @endif" 
+                                    type="submit" 
+                                    @if(empty($user->mobileNo) || empty($user->address)) 
+                                        disabled 
+                                        title="Please complete your profile to submit payment."
+                                    @else
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#feedbackModal"
+                                    @endif>
                                 Submit
                                 <span class="arrow">&rsaquo;</span>
                             </button>
@@ -464,7 +475,58 @@
         </form>
     </div>
 
-    
+    <!-- Modal For the Editing the Mobile Number -->
+    <div class="modal fade" id="updateProfileModal" tabindex="-1" aria-labelledby="updateProfileModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title fw-bold" id="updateProfileModalLabel">Update Profile</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- FORM -->
+            <form action="{{ route('editProfile', $user->id) }}" method="POST">
+                @csrf
+                <div class="modal-body">
+                    <p class="text-muted">Please complete your profile details before proceeding with payment.</p>
+
+                    <div class="mb-3">
+                        <label for="name" class="form-label fw-bold">Full Name</label>
+                        <input type="text" class="form-control" id="name" name="name"
+                            value="{{ $user->name ?? '' }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label fw-bold">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" 
+                            value="{{ $user->email ?? '' }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="mobileNo" class="form-label fw-bold">Mobile Number</label>
+                        <input type="text" class="form-control" id="mobileNo" name="mobileNo"
+                            value="{{ $user->mobileNo ?? '' }}" placeholder="09xxxxxxxxx" required
+                            maxlength="11"
+                            onkeypress="return (event.charCode >= 48 && event.charCode <= 57) && event.charCode != 45;"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '').substring(0, 11);"
+                            pattern="[0-9]{11}" title="Please enter a valid 11-digit mobile number (numbers only)">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="address" class="form-label fw-bold">Address</label>
+                        <input type="text" class="form-control" id="address" name="address"
+                            value="{{ $user->address ?? '' }}" placeholder="Enter your full address" required>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success w-100 fw-bold">Save and Continue</button>
+                </div>
+            </form>
+            </div>
+        </div>
+    </div>
+
     <!-- JavaScript -->
     <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -538,6 +600,15 @@
         if(document.querySelector('input[name="downpayment"]')) {
             document.querySelector('input[name="downpayment"]').value = downpayment;
         }
+
+        // Auto-open modal if mobileNo is empty
+        const userMobile = "{{ $user->mobileNo ?? '' }}";
+        const userAddress = "{{ $user->address ?? '' }}";
+        if (!userMobile || userMobile.trim() === '' || !userAddress || userAddress.trim() === '') {
+            const updateProfileModal = new bootstrap.Modal(document.getElementById('updateProfileModal'));
+            updateProfileModal.show();
+        }
+
     });
     </script>
 </body>

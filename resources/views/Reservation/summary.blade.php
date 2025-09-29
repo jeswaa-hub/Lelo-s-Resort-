@@ -25,7 +25,7 @@
             </a>
             <h1 class="me-auto ms-3 font-paragraph fw-bold" style="color: #e9ffcc; font-size: 2.5rem;">RESERVATION SUMMARY</h1>
             <a href="#" class="d-none d-md-block">
-                <img src="{{ asset('images/logo2.png') }}" alt="Logo" style="width: 90px; height: 90px;" class="rounded-circle">
+                <img src="{{ asset('images/logo new.png') }}" alt="Logo" style="width: 90px; height: 90px;" class="rounded-circle">
             </a>
         </div>
     </div>
@@ -165,7 +165,7 @@
                         <div class="row mb-2">
                             <div class="col-4 fw-bold text-success text-break">Payment Proof:</div>
                             <div class="col-8 text-break">
-                                    <a href="{{ route('payment.proof', ['filename' => basename($reservationDetails->upload_payment)]) }}" 
+                                    <a href="{{ asset('storage/payments/' . basename($reservationDetails->upload_payment)) }}"
                                        target="_blank" 
                                        class="text-decoration-none text-success">
                                         View Proof
@@ -191,6 +191,7 @@
                         <span class="badge 
                             @if($reservationDetails->reservation_status == 'checked-in') bg-success 
                             @elseif($reservationDetails->reservation_status == 'pending') bg-warning
+                            @elseif($reservationDetails->reservation_status == 'on-hold') bg-info
                             @elseif($reservationDetails->reservation_status == 'reserved') bg-primary
                             @else bg-danger 
                             @endif text-white">
@@ -201,7 +202,7 @@
 
                     <!-- Instructions and QR Code Section -->
                     @if(isset($reservationDetails->reservation_status))
-                        @if($reservationDetails->reservation_status == 'reserved' || $reservationDetails->reservation_status == 'checked-in' || $reservationDetails->reservation_status == 'on-hold')
+                        @if($reservationDetails->reservation_status == 'reserved' || $reservationDetails->reservation_status == 'checked-in')
                             <!-- Instructions Section -->
                             <div class="mb-3">
                                 <h6 class="text-success mb-2">Instructions:</h6>
@@ -227,6 +228,12 @@
                                 <h6 class="text-warning mb-2">Awaiting Approval:</h6>
                                 <div class="alert alert-warning" style="font-size: 0.9rem;">
                                     <p class="mb-0">Your reservation is currently pending for approval. We will notify you once it has been confirmed.</p>
+                                </div>
+                            </div>
+                        @elseif($reservationDetails->reservation_status == 'on-hold')
+                            <div class="mb-3">
+                                <div class="alert alert-primary" style="font-size: 0.9rem;">
+                                    <p class="mb-2">Your reservation is currently on hold. We will notify you once it has been confirmed.</p>
                                 </div>
                             </div>
                         @endif

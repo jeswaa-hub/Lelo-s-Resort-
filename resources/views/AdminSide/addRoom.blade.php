@@ -10,64 +10,18 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <style>
-    .fancy-link {
-    text-decoration: none;
-    font-weight: 600;
-    position: relative;
-    transition: color 0.3s ease;
-}
 
-.fancy-link::after {
-    content: "";
-    position: absolute;
-    width: 0;
-    height: 2px;
-    left: 0;
-    bottom: -2px;
-    background-color: #0b573d;
-    transition: width 0.3s ease;
-}
-
-.fancy-link:hover {
-    color: #0b573d;
-}
-
-.fancy-link:hover::after {
-    width: 100%;
-}
-.fancy-link.active::after {
-    width: 100% !important;
-}
-.transition-width {
-    transition: all 0.3s ease;
-}
-#mainContent.full-width {
-    width: 100% !important;
-    flex: 0 0 100% !important;
-    max-width: 100% !important;
-}
 </style>
-<body style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76)), url('{{ asset('images/DSCF2777.JPG') }}') no-repeat center center fixed; background-size: cover;">
-    @include('Alert.loginSuccessUser')
-    @include('Alert.errornotification')
+<x-loading-screen/>
+<body style="margin: 0; padding: 0; height: 100vh; background-color: white; overflow-x: hidden;">
+     @include('Alert.loginSucess')
+
+    <!-- NAVBAR -->
+    @include('Navbar.sidenavbar')
     <div class="container-fluid min-vh-100 d-flex p-0">
         <div class="d-flex w-100" id="mainLayout" style="min-height: 100vh;">
-            @include('Navbar.sidenavbar')
             <!-- Main Content -->
             <div id="mainContent" class="flex-grow-1 py-4 px-4 transition-width" style="transition: all 0.3s ease;">
-                <!-- Header -->
-                <div class="d-flex justify-content-end align-items-center mb-2">
-                    <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="100" class="rounded-pill me-3">
-                </div>
-
-                <hr class="border-5">
-                <!-- Links -->
-                <div class="d-flex justify-content-center">
-                    <a href="{{ route('reservations') }}" class="text-color-2 text-decoration-none me-5 fancy-link " style="font-family: 'Anton', sans-serif; letter-spacing: 0.1em;"><h1 class="fs-1 text-uppercase">Reservation</h1></a>
-                    <a href="{{ route('rooms') }}" class="text-color-2 me-5 text-decoration-none fancy-link active" style="font-family: 'Anton', sans-serif; letter-spacing: 0.1em;"><h1 class="fs-1 text-uppercase">Room </h1></a>
-                    <a href="{{ route('addActivities') }}" class="text-color-2 text-decoration-none fancy-link" style="font-family: 'Anton', sans-serif; letter-spacing: 0.1em;"><h1 class="fs-1 text-uppercase">Activities</h1></a>
-                </div>
-
                 <div>
                     <!-- Cards Container -->
                     <div class="container mt-4 mb-4">

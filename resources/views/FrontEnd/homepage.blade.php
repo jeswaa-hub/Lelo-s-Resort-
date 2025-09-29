@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Lelo's Resort</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/logo new.png') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css">
     <link
@@ -54,6 +55,7 @@
 </style>
 
 <body>
+    <x-loading-screen />
     @include('Alert.loginSuccessUser')
     <div class="d-none d-md-block"
         style="position: absolute; top: 0; right: 0; width: 45%; height: 100vh; background-color: rgba(0, 0, 0, 0.5); z-index: 1; border-radius: 550px 0 0 600px;">
@@ -68,7 +70,7 @@
     </style>
     <!-- Logo -->
     <div class="position-absolute top-0 end-0 m-4 d-none d-md-block mb-5 mt-0" style="z-index: 3;">
-        <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" style="width: 150px; height: auto;">
+        <img src="{{ asset('images/logo new.png') }}" alt="Lelo's Resort Logo" style="width: 150px; height: auto;">
     </div>
     <nav class="navbar position-absolute w-100 mt-5" style="z-index: 10;">
         <div class="container d-flex justify-content-between align-items-center">
@@ -118,7 +120,7 @@
                 <div class="offcanvas-header" style="background-color: #0b573d; padding: 1.5rem;">
                     <div class="d-flex align-items-center w-100 justify-content-between">
                         <div class="d-flex align-items-center">
-                            <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" class="me-3"
+                            <img src="{{ asset('images/logo new.png') }}" alt="Lelo's Resort Logo" class="me-3"
                                 style="width: 60px; height: auto;">
                             <h5 class="offcanvas-title text-white mb-0" id="sideNavbarLabel"
                                 style="font-size: 1.5rem; font-weight: 700;">
@@ -539,7 +541,7 @@
             <div class="row align-items-center">
                 <!-- Left: Logo -->
                 <div class="col-md-4 mb-2 text-md-start text-center">
-                    <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" class="img-fluid"
+                    <img src="{{ asset('images/logo new.png') }}" alt="Lelo's Resort Logo" class="img-fluid"
                         style="max-width: 110px;">
                 </div>
                 <!-- Center: Contact Info -->

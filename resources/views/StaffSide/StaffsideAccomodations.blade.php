@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rooms</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/logo new.png') }}">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Anton&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -14,16 +15,6 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <style>
-    h1, h2, h3, h4, h5, h6 {
-        font-family: 'Poppins', sans-serif;
-        font-weight: 700;
-    }
-
-    p {
-        font-family: 'Open Sans', sans-serif;
-        font-weight: 400;
-    }
-
     .availability-table {
         margin-top: 20px;
         border-radius: 8px;
@@ -40,13 +31,56 @@
     .availability-table .text-danger {
         font-weight: bold;
     }
+    .controls-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .left-controls, .right-controls {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+     #availabilityModal .modal-content {
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    #availabilityModal .modal-body table {
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    #availabilityModal .modal-body table thead {
+        background: linear-gradient(135deg, #0b573d, #198754);
+        color: #fff;
+    }
+
+    #availabilityModal .modal-body table tbody tr:hover {
+        background-color: rgba(11, 87, 61, 0.05);
+        transition: 0.3s ease;
+    }
+
+    #availabilityModal h4 {
+        font-weight: 600;
+        color: #0b573d;
+        margin-bottom: 1rem;
+    }
+    body {
+        overflow-x: hidden !important;
+    }
 </style>
 <body style="margin: 0; padding: 0; height: 100vh; background-color: white; overflow-x: hidden;">
     @include('Alert.loginSucess')
         <!-- NAVBAR -->
         @include('Navbar.sidenavbarStaff')
 
-        <div class="row">
+         <div class="row">
         <div class="col-11 mx-auto">
             <div class="hero-banner d-flex flex-column justify-content-center text-white p-3 p-sm-4 p-md-5"
              style="background-image:url('{{ asset('images/staff-admin-bg.jpg') }}'); 
@@ -64,7 +98,7 @@
                             </p>
                             <h1 class="text-capitalize fw-bolder" 
                                 style="font-family: 'Montserrat', sans-serif; font-size: clamp(3rem, 8vw, 5rem); color:#ffffff; letter-spacing: clamp(5px, 2vw, 15px); white-space: normal; overflow-wrap: break-word; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
-                                STAFF002
+                                {{$staffCredentials->username}}
                             </h1>
                         </div>
                         
@@ -143,357 +177,166 @@
             </div>
         </div>
 
-<div class="container mt-3">
-    <div class="col-13 mx-auto shadow-lg p-3 p-md-4 rounded" style="background: linear-gradient(to top, rgb(211, 209, 209), #ffffff);">
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3">
-            <div class="d-flex flex-column gap-3">
-                <h2 class="fw-bold mb-3 mb-md-0 border-bottom pb-2" style="font-size: clamp(1.5rem, 4vw, 2.5rem); color: #0b573d;">ROOM OVERVIEW</h2>
-                
-<div class="filter-controls">
-    <!-- Desktop/Tablet View -->
-    <div class="d-none d-md-flex justify-content-end align-items-center gap-3">
-        <select class="form-select" style="width: 150px;" id="roomFilter">
-            <option value="all" selected>All Rooms</option>
-            @php
-                $types = $accomodations->pluck('accomodation_type')->unique();
-            @endphp
-            @foreach($types as $type)
-                <option value="{{ $type }}">{{ ucfirst($type) }}s</option>
-            @endforeach
-        </select>
 
-        <select name="filter" class="form-select" style="width: 150px;" id="filterSelect">
-            <option value="overview" {{ $filter === 'overview' ? 'selected' : '' }}>Overview</option>
-            <option value="daily" {{ $filter === 'daily' ? 'selected' : '' }}>Daily</option>
-            <option value="weekly" {{ $filter === 'weekly' ? 'selected' : '' }}>Weekly</option>
-            <option value="monthly" {{ $filter === 'monthly' ? 'selected' : '' }}>Monthly</option>
-        </select>
+<div class="container-fluid mt-4 shadow-lg p-4 bg-white rounded" style="max-width: 91.67%; margin: 0 auto;">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="d-flex flex-column gap-3 w-100">
+                    <h2 class="fw-bold text-success mb-0 border-bottom" style="font-size: 2.5rem;">ROOM OVERVIEW</h2>
+                    
+                    <!-- Fixed Controls Container -->
+                    <div class="controls-container">
+                        <!-- Left Controls: View Active Reservations Button -->
+                        <div class="left-controls">
+                            <button type="button" class="btn text-white" style="background-color: #0b573d;" data-bs-toggle="modal" data-bs-target="#activeReservationsModal">
+                                <i class="fas fa-list me-2"></i>View Active Reservations
+                            </button>
+                        </div>
+                        
+                        <!-- Right Controls: Filters and Apply Button -->
+                        <div class="right-controls">
+                            <select class="form-select" style="width: 150px;" id="roomFilter" name="accomodation_type" onchange="this.form.submit()">
+                                <option value="all" {{ ($accomodation_type ?? 'all') === 'all' ? 'selected' : '' }}>All Rooms</option>
+                                @foreach($accommodationTypes as $type)
+                                    <option value="{{ $type }}" {{ ($accomodation_type ?? '') === $type ? 'selected' : '' }}>{{ ucfirst($type) }}</option>
+                                @endforeach
+                            </select>
+                    
+                            <select name="filter" class="form-select" style="width: 150px;" id="filterSelect">
+                                <option value="daily" selected>Daily</option>
+                            </select>
 
-        <input type="date" 
-               name="date" 
-               class="form-control mt-3" 
-               id="dateInput" 
-               style="width: 150px;"
-               value="{{ $date }}" 
-               {{ $filter === 'overview' ? 'disabled' : '' }}>
+                            <input type="date" name="date" class="form-control mt-3" id="dateInput" style="width: 150px;" value="{{ now()->format('Y-m-d') }}">
 
-        <button type="button" 
-                class="btn text-white" 
-                style="background-color: #0b573d; width: 150px;" 
-                id="applyFilterBtn">
-            Apply
-        </button>
-    </div>
-
-    <!-- Mobile View -->
-    <div class="d-md-none">
-        <div class="accordion" id="filterAccordion">
-            <div class="accordion-item">
-                <h2 class="accordion-header">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false">
-                        <i class="fas fa-filter me-2"></i> Filter Options
-                    </button>
-                </h2>
-                <div id="filterCollapse" class="accordion-collapse collapse" data-bs-parent="#filterAccordion">
-                    <div class="accordion-body">
-                        <div class="d-flex flex-column gap-3">
-                            <div class="form-group">
-                                <label class="form-label">Room Type</label>
-                                <select class="form-select" id="roomFilterMobile">
-                                    <option value="all" selected>All Rooms</option>
-                                    @foreach($types as $type)
-                                        <option value="{{ $type }}">{{ ucfirst($type) }}s</option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label">View Type</label>
-                                <select name="filter" class="form-select" id="filterSelectMobile">
-                                    <option value="overview" {{ $filter === 'overview' ? 'selected' : '' }}>Overview</option>
-                                    <option value="daily" {{ $filter === 'daily' ? 'selected' : '' }}>Daily</option>
-                                    <option value="weekly" {{ $filter === 'weekly' ? 'selected' : '' }}>Weekly</option>
-                                    <option value="monthly" {{ $filter === 'monthly' ? 'selected' : '' }}>Monthly</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label">Select Date</label>
-                                <input type="date" 
-                                       name="date" 
-                                       class="form-control" 
-                                       id="dateInputMobile"
-                                       value="{{ $date }}" 
-                                       {{ $filter === 'overview' ? 'disabled' : '' }}>
-                            </div>
-
-                            <button type="button" 
-                                    class="btn text-white w-100" 
-                                    style="background-color: #0b573d;" 
-                                    id="applyFilterBtnMobile"
-                                    onclick="$('#filterCollapse').collapse('hide')">
-                                <i class="fas fa-check me-2"></i>Apply Filters
+                            <button type="button" class="btn text-white" style="background-color: #0b573d; width: 150px; height: 38px;" id="applyFilterBtn">
+                                Apply
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
-</div>
-</div>
 
-        <!-- Mobile Cards View -->
-        <div class="d-md-none mt-4">
-            @foreach ($accomodations as $accomodation)
-            <div class="card mb-3 shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <h5 class="card-title mb-0">{{ $accomodation->accomodation_name }}</h5>
-                        <span class="badge rounded-pill {{ $accomodation->accomodation_status == 'available' ? 'bg-success' : ($accomodation->accomodation_status == 'maintenance' ? 'bg-warning' : 'bg-danger') }}">
-                            {{ ucfirst($accomodation->accomodation_status) }}
-                        </span>
+        <!-- Availability Modal -->
+        <div class="modal fade" id="availabilityModal" tabindex="-1" aria-labelledby="availabilityModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content shadow-lg border-0 rounded-4">
+                    <div class="modal-header border-0" style="background: linear-gradient(135deg, #0b573d, #198754);">
+                        <h5 class="modal-title text-white fw-bold d-flex align-items-center" id="availabilityModalLabel">
+                            <i class="fas fa-calendar-check me-2"></i> Room Availability
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    
-                    <div class="row">
-                        <div class="col-6">
-                            <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" 
-                                 alt="Room Image" 
-                                 class="img-fluid rounded"
-                                 style="width: 100%; height: 120px; object-fit: cover;">
+                    <div class="modal-body p-4">
+                        <div id="availabilityResults" class="rounded-3 p-3 bg-light border border-success-subtle shadow-sm">
+                            <!-- Results will load here -->
                         </div>
-                        <div class="col-6">
-                            <div class="mb-2">
-                                <small class="text-muted">Room ID:</small>
-                                <div class="fw-semibold">{{ $accomodation->room_id}}</div>
-                            </div>
-                            <div class="mb-2">
-                                <small class="text-muted">Type:</small>
-                                <div class="fw-semibold text-capitalize">{{ $accomodation->accomodation_type }}</div>
-                            </div>
-                            <div class="mb-2">
-                                <small class="text-muted">Price:</small>
-                                <div class="fw-semibold">₱{{ number_format($accomodation->accomodation_price, 2) }}</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="mt-3">
-                        <small class="text-muted">Description:</small>
-                        <p class="mb-2">{{ Str::limit($accomodation->accomodation_description, 80) }}</p>
-                    </div>
-                    
-                    <div class="row mt-2">
-                        <div class="col-6">
-                            <small class="text-muted">Quantity:</small>
-                            <div class="fw-semibold">{{ $accomodation->quantity }}</div>
-                        </div>
-                        <div class="col-6">
-                            <small class="text-muted">Capacity:</small>
-                            <div class="fw-semibold">{{ $accomodation->accomodation_capacity }}</div>
-                        </div>
-                    </div>
-                    
-                    <div class="d-flex justify-content-end mt-3">
-                        <button class="btn btn-warning btn-sm text-white" 
-                                data-bs-toggle="modal" 
-                                data-bs-target="#editRoomModal{{ $accomodation->accomodation_id }}">
-                            <i class="fa-solid fa-pen-to-square me-1"></i> Edit
-                        </button>
                     </div>
                 </div>
             </div>
-            @endforeach
         </div>
 
-        <!-- Desktop Table View -->
-        <div class="d-none d-md-block mt-4">
-            <div class="table-responsive">
-                <table class="table table-hover m-0">
-                    <thead class="table-dark">
-                        <tr>
-                            <th scope="col" class="text-center">Room ID</th>
-                            <th scope="col" class="text-center">Room Image</th>
-                            <th scope="col">Room Name</th>
-                            <th scope="col">Room Description</th>
-                            <th scope="col">Room Type</th>
-                            <th scope="col">Room Qty</th>
-                            <th scope="col" class="text-center">Price</th>
-                            <th scope="col" class="text-center">Capacity</th>
-                            <th scope="col" class="text-center">Availability</th>
-                            <th scope="col" class="text-center">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($accomodations as $accomodation)
+        <div class="container-fluid">
+            <div class="card shadow-sm border-0 rounded-4 mb-4 mt-4 p-2">
+                <div class="card-body" style="overflow-x: auto;">
+                    <table class="table table-hover table-striped table-responsive table-sm">
+                        <thead style="background-color: #0b573d; color: white;">
                             <tr>
-                                <td class="text-center align-middle">{{ $accomodation->room_id}}</td>
-                                <td class="text-center">
-                                    <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" 
-                                        alt="Room Image" 
-                                        class="img-thumbnail rounded"
-                                        style="width: 80px; height: 80px; object-fit: cover;">
-                                </td>
-                                <td class="align-middle">{{ $accomodation->accomodation_name }}</td>
-                                <td class="align-middle">{{ Str::limit($accomodation->accomodation_description, 50) }}</td>
-                                <td class="align-middle text-capitalize">{{ $accomodation->accomodation_type }}</td>
-                                <td class="align-middle">{{ $accomodation->quantity }}</td>
-                                <td class="text-center align-middle">₱{{ number_format($accomodation->accomodation_price, 2) }}</td>
-                                <td class="text-center align-middle">{{ $accomodation->accomodation_capacity }}</td>
-                                <td class="text-center align-middle">
-                                    <span class="badge rounded-pill {{ $accomodation->accomodation_status == 'available' ? 'bg-success' : ($accomodation->accomodation_status == 'maintenance' ? 'bg-warning' : 'bg-danger') }}">
-                                        {{ ucfirst($accomodation->accomodation_status) }}
-                                    </span>
-                                </td>
-                                <td class="text-center align-middle">
-                                    <button class="btn btn-warning btn-sm text-white" 
-                                            data-bs-toggle="modal" 
-                                            data-bs-target="#editRoomModal{{ $accomodation->accomodation_id }}">
-                                        <i class="fa-solid fa-pen-to-square"></i>
-                                    </button>
-                                </td>
+                                <th scope="col" class="text-center">Room ID</th>
+                                <th scope="col" class="text-center">Room Image</th>
+                                <th scope="col">Room Name</th>
+                                <th scope="col">Room Description</th>
+                                <th scope="col">Room Type</th>
+                                <th scope="col">Room Qty</th>
+                                <th scope="col" class="text-center">Price</th>
+                                <th scope="col" class="text-center">Capacity</th>
+                                <th scope="col" class="text-center">Availability</th>
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-                <div class="mt-3 d-flex justify-content-between align-items-center">
-        <div class="text-muted">
-            @if($accomodations->total() > 0)
-                Showing {{ $accomodations->firstItem() }} to {{ $accomodations->lastItem() }} of {{ $accomodations->total() }} results
-            @else
-                No results found
-            @endif
-        </div>
-        <div class="d-flex gap-3">
-            <button type="button" class="btn text-white" style="background-color: #0b573d;" data-bs-toggle="modal" data-bs-target="#activeReservationsModal">
-                <i class="fas fa-list me-2"></i>View Active Reservations
-            </button>
-            
-            @if ($accomodations->hasPages())
-                <nav>
-                    <ul class="pagination mb-0">
-                        {{-- Previous Page Link --}}
-                        @if ($accomodations->onFirstPage())
-                            <li class="page-item disabled">
-                                <span class="page-link"><i class="fas fa-chevron-left"></i></span>
-                            </li>
-                        @else
-                            <li class="page-item">
-                                <a class="page-link" href="{{ $accomodations->previousPageUrl() }}" rel="prev"><i class="fas fa-chevron-left"></i></a>
-                            </li>
-                        @endif
-
-                        {{-- Pagination Elements --}}
-                        @foreach ($accomodations->getUrlRange(1, $accomodations->lastPage()) as $page => $url)
-                            <li class="page-item {{ $page == $accomodations->currentPage() ? 'active' : '' }}">
-                                <a class="page-link" href="{{ $url }}">{{ $page }}</a>
-                            </li>
-                        @endforeach
-
-                        {{-- Next Page Link --}}
-                        @if ($accomodations->hasMorePages())
-                            <li class="page-item">
-                                <a class="page-link" href="{{ $accomodations->nextPageUrl() }}" rel="next"><i class="fas fa-chevron-right"></i></a>
-                            </li>
-                        @else
-                            <li class="page-item disabled">
-                                <span class="page-link"><i class="fas fa-chevron-right"></i></span>
-                            </li>
-                        @endif
-                    </ul>
-                </nav>
-            @endif
-        </div>
-    </div>
-</div>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-
-<!-- Availability Modal -->
-<div class="modal fade" id="availabilityModal" tabindex="-1" aria-labelledby="availabilityModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header" style="background-color: #0b573d;">
-                <h5 class="modal-title text-white" id="availabilityModalLabel">
-                    <i class="fas fa-calendar-check me-2"></i>Room Availability
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div id="availabilityResults">
-                    <!-- Results will be loaded here via AJAX -->
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
-
+                        </thead>
+                        <tbody>
+                            @foreach ($accomodations as $accomodation)
+                                <tr>
+                                    <td class="text-center align-middle">{{ $accomodation->room_id}}</td>
+                                    <td class="text-center">
+                                        <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}" 
+                                            alt="Room Image" 
+                                            class="img-thumbnail rounded"
+                                            style="width: 80px; height: 80px; object-fit: cover;">
+                                    </td>
+                                    <td class="align-middle">{{ $accomodation->accomodation_name }}</td>
+                                    <td class="align-middle">{{ Str::limit($accomodation->accomodation_description, 50) }}</td>
+                                    <td class="align-middle text-capitalize">{{ $accomodation->accomodation_type }}</td>
+                                    <td class="align-middle">{{ $accomodation->quantity }}</td>
+                                    <td class="text-center align-middle">₱{{ number_format($accomodation->accomodation_price, 2) }}</td>
+                                    <td class="text-center align-middle">{{ $accomodation->accomodation_capacity }}</td>
+                                    <td class="text-center align-middle">
+                                        <span class="badge rounded-pill {{ $accomodation->accomodation_status == 'available' ? 'bg-success' : ($accomodation->accomodation_status == 'maintenance' ? 'bg-warning' : 'bg-danger') }}">
+                                            {{ ucfirst($accomodation->accomodation_status) }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    <div class="mt-3">
                         <!-- Active Reservations Modal -->
-            <div class="modal fade" id="activeReservationsModal" tabindex="-1" aria-labelledby="activeReservationsModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-lg modal-dialog-scrollable">
-                    <div class="modal-content">
-                        <div class="modal-header" style="background-color: #0b573d;">
-                            <h5 class="modal-title text-white" id="activeReservationsModalLabel">
-                                <i class="fas fa-calendar-check me-2"></i>Active Reservations
-                            </h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            @if(isset($activeReservations) && $activeReservations->count() > 0)
-                                @foreach($activeReservations as $reservation)
-                                <div class="card shadow-sm mb-3">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between align-items-start">
-                                            <div>
-                                                <h3 class="h5 mb-1">{{ $reservation->name }}</h3>
-                                                <p class="text-muted mb-0">
-                                                    <span class="fw-medium">{{ $reservation->reserved_quantity }}</span> of 
-                                                    <span class="fw-medium">{{ $reservation->total_quantity }}</span> rooms occupied
-                                                </p>
+                        <div class="modal fade" id="activeReservationsModal" tabindex="-1" aria-labelledby="activeReservationsModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                                <div class="modal-content">
+                                    <div class="modal-header" style="background-color: #0b573d;">
+                                        <h5 class="modal-title text-white" id="activeReservationsModalLabel">
+                                            <i class="fas fa-calendar-check me-2"></i>Active Reservations
+                                        </h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        @if(isset($activeReservations) && $activeReservations->count() > 0)
+                                            @foreach($activeReservations as $reservation)
+                                            <div class="card shadow-sm mb-3">
+                                                <div class="card-body">
+                                                    <div class="d-flex justify-content-between align-items-start">
+                                                        <div>
+                                                            <h3 class="h5 mb-1">{{ $reservation->name }}</h3>
+                                                            <p class="text-muted mb-0">
+                                                                <span class="fw-medium">{{ $reservation->reserved_quantity }}</span> of 
+                                                                <span class="fw-medium">{{ $reservation->total_quantity }}</span> rooms occupied
+                                                            </p>
+                                                        </div>
+                                                        <span class="badge {{ $reservation->status == 'checked-in' ? 'bg-success' : 'bg-warning' }}">
+                                                            {{ ucfirst($reservation->status) }}
+                                                        </span>
+                                                    </div>
+                                                    
+                                                    <hr>
+                                                    
+                                                    <div class="d-flex align-items-center text-muted mb-2">
+                                                        <i class="far fa-calendar-alt me-2"></i>
+                                                        Check-out: {{ \Carbon\Carbon::parse($reservation->next_available_time)->format('M j, Y H:i') }}
+                                                    </div>
+                                                    
+                                                    <div class="d-flex align-items-center">
+                                                        <i class="far fa-clock me-2"></i>
+                                                        <div class="countdown-timer" data-checkout="{{ $reservation->next_available_time }}" id="countdown-{{ $loop->index }}">
+                                                            <span class="countdown-display text-primary fw-medium">Calculating time remaining...</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <span class="badge {{ $reservation->status == 'checked-in' ? 'bg-success' : 'bg-warning' }}">
-                                                {{ ucfirst($reservation->status) }}
-                                            </span>
-                                        </div>
-                                        
-                                        <hr>
-                                        
-                                        <div class="d-flex align-items-center text-muted mb-2">
-                                            <i class="far fa-calendar-alt me-2"></i>
-                                            Check-out: {{ \Carbon\Carbon::parse($reservation->next_available_time)->format('M j, Y H:i') }}
-                                        </div>
-                                        
-                                        <div class="d-flex align-items-center">
-                                            <i class="far fa-clock me-2"></i>
-                                            <div class="countdown-timer" data-checkout="{{ $reservation->next_available_time }}" id="countdown-{{ $loop->index }}">
-                                                <span class="countdown-display text-primary fw-medium">Calculating time remaining...</span>
+                                            @endforeach
+                                        @else
+                                            <div class="text-center py-5">
+                                                <i class="far fa-calendar-times fa-3x text-muted mb-3"></i>
+                                                <h3 class="h5">No active reservations</h3>
+                                                <p class="text-muted mb-0">There are currently no reservations with 'reserved' or 'checked-in' status.</p>
                                             </div>
-                                        </div>
+                                        @endif
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                     </div>
                                 </div>
-                                @endforeach
-                            @else
-                                <div class="text-center py-5">
-                                    <i class="far fa-calendar-times fa-3x text-muted mb-3"></i>
-                                    <h3 class="h5">No active reservations</h3>
-                                    <p class="text-muted mb-0">There are currently no reservations with 'reserved' or 'checked-in' status.</p>
-                                </div>
-                            @endif
+                            </div>
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                    
 
             <script>
             document.addEventListener('DOMContentLoaded', function() {
@@ -542,6 +385,52 @@
             </div>
         </div>
 
+         <!-- Pagination Section -->
+         <div class="d-flex justify-content-between align-items-center mt-4">
+                            <div class="text-muted">
+                                @if($accomodations->total() > 0)
+                                    Showing {{ $accomodations->firstItem() }} to {{ $accomodations->lastItem() }} of {{ $accomodations->total() }} results
+                                @else
+                                    No results found
+                                @endif
+                            </div>
+                            <div>
+                                @if ($accomodations->hasPages())
+                                    <nav>
+                                        <ul class="pagination mb-0">
+                                            {{-- Previous Page Link --}}
+                                            @if ($accomodations->onFirstPage())
+                                                <li class="page-item disabled">
+                                                    <span class="page-link"><i class="fas fa-chevron-left"></i></span>
+                                                </li>
+                                            @else
+                                                <li class="page-item">
+                                                    <a class="page-link" href="{{ $accomodations->previousPageUrl() }}" rel="prev"><i class="fas fa-chevron-left"></i>  </a>
+                                                </li>
+                                            @endif
+
+                                            {{-- Pagination Elements --}}
+                                            @foreach ($accomodations->getUrlRange(1, $accomodations->lastPage()) as $page => $url)
+                                                <li class="page-item {{ $page == $accomodations->currentPage() ? 'active' : '' }}">
+                                                    <a class="page-link" href="{{ $url }}">{{ $page }}</a>
+                                                </li>
+                                            @endforeach
+
+                                            {{-- Next Page Link --}}
+                                            @if ($accomodations->hasMorePages())
+                                                <li class="page-item">
+                                                    <a class="page-link" href="{{ $accomodations->nextPageUrl() }}" rel="next"><i class="fas fa-chevron-right"></i></a>
+                                                </li>
+                                            @else
+                                                <li class="page-item disabled">
+                                                    <span class="page-link"><i class="fas fa-chevron-right"></i></span>
+                                                </li>
+                                            @endif
+                                        </ul>
+                                    </nav>
+                                @endif
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

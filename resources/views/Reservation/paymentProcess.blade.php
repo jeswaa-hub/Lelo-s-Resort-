@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Payment</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/logo new.png') }}">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&family=Poppins:wght@100;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -200,6 +201,7 @@
 </style>
 
 <body class="bg-light font-paragraph">
+    <x-loading-screen />
     <div class="container mt-5 px-3">
         <div class="d-flex justify-content-between align-items-center">
             <h1 class="text-center fw-bold" style="color: #e9ffcc; font-size: 2.5rem; margin: 0 auto;">RESERVATION PAYMENT</h1>

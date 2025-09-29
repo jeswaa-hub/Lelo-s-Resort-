@@ -98,7 +98,7 @@ Route::middleware(['auth', 'prevent.back'])->group(function () {
     Route::get('/homepage', [LandingPageController::class, 'homepage'])->name('homepage');
     Route::get('/profile', [HomePageController::class, 'profilepage'])->name('profile');
     Route::get('/profile/edit', [HomePageController::class, 'editProfile'])->name('editProfile');
-    Route::post('/edit-profile', [HomePageController::class, 'editProfile'])->name('profile.update');
+    Route::post('/profile/edit', [HomePageController::class, 'updateProfile'])->name('profile.update');
     Route::post('/reservation/cancel/{id}', [ReservationController::class, 'guestcancelReservation'])->name('guestcancelReservation');
     Route::get('/reservation-summary/{id}', [ReservationController::class, 'displayReservationSummary'])->name('displaySummary');
     Route::get('/get-all-reservations', [HomePageController::class, 'getAllReservations'])->name('getAllReservations');
@@ -169,6 +169,7 @@ Route::middleware(['IsStaff' , 'prevent.back'])->group(function () {
     Route::post('/staff/extend-reservation/{id}', [StaffController::class, 'extendReservation'])->name('staff.extendReservation');
     Route::get('/staff/auto-cancellation', [StaffController::class, 'AutoCancellation'])->name('staff.autoCancellation');
     Route::get('/staff/accomodations', [StaffController::class, 'accomodations'])->name('staff.accomodations');
+    Route::get('/staff/accomodations/availability', [StaffController::class, 'getAvailability'])->name('staff.accomodations.availability');
     Route::get('/staff/walk-in-guest', [StaffController::class, 'walkIn'])->name('staff.walkIn');
     Route::get('/staff/walk-in-guest/add', [StaffController::class, 'walkInAdd'])->name('staff.walkin.create');
     Route::post('/staff/walk-in-guest/add', [StaffController::class, 'storeWalkInGuest'])->name('staff.walkin.store');
@@ -185,9 +186,9 @@ Route::middleware(['IsStaff' , 'prevent.back'])->group(function () {
     Route::get('/staff/damage-report', [StaffController::class, 'damageReport'])->name('staff.damageReport');
     Route::post('/staff/damage-report', [StaffController::class, 'storeDamageReport'])->name('staff.storeDamageReport');
     Route::post('/staff/damage-report/edit/{id}', [StaffController::class, 'editDamageReport'])->name('staff.editDamageReport');
+    Route::post('/staff/damage-report/delete/{id}', [StaffController::class, 'deleteDamageReport'])->name('staff.deleteDamageReport');
     Route::get('/staff/guests', [StaffController::class, 'guests'])->name('staff.guests');
     Route::get('/staff/logout', [StaffController::class, 'logout'])->name('staff.logout');
 });
-
 
 

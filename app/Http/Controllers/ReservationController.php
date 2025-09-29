@@ -848,17 +848,11 @@ public function savePaymentProcess(Request $request)
     $downpaymentAmount = str_replace(['₱', ' ', ','], '', $request->input('downpayment'));
     $balance = str_replace(['₱', ' ', ','], '', $request->input('balance'));
     
-    // Determine if it's full payment or partial downpayment
-    $isFullPayment = ($downpaymentAmount >= $reservation->amount);
-    
-    // Set payment status based on payment amount
-    $paymentStatus = $isFullPayment ? 'paid' : 'partial';
-
     $data = [
         'reference_num' => $request->input('reference_num'),
         'downpayment' => $downpaymentAmount, // Store the actual amount paid
         'balance' => $balance,
-        'payment_status' => $paymentStatus,
+        'payment_status' => $request->input('payment_status'),
         'updated_at' => now()
     ];
 
@@ -895,11 +889,11 @@ public function savePaymentProcess(Request $request)
     // Determine success message based on reservation status
     $successMessage = '';
     if ($updatedReservation->reservation_status === 'on-hold') {
-        $successMessage = 'Downpayment of ₱' . number_format($downpaymentAmount, 2) . ' submitted successfully. Reservation #' . $updatedReservation->reservation_id . ' is on hold. Please pay the remaining balance to complete your reservation.';
+        $successMessage = 'Payment submitted successfully. Reservation #' . $updatedReservation->reservation_id . ' is on hold. Please wait for confirmation.';
     } else if ($updatedReservation->reservation_status === 'reserved') {
-        $successMessage = 'Full payment of ₱' . number_format($downpaymentAmount, 2) . ' submitted successfully. Reservation #' . $updatedReservation->reservation_id . ' is now confirmed!';
+        $successMessage = 'Payment submitted successfully. Reservation #' . $updatedReservation->reservation_id . ' reserved. Your reservation is confirmed.';
     } else {
-        $successMessage = 'Payment of ₱' . number_format($downpaymentAmount, 2) . ' submitted successfully for Reservation #' . $updatedReservation->reservation_id . '.';
+        $successMessage = 'Payment submitted successfully. Reservation #' . $updatedReservation->reservation_id . ' reserved. Your reservation is confirmed.';
     }
 
     return redirect()->route('summary')->with('success', $successMessage);

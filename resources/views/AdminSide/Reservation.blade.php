@@ -111,67 +111,163 @@
     flex: 0 0 100% !important;
     max-width: 100% !important;
 }
+
+.pagination .page-link {
+    border-radius: 50% !important;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 3px;
+    border: 2px solid #0b573d;
+    color: #0b573d;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.pagination .page-link:hover {
+    background-color: #0b573d;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #0b573d;
+    border-color: #0b573d;
+    color: white;
+}
+
+.pagination .page-item.disabled .page-link {
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+    color: #6c757d;
+}
+@media (max-width: 350px) {
+    /* Greeting and Username */
+    .hero-banner p {
+        font-size: 0.9rem !important;
+    }
+    .hero-banner h1 {
+        font-size: 1.8rem !important;
+    }
+
+    /* Force scroll on small devices */
+    .reservation-table {
+        min-width: 650px !important;
+        font-size: 0.75rem;
+    }
+
+    .calendar-table {
+        min-width: 500px !important;
+    }
+
+    /* Hide time/date */
+    #live-time, #live-date {
+        display: none !important;
+    }
+}
+
+
 </style>
-<body style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76)), url('{{ asset('images/DSCF2777.JPG') }}') no-repeat center center fixed; background-size: cover;">
-    
-    <div class="container-fluid min-vh-100 d-flex p-0">
-        <div class="d-flex w-100" id="mainLayout" style="min-height: 100vh;">
-            @include('Navbar.sidenavbar')
+<x-loading-screen/>
+<body style="margin: 0; padding: 0; height: 100vh; background-color: white; overflow-x: hidden;">
+     @include('Alert.loginSucess')
 
-            <!-- Main Content -->
-            <div id="mainContent" class="flex-grow-1 py-4 px-4 transition-width" style="transition: all 0.3s ease;">
-                <!-- Header -->
-                <div class="d-flex justify-content-end mb-2">
-                    <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" width="100" class="rounded-pill me-3">
-                </div>
+    <!-- NAVBAR -->
+    @include('Navbar.sidenavbar')
+    <div id="mainContent" class="flex-grow-1 pt-4 px-4">
+        <div class="row">
+            <div class="col-12 col-lg-11 mx-auto mt-4">
+                <div  class="hero-banner d-flex align-items-center"
+                        style="background-image: url('{{ asset('images/staff-admin-bg.jpg') }}'); 
+                        background-size: cover; 
+                        background-position: center; 
+                        min-height: 450px; 
+                        border-radius: 15px; 
+                        padding: 40px;">
+                    
+                    <div class="container-fluid">
+                        <div class="row g-4">
+                            <div class="col-12 col-lg-7 d-flex flex-column">
+                                <!-- Greeting -->
+                                <p class="text-white mb-1"
+                                    style="font-family: 'Poppins', sans-serif; font-size: clamp(1.3rem, 3.5vw, 2.2rem); letter-spacing: 2px;">
+                                    Hello,
+                                </p>
+                                <h1 class="fw-bolder mb-4 text-white text-capitalize"
+                                    style="font-family: 'Montserrat', sans-serif; font-size: clamp(3.5rem, 9vw, 6.2rem); font-weight: 900;">
+                                    {{ $adminCredentials->username }}
+                                </h1>
+                            </div>
 
-                <hr class="border-5">
-
-                <!-- Links -->
-                <div class="d-flex justify-content-center">
-                    <a href="{{ route('reservations') }}" class="text-color-2 text-decoration-none me-5 fancy-link active" style="font-family: 'Anton', sans-serif; letter-spacing: 0.1em;"><h1 class="fs-1 text-uppercase">Reservation</h1></a>
-                    <a href="{{ route('rooms') }}" class="text-color-2 me-5 text-decoration-none fancy-link" style="font-family: 'Anton', sans-serif; letter-spacing: 0.1em;"><h1 class="fs-1 text-uppercase">Room</h1></a>
-                    <a href="{{ route('addActivities') }}" class="text-color-2 text-decoration-none fancy-link" style="font-family: 'Anton', sans-serif; letter-spacing: 0.1em;"><h1 class="fs-1 text-uppercase">Activities</h1></a>
-                </div>
-
-                <div class="mt-5">
-                    <h1 class="text-color-2" style="font-family: 'Anton', sans-serif;"> Calendar</h1>
-                    <div id="calendar-container" class="shadow-lg rounded-4 p-3 bg-white floating-effect">
-                        <div id="calendar" class="mb-5"></div>
+                            <!-- Date & Time (hidden on smaller screens) -->
+                            <div class="col-12 col-lg-5 d-flex justify-content-lg-end align-items-center d-none d-lg-flex">
+                                <div class="text-white text-lg-end">
+                                    <h2 id="live-time" class="fw-bolder"
+                                        style="font-family: 'Montserrat', sans-serif; font-size: 3.2rem;"></h2>
+                                    <p id="live-date" style="font-family: 'Poppins', sans-serif; font-size: 1.3rem;"></p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+                </div>
+            </div>
+            <div class="container-fluid min-vh-100 d-flex p-0" style="margin-top: -150px;">
+    <div class="d-flex w-100 mx-auto" id="mainLayout" style="min-height: 100vh; max-width: 90%;">
+        <div class="flex-grow-1 py-4 px-3 px-md-4 transition-width" style="transition: all 0.3s ease;">
+            
+            <!-- Records -->
+            <div class="card shadow-lg rounded-4 border-0 p-3 p-md-4">
+                <div class="d-flex justify-content-between align-items-center mt-3 mb-3 flex-wrap">
+                    <!-- Title -->
+                    <h1 class="text-color-2 mb-2 mb-md-0" style="font-family: 'Anton', sans-serif;">
+                        Guest Reservation Records
+                    </h1>
 
-                    <h1 class="text-color-2 mt-5" style="font-family: 'Anton', sans-serif;">Guest Reservation Records</h1>
                     <!-- Search Function -->
-                    <form class="d-flex justify-content-center align-items-center w-100 mb-3 mt-1" role="search" id="filterForm">
+                    <form class="d-flex justify-content-center align-items-center mt-2 mt-md-0 w-100 w-md-auto"
+                        role="search" action="{{ route('reservations') }}" method="GET" style="max-width: 500px; flex: 1;">
+                        <select name="type" class="form-select me-2 rounded-5 bg-light border border-secondary" onchange="this.form.submit()">
+                            <option value="">All Types</option>
+                            <option value="online" {{ request('type') == 'online' ? 'selected' : '' }}>Online</option>
+                            <option value="walkin" {{ request('type') == 'walkin' ? 'selected' : '' }}>Walk-in</option>
+                        </select>
                         <div class="input-group">
-                            <input type="text" class="form-control mb-0 rounded-start-5 bg-light border border-secondary" placeholder="Search Guest Name" aria-label="Search" id="guestNameFilter">
-                            <button class="btn btn-outline-success rounded-end-5" type="button" onclick="filterGuests()">
+                            <input type="text" 
+                                name="search"
+                                class="form-control mb-0 rounded-start-5 bg-light border border-secondary" 
+                                placeholder="Search Guest Name" aria-label="Search" 
+                                value="{{ request('search') }}">
+                            <button class="btn btn-outline-success rounded-end-5"
+                                    type="submit">
                                 <i class="fa-solid fa-magnifying-glass"></i>
                             </button>
                         </div>
                     </form>
                 </div>
-                
-                <!-- Table -->
-                <div class="bg-white shadow-lg rounded-4 p-4 mt-2">
-                    <table class="table table-hover table-borderless mb-0">
+
+                <!-- Responsive Table -->
+                <div class="mt-2" style="overflow-x: auto;">
+                    <table class="table table-hover table-striped table-sm align-middle reservation-table">
                         <thead class="table-light text-uppercase text-secondary small">
                             <tr>
-                                <th scope="col" class="small">Guest Name</th>
-                                <th scope="col" class="small">Dates(In-Out)</th>
-                                <th scope="col" class="small">Time(In-Out)</th>
-                                <th scope="col" class="small">Room Type</th>
-                                <th scope="col" class="small">Room Qty</th>
-                                <th scope="col" class="small">Mobile Number</th>
-                                <th scope="col" class="small">Reference Number</th>
-                                <th scope="col" class="small">Payment Status</th>
-                                <th scope="col" class="small">Res. Status</th>
-                                <th scope="col" class="small">Amount</th>
+                                <th>Guest Name</th>
+                                <th>Dates(In-Out)</th>
+                                <th>Time(In-Out)</th>
+                                <th>Room Type</th>
+                                <th>Room Qty</th>
+                                <th>Mobile Number</th>
+                                <th>Reference Number</th>
+                                <th>Payment Status</th>
+                                <th>Res. Status</th>
+                                <th>Amount</th>
                             </tr>
                         </thead>
                         <tbody id="reservationTable">
                             @foreach ($reservations as $reservation)
-                                <tr class="align-middle">
+                                <tr>
                                     <td class="fw-semibold">{{ $reservation->name }}</td>
                                     <td>{{ \Carbon\Carbon::parse($reservation->reservation_check_in_date)->format('M j, Y') }}-{{ \Carbon\Carbon::parse($reservation->reservation_check_out_date)->format('M j, Y') }}</td>
                                     <td>{{ \Carbon\Carbon::parse($reservation->reservation_check_in)->format('h:i A') }}-{{ \Carbon\Carbon::parse($reservation->reservation_check_out)->format('h:i A') }}</td>
@@ -192,21 +288,25 @@
                                             @elseif($reservation->payment_status == 'booked') bg-primary
                                             @else bg-danger
                                             @endif
-                                            px-3 py-2 rounded-pill text-uppercase fw-medium"
-                                        >
+                                            px-3 py-2 rounded-pill text-uppercase fw-medium">
                                             {{ ucfirst($reservation->payment_status) }}
                                         </span>
                                     </td>
                                     <td>
                                         <span class="badge 
-                                            @if($reservation->reservation_status == 'confirmed') bg-success
-                                            @elseif($reservation->reservation_status == 'pending') bg-warning text-dark
-                                            @elseif($reservation->reservation_status == 'cancelled') bg-danger
-                                            @else bg-secondary
+                                            @if($reservation->reservation_status == 'pending')
+                                                bg-warning text-dark
+                                            @elseif($reservation->reservation_status == 'reserved')
+                                                bg-primary
+                                            @elseif($reservation->reservation_status == 'checked-in' || $reservation->reservation_status == 'confirmed')
+                                                bg-success
+                                            @elseif($reservation->reservation_status == 'checked-out' || $reservation->reservation_status == 'early-checked-out' || $reservation->reservation_status == 'cancelled')
+                                                bg-danger
+                                            @else
+                                                bg-secondary
                                             @endif
-                                            px-3 py-2 rounded-pill text-uppercase fw-medium"
-                                        >
-                                            {{ ucfirst($reservation->reservation_status) }}
+                                            px-3 py-2 rounded-pill text-uppercase fw-medium">
+                                            {{ ucfirst(str_replace('-', ' ', $reservation->reservation_status)) }}
                                         </span>
                                     </td>
                                     <td>₱{{ number_format($reservation->amount, 2) }}</td>
@@ -216,8 +316,8 @@
                         <tfoot>
                             <tr>
                                 <td colspan="10" class="pt-4">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div class="text-muted">
+                                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+                                        <div class="text-muted small">
                                             Showing {{ $reservations->firstItem() }} to {{ $reservations->lastItem() }} of {{ $reservations->total() }} reservations
                                         </div>
                                         <nav aria-label="Page navigation">
@@ -234,7 +334,7 @@
                                                 @endif
 
                                                 {{-- Pagination Elements --}}
-                                                @foreach ($reservations->getUrlRange(1, $reservations->lastPage()) as $page => $url)
+                                                @foreach ($reservations->getUrlRange(1, $reservations->lastPage()) as $page => $url) 
                                                     @if ($page == $reservations->currentPage())
                                                         <li class="page-item active" aria-current="page">
                                                             <span class="page-link">{{ $page }}</span>
@@ -265,19 +365,46 @@
                     </table>
                 </div>
             </div>
+
+            <!-- Calendar -->
+            <div class="mt-5">
+                <div id="calendar-container" 
+                    class="shadow-lg rounded-4 p-3 bg-white floating-effect" 
+                    style="overflow-x: auto;">
+                    <div id="calendar" class="mb-5 calendar-table"></div>
+                </div>
+            </div>
+
         </div>
     </div>
+</div>
+
+    
 
 <!-- Showing Calendar -->
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    function renderCalendar() {
         var calendarEl = document.getElementById('calendar');
+
+        // Get the selected reservation type from the dropdown
+        var selectedType = '{{ request('type', 'all') }}';
+        if (selectedType === '') selectedType = 'all';
+
+        // Filter events based on the selected type
+        var events = @json($events);
+        var filteredEvents = events;
+
+        if (selectedType !== 'all') {
+            filteredEvents = events.filter(function(event) {
+                return event.extendedProps.reservation_type === selectedType;
+            });
+        }
 
         var calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
             height: 'auto',
             contentHeight: 600,
-            events: @json($events),
+            events: filteredEvents,
             eventColor: '#0b573d',
             headerToolbar: {
                 left: 'prev,next today',
@@ -287,8 +414,18 @@
             eventClick: function(info) {
                 // Enhanced event details display
                 const event = info.event;
-                const startDate = moment(event.start).format('MMMM D, YYYY');
-                const endDate = event.end ? moment(event.end).format('MMMM D, YYYY') : null;
+                const startDateFmt = moment(event.start).format('MMMM D, YYYY');
+                const endDateFmt = event.end ? moment(event.end).subtract(1, 'days').format('MMMM D, YYYY') : startDateFmt;
+                const guestName = event.extendedProps.name;
+                const quantity = event.extendedProps.quantity;
+                
+                // Get original dates from extendedProps
+                const checkInDate = event.extendedProps.check_in_date;
+                const checkOutDate = event.extendedProps.check_out_date;
+                const reservationType = event.extendedProps.reservation_type;
+
+                // Determine stay type
+                const stayType = (checkInDate === checkOutDate) ? 'One-Day Stay' : 'Staycation';
                 
                 // Split the description into reserved and available rooms
                 const description = event.extendedProps.description;
@@ -301,8 +438,27 @@
                             <div class="col-12">
                                 <div class="card border-0 shadow-sm">
                                     <div class="card-body" style="background-color: #f8f9fa; border-radius: 10px;">
-                                        <h6 class="card-subtitle mb-2" style="color: #0b573d; font-family: 'Poppins', sans-serif;">Reservation Date</h6>
-                                        <p class="card-text fw-semibold">${startDate}${endDate ? ' - ' + endDate : ''}</p>
+                                        <h6 class="card-subtitle mb-2" style="color: #0b573d; font-family: 'Poppins', sans-serif;">Guest Name</h6>
+                                        <p class="card-text fw-semibold">${guestName}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="card border-0 shadow-sm">
+                                    <div class="card-body" style="background-color: #f8f9fa; border-radius: 10px;">
+                                        <h6 class="card-subtitle mb-2" style="color: #0b573d; font-family: 'Poppins', sans-serif;">Reservation Dates & Type</h6>
+                                        <p class="card-text fw-semibold">
+                                            ${startDateFmt}${startDateFmt !== endDateFmt ? ' - ' + endDateFmt : ''}
+                                            <span class="badge bg-success ms-2">${stayType}</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="card border-0 shadow-sm">
+                                    <div class="card-body" style="background-color: #f8f9fa; border-radius: 10px;">
+                                        <h6 class="card-subtitle mb-2" style="color: #0b573d; font-family: 'Poppins', sans-serif;">Reservation Type</h6>
+                                        <p class="card-text fw-semibold text-capitalize">${reservationType} Reservation</p>
                                     </div>
                                 </div>
                             </div>
@@ -349,44 +505,25 @@
         });
 
         calendar.render();
-    });
-</script>
-<!-- Search Function -->
-<script>
-    document.getElementById('guestNameFilter').addEventListener('input', function() {
-        const filterValue = this.value.toLowerCase();
-        const rows = document.querySelectorAll('#reservationTable tr');
-        let hasMatch = false;
+    }
 
-        rows.forEach(row => {
-            const guestNameCell = row.cells[0];
-            if (guestNameCell) {
-                const guestName = guestNameCell.textContent.toLowerCase();
-                if (guestName.includes(filterValue)) {
-                    row.style.display = '';
-                    hasMatch = true;
-                } else {
-                    row.style.display = 'none';
-                }
+    document.addEventListener('DOMContentLoaded', function() {
+        const calendarContainer = document.getElementById('calendar-container');
+
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) {
+                renderCalendar();
+                observer.disconnect();
             }
+        }, {
+            root: null,
+            threshold: 0.1
         });
 
-        // Show message if no reservations match
-        const noResultsRow = document.getElementById('noResultsRow');
-        if (!hasMatch) {
-            if (!noResultsRow) {
-                const noResults = document.createElement('tr');
-                noResults.id = 'noResultsRow';
-                noResults.innerHTML = `<td colspan="8" class="text-center mt-3">No reservations for that guest</td>`;
-                document.getElementById('reservationTable').appendChild(noResults);
-            }
-        } else {
-            if (noResultsRow) {
-                noResultsRow.remove();
-            }
-        }
+        observer.observe(calendarContainer);
     });
 </script>
+
 <!-- Something Function -->
 <script>
     document.getElementById('user_id').addEventListener('change', function() {
@@ -429,6 +566,23 @@
             });
     });
 </script>
+<!-- Live Time and Date -->
+<script>
+    function updateTime() {
+        const timeElement = document.getElementById('live-time');
+        const dateElement = document.getElementById('live-date');
+        
+        const now = new Date();
+        
+        const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const dateString = now.toLocaleDateString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        
+        timeElement.textContent = timeString;
+        dateElement.textContent = dateString;
+    }
+    
+    setInterval(updateTime, 1000);
+    updateTime(); // Initial call
+</script>
 </body>
 </html>
-

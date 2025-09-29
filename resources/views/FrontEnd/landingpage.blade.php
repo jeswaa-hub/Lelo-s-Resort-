@@ -81,7 +81,8 @@
     .nav-link.custom-hover:hover {
         color: #0b573d !important;
     }
-    .nav-link-login:hover{
+
+    .nav-link-login:hover {
         scale: 1.1;
         transition: all 0.3s ease;
         border: 2px solid #ffffff;
@@ -89,7 +90,7 @@
 </style>
 
 <body>
-
+    <x-loading-screen />
     <!-- Navbar (Fixed at the Top with z-index) -->
     <nav class="navbar navbar-expand-lg position-absolute w-100" style="z-index: 10; top: 20px;">
         <div class="container">
@@ -144,8 +145,9 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link-login d-flex align-items-center gap-3 py-2 px-3 position-relative overflow-hidden" 
-                            href="{{ route('login') }}" style="background-color: #0b573d; transition: all 0.3s ease; border-radius: 20px; text-decoration: none;">
+                        <a class="nav-link-login d-flex align-items-center gap-3 py-2 px-3 position-relative overflow-hidden"
+                            href="{{ route('login') }}"
+                            style="background-color: #0b573d; transition: all 0.3s ease; border-radius: 20px; text-decoration: none;">
                             <i class="fas fa-sign-in-alt" style="color:rgb(255, 255, 255); font-size: 1.1rem;"></i>
                             <span class="fw-semibold text-uppercase"
                                 style="color:rgb(255, 255, 255); letter-spacing: 2px; font-size: 1rem;">
@@ -162,7 +164,7 @@
                 <div class="offcanvas-header" style="background-color: #0b573d; padding: 1.5rem;">
                     <div class="d-flex align-items-center w-100 justify-content-between">
                         <div class="d-flex align-items-center">
-                            <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" class="me-3"
+                            <img src="{{ asset('images/logo new.png') }}" alt="Lelo's Resort Logo" class="me-3"
                                 style="width: 60px; height: auto; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));">
                             <h5 class="offcanvas-title text-white mb-0" id="sideNavbarLabel"
                                 style="font-size: 1.5rem; font-weight: 700; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">
@@ -254,7 +256,7 @@
                                 }
                             </style>
                             <div class="d-flex justify-content-center align-items-center mt-1">
-                                <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" class="mx-3"
+                                <img src="{{ asset('images/logo new.png') }}" alt="Lelo's Resort Logo" class="mx-3"
                                     style="width: 120px; height: auto; @media (max-width: 768px) { width: 100px; }">
                             </div>
                             <div class="d-flex justify-content-center align-items-center">
@@ -310,11 +312,11 @@
                             <div id="carouselExampleInterval" class="carousel slide" data-bs-ride="carousel">
                                 <div class="carousel-inner">
                                     <div class="carousel-item active" data-bs-interval="5000">
-                                        <img src="{{ asset('images/harap.JPG') }}" class="d-block w-100 rounded"
+                                        <img src="{{ asset('images/harap.jpg') }}" class="d-block w-100 rounded"
                                             alt="Hotel Image 1">
                                     </div>
                                     <div class="carousel-item" data-bs-interval="5000">
-                                        <img src="{{ asset('images/labas.JPG') }}" class="d-block w-100 rounded"
+                                        <img src="{{ asset('images/labas.jpg') }}" class="d-block w-100 rounded"
                                             alt="Hotel Image 2">
                                     </div>
                                     <div class="carousel-item" data-bs-interval="5000">
@@ -330,11 +332,11 @@
                                             alt="Hotel Image 3">
                                     </div>
                                     <div class="carousel-item" data-bs-interval="5000">
-                                        <img src="{{ asset('images/dalawa.JPG') }}" class="d-block w-100 rounded"
+                                        <img src="{{ asset('images/dalawa.jpg') }}" class="d-block w-100 rounded"
                                             alt="Hotel Image 3">
                                     </div>
                                     <div class="carousel-item" data-bs-interval="5000">
-                                        <img src="{{ asset('images/tatlo.JPG') }}" class="d-block w-100 rounded"
+                                        <img src="{{ asset('images/tatlo.jpg') }}" class="d-block w-100 rounded"
                                             alt="Hotel Image 3">
                                     </div>
                                 </div>
@@ -682,7 +684,7 @@
                     <!-- Second section content -->
                     <div class="p-4 h-100">
                         <div class="d-flex flex-column h-100">
-                            <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" class="img-fluid mb-4"
+                            <img src="{{ asset('images/logo new.png') }}" alt="Lelo's Resort Logo" class="img-fluid mb-4"
                                 style="height: 150px; width: auto; margin: -20px auto; display: block;">
 
                             <div class="text-start">
@@ -775,7 +777,7 @@
             <div class="row align-items-center">
                 <!-- Left: Logo -->
                 <div class="col-md-4 mb-2 text-md-start text-center">
-                    <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" class="img-fluid"
+                    <img src="{{ asset('images/logo new.png') }}" alt="Lelo's Resort Logo" class="img-fluid"
                         style="max-width: 110px;">
                 </div>
                 <!-- Center: Contact Info -->

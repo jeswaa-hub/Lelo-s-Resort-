@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Lelo's Resort</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/logo new.png') }}">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&family=Poppins:wght@100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <script src="https://www.google.com/recaptcha/api.js?render=reCAPTCHA_site_key"></script>
@@ -129,28 +130,40 @@
     .color-background8{
         background-color: #0B5D3B;
     }
+
+    .g-recaptcha-wrapper {
+        transform: scale(0.85);
+        transform-origin: 0 0;
+    }
+
+    @media (max-width: 400px) {
+        .g-recaptcha-wrapper {
+            transform: scale(0.77);
+        }
+    }
     </style>
 </head>
 <body>
+    <x-loading-screen/>
     @include('Alert.errorLogin')
     @include('Alert.loginSuccessUser')
 
     <!-- Header with Back Button and Logo -->
-    <div class="w-100 d-flex justify-content-between align-items-center p-3">
+    <div class="w-100 d-flex justify-content-center justify-content-sm-between align-items-center px-5 py-3">
         <!-- Back Button -->
-        <a href="{{ url('/') }}" class="d-flex align-items-center justify-content-center rounded-circle shadow ms-3"
+        <a href="{{ url('/') }}" class="d-none d-sm-flex align-items-center justify-content-center rounded-circle shadow ms-3"
            style="width: 50px; height: 50px; background-color: #0B5D3B; text-decoration: none;">
             <i class="fa-solid fa-arrow-left text-white"></i>
         </a>
 
         <!-- Logo -->
         <a class="text-decoration-none">
-            <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" class="rounded-pill" style="width: 100px; height: auto;">
+            <img src="{{ asset('images/logo new.png') }}" alt="Lelo's Resort Logo" class="rounded-pill" style="width: 100px; height: auto;">
         </a>
     </div>
 
     <!-- Main Content Container -->
-    <div class="d-flex justify-content-center align-items-center">
+    <div class="d-flex justify-content-center align-items-center px-3">
     <div class="container p-4 shadow-lg rounded-4 bg-white" style="max-width: 1000px;">
         <div class="row align-items-center">
             
@@ -225,7 +238,7 @@
                     <div class="container">
                     <div class="row justify-content-start">
                         <div class="col-md-6 col-lg-4"> <!-- Adjust column sizes as needed -->
-                        <div class="g-recaptcha-wrapper" style="transform:scale(0.85);transform-origin:0 0">
+                        <div class="g-recaptcha-wrapper">
                             <div class="g-recaptcha" data-sitekey="6LeAQAgrAAAAAEIzUoydZx4MiA3sE6v0eE22Yr0l"></div>
                         </div>
                         </div>
@@ -484,9 +497,6 @@
                         </div>
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-success">Verify OTP</button>
-                            <button type="button" class="btn btn-outline-secondary" id="resendOTP">
-                                Resend OTP <span id="countdown" class="d-none">(60s)</span>
-                            </button>
                         </div>
                     </form>
                 </div>

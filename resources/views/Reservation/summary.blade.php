@@ -30,99 +30,92 @@
         </div>
     </div>
 
-    <div class="container-sm mt-4 p-4 bg-white rounded shadow-lg">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div class="flex-grow-1 text-center">
-                <h2 class="text-success">RESERVATION DETAILS</h2>
-            </div>
-            <a href="{{ route('profile') }}" class="text-decoration-none ms-3">
-                <div class="rounded-circle bg-success d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                    <i class="fa-solid fa-user text-white fs-4"></i>
-                </div>
-            </a>
-        </div>
-        <hr class="mx-auto mb-4" style="border-top: 3px solid green; width: 75%;">
-
-        <div class="row g-4">
-            <!-- Left Column -->
-            <div class="col-md-8 order-md-1 order-1">
-                <div class="p-4 border rounded">
-                    @if(isset($reservationDetails))
-                    <div class="mb-3">
-                        <!-- Each row for label-value pair -->
+        <div class="container mt-4 p-4 bg-white rounded shadow-lg">
+            <div class="row g-3">
+                <!-- Left 50% -->
+                <div class="col-12 col-md-6">
+                    <h2 class="fw-bold text-uppercase text-success mb-3" style="font-size: 2rem;">Important Information</h2>
+                    <hr class="border-success border-2 mb-3">
+                    
+                    @if(!empty($reservationDetails))
                         @if(!empty($reservationDetails->reservation_id))
-                        <div class="row mb-2">
-                            <div class="col-4 fw-bold text-success text-break">Reservation ID:</div>
-                            <div class="col-8 text-break">{{ $reservationDetails->reservation_id}}</div>
+                        <div class="row mb-3">
+                            <div class="col-12 fw-bold text-success text-break fs-5">RESERVATION ID: {{ strtoupper($reservationDetails->reservation_id) }}</div>
                         </div>
                         @endif
-
-                        @if(!empty($reservationDetails->name))
-                        <div class="row mb-2">
-                            <div class="col-4 fw-bold text-success text-break">Name:</div>
-                            <div class="col-8 text-break">{{ $reservationDetails->name }}</div>
-                        </div>
-                        @endif
-
-                        @if(!empty($reservationDetails->email))
-                        <div class="row mb-2">
-                            <div class="col-4 fw-bold text-success text-break">Email:</div>
-                            <div class="col-8 text-break">{{ $reservationDetails->email }}</div>
+                        
+                        @if(!empty($reservationDetails->name) || !empty($reservationDetails->email))
+                        <div class="row mb-2 gx-2">
+                            <div class="col-6">
+                                <div class="fw-bold text-success text-break" style="font-size: 0.875rem;">Name:</div>
+                                <div class="text-break fw-bold text-lowercase">{{ strtoupper($reservationDetails->name ?? '') }}</div>
+                            </div>
+                            <div class="col-6">
+                                <div class="fw-bold text-success text-break" style="font-size: 0.875rem;">Email:</div>
+                                <div class="text-break fw-bold">{{ $reservationDetails->email ?? '' }}</div>
+                            </div>
                         </div>
                         @endif
 
                         @if(!empty($reservationDetails->mobileNo))
                         <div class="row mb-2">
-                            <div class="col-4 fw-bold text-success text-break">Mobile No:</div>
-                            <div class="col-8 text-break">{{ $reservationDetails->mobileNo }}</div>
+                            <div class="fw-bold text-success text-break" style="font-size: 0.875rem;">Mobile No.:</div>
+                            <div class="col-8 fw-bold text-break">{{ $reservationDetails->mobileNo }}</div>
                         </div>
                         @endif
-
-                        @if(!empty($reservationDetails->total_guest) || !empty($reservationDetails->package_max_guests))
-                        <div class="row mb-2">
-                            <div class="col-4 fw-bold text-success text-break">Guests:</div>
-                            <div class="col-8 text-break">{{ $reservationDetails->total_guest ?? $reservationDetails->package_max_guests }}</div>
-                        </div>
-                        @endif
-
+                        
                         @if((!empty($reservationDetails->package_room_type) && !empty($roomNames)) || (!empty($accommodations)))
-                        <div class="row mb-2">
-                            <div class="col-4 fw-bold text-success text-break">Room:</div>
-                            <div class="col-8 text-break">
-                                @if(!empty($reservationDetails->package_room_type))
-                                    {{ implode(', ', $roomNames) }}
-                                @else
-                                    {{ implode(', ', $accommodations) }}
-                                @endif
+                        <div class="row mb-2 gx-2">
+                            <div class="col-6">
+                                <div class="fw-bold text-success text-break" style="font-size: 0.875rem;">Room:</div>
+                                <div class="text-break fw-bold">
+                                    @if(!empty($reservationDetails->package_room_type))
+                                        {{ implode(', ', $roomNames) }}
+                                    @else
+                                        {{ implode(', ', $accommodations) }}
+                                    @endif
+                                </div>
                             </div>
+                            @if(!empty($reservationDetails->total_guest) || !empty($reservationDetails->package_max_guests))
+                            <div class="col-6">
+                                <div class="fw-bold text-success text-break" style="font-size: 0.875rem;">Guests:</div>
+                                <div class="text-break fw-bold">{{ $reservationDetails->total_guest ?? $reservationDetails->package_max_guests }}</div>
+                            </div>
+                            @endif
                         </div>
                         @endif
 
-                        @if(!empty($reservationDetails->package_activities) || !empty($activities))
-                        <div class="row mb-2">
-                            <div class="col-4 fw-bold text-success text-break">Activities:</div>
-                            <div class="col-8 text-break">{{ $reservationDetails->package_activities ?? implode(', ', $activities) }}</div>
-                        </div>
-                        @endif
+                            @if(!empty($reservationDetails->package_activities) || !empty($activities))
+                            <div class="row mb-2 gx-2">
+                                <div class="col-6">
+                                    <div class="fw-bold text-success text-break" style="font-size: 0.875rem;">Activities:</div>
+                                    <div class="text-break fw-bold">{{ $reservationDetails->package_activities ?? implode(', ', $activities) }}</div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="fw-bold text-success text-break" style="font-size: 0.875rem;">Date:</div>
+                                    <div class="text-break fw-bold">{{ \Carbon\Carbon::parse($reservationDetails->reservation_check_in_date)->format('l, F jS, Y') }}</div>
+                                </div>
+                            </div>
+                            @endif
 
-                        @if(!empty($reservationDetails->reservation_check_in_date))
-                        <div class="row mb-2">
-                            <div class="col-4 fw-bold text-success text-break">Date:</div>
-                            <div class="col-8 text-break">{{ \Carbon\Carbon::parse($reservationDetails->reservation_check_in_date)->format('l, F jS, Y') }}</div>
-                        </div>
-                        @endif
-
-                        @if(!empty($reservationDetails->reservation_check_in))
-                        <div class="row mb-2">
-                            <div class="col-4 fw-bold text-success text-break">Check-in:</div>
-                            <div class="col-8 text-break">{{ date('h:i A', strtotime($reservationDetails->reservation_check_in)) }}</div>
-                        </div>
-                        @endif
-
-                        @if(!empty($reservationDetails->reservation_check_out))
-                        <div class="row mb-2">
-                            <div class="col-4 fw-bold text-success text-break">Check-out:</div>
-                            <div class="col-8 text-break">{{ date('h:i A', strtotime($reservationDetails->reservation_check_out)) }}</div>
+                        @if(!empty($reservationDetails->reservation_check_in) || !empty($reservationDetails->reservation_check_out))
+                        <div class="row mb-2 gx-2">
+                            <div class="col-6">
+                                <div class="fw-bold text-success text-break" style="font-size: 0.875rem;">Check-in:</div>
+                                <div class="text-break fw-bold">
+                                    {{ \Carbon\Carbon::parse($reservationDetails->reservation_check_in_date ?? '')->format('F j, Y') }}
+                                    <br>
+                                    <span class="text-muted">{{ date('h:i A', strtotime($reservationDetails->reservation_check_in ?? '')) }}</span>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="fw-bold text-success text-break" style="font-size: 0.875rem;">Check-out:</div>
+                                <div class="text-break fw-bold">
+                                    {{ \Carbon\Carbon::parse($reservationDetails->reservation_check_out_date ?? '')->format('F j, Y') }}
+                                    <br>
+                                    <span class="text-muted">{{ date('h:i A', strtotime($reservationDetails->reservation_check_out ?? '')) }}</span>
+                                </div>
+                            </div>
                         </div>
                         @endif
 
@@ -140,12 +133,12 @@
                         </div>
                         @endif
 
-                        @if(isset($reservationDetails->amount))
+                        <!-- @if(isset($reservationDetails->amount))
                         <div class="row mb-2">
                             <div class="col-4 fw-bold text-success text-break">Amount:</div>
                             <div class="col-8 text-break">₱{{ number_format($reservationDetails->amount, 2) }}</div>
                         </div>
-                        @endif
+                        @endif-->
 
                         @if(isset($reservationDetails->balance))
                         <div class="row mb-2">
@@ -165,95 +158,151 @@
                         <div class="row mb-2">
                             <div class="col-4 fw-bold text-success text-break">Payment Proof:</div>
                             <div class="col-8 text-break">
-                                    <a href="{{ asset('storage/payments/' . basename($reservationDetails->upload_payment)) }}"
-                                       target="_blank" 
-                                       class="text-decoration-none text-success">
-                                        View Proof
-                                    </a>
-                                
+                                <a href="{{ asset('storage/payments/' . basename($reservationDetails->upload_payment)) }}"
+                                target="_blank" 
+                                class="text-decoration-none text-success">
+                                    View Proof
+                                </a>
                             </div>
                         </div>
                         @endif
-                    </div>
                     @else
                     <div class="alert alert-warning">No reservations found</div>
                     @endif
+                    <hr class="border-success border-2 mb-3">
                 </div>
-            </div>
 
-            <!-- Right Column -->
-            <div class="col-md-4 order-md-2 order-2">
-                <div class="p-4 border rounded">
-                    <!-- Status Section -->
-                    @if(isset($reservationDetails->reservation_status))
-                    <div class="d-flex align-items-center mb-4">
-                        <h5 class="mb-0 me-2">Status:</h5>
-                        <span class="badge 
-                            @if($reservationDetails->reservation_status == 'checked-in') bg-success 
-                            @elseif($reservationDetails->reservation_status == 'pending') bg-warning
-                            @elseif($reservationDetails->reservation_status == 'on-hold') bg-info
-                            @elseif($reservationDetails->reservation_status == 'reserved') bg-primary
-                            @else bg-danger 
-                            @endif text-white">
-                            {{ ucfirst($reservationDetails->reservation_status) }}
-                        </span>
-                    </div>
-                    @endif
+                <!-- Right 50% -->
+                <div class="col-12 col-md-6">
+                    <h2 class="fw-bold text-uppercase text-success mb-3" style="font-size: 2rem;">Status</h2>
+                    <hr class="border-success border-2 mb-3">
+                    <div class="d-flex align-items-center mb-3">
+                            <button type="button" class="btn btn-success rounded-circle d-flex align-items-center justify-content-center" style="width: 2rem; height: 2rem;" data-bs-toggle="modal" data-bs-target="#instructionsModal">
+                                <i class="fa-solid fa-question text-white" style="font-size: 1rem;"></i>
+                            </button>
+                            
 
-                    <!-- Instructions and QR Code Section -->
-                    @if(isset($reservationDetails->reservation_status))
-                        @if($reservationDetails->reservation_status == 'reserved' || $reservationDetails->reservation_status == 'checked-in')
-                            <!-- Instructions Section -->
-                            <div class="mb-3">
-                                <h6 class="text-success mb-2">Instructions:</h6>
-                                <div class="alert alert-info " style="font-size: 0.9rem;">
-                                    <ol class="mb-0 ps-2 pe-2">
-                                        <li class="mb-1">Download your QR code by clicking the button below</li>
-                                        <li class="">Present this QR code upon check-in at our resort</li>
-                                    </ol>
+                            <!-- Modal -->
+                            <div class="modal fade" id="instructionsModal" tabindex="-1" aria-labelledby="instructionsModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header bg-success text-white">
+                                            <h5 class="modal-title" id="instructionsModalLabel">Instructions</h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p class="mb-2"><strong>1.</strong> Present this summary upon arrival at the resort.</p>
+                                            <p class="mb-2"><strong>2.</strong> Follow the check-in and check-out times strictly.</p>
+                                            <p class="mb-2"><strong>3.</strong> Keep your reservation ID and reference number handy.</p>
+                                            <p class="mb-0"><strong>4.</strong> Contact us for any changes or special requests.</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-
-                            <!-- QR Code Section -->
-                            @if(!empty($reservationDetails->reservation_id))
-                            <div class="text-center">
-                                <canvas id="qr-code" class="mb-3"></canvas>
-                                <button id="download-qr" class="btn btn-success w-100" onclick="downloadQRCode()">
-                                    <i class="fa-solid fa-download me-2"></i>DOWNLOAD QR
-                                </button>
-                            </div>
+                            @if(isset($reservationDetails->reservation_status))
+                            <span class="ms-3 fw-bold text-black text-uppercase" style="font-size: 1.5rem;">Instructions</span>
+                            <span class="ms-auto badge fs-5
+                                @if($reservationDetails->reservation_status == 'checked-in') bg-success 
+                                @elseif($reservationDetails->reservation_status == 'pending') bg-warning
+                                @elseif($reservationDetails->reservation_status == 'on-hold') bg-info
+                                @elseif($reservationDetails->reservation_status == 'reserved') bg-primary
+                                @else bg-danger 
+                                @endif text-white">
+                                {{ ucfirst($reservationDetails->reservation_status) }}
+                            </span>
+                            @else
                             @endif
-                        @elseif($reservationDetails->reservation_status == 'pending')
-                            <div class="mb-3">
-                                <h6 class="text-warning mb-2">Awaiting Approval:</h6>
-                                <div class="alert alert-warning" style="font-size: 0.9rem;">
-                                    <p class="mb-0">Your reservation is currently pending for approval. We will notify you once it has been confirmed.</p>
+                    </div>
+                    <!-- Additional header below the button -->
+                    <h3 class="fw-bold text-uppercase text-success mb-3 mt-2" style="font-size: 1.75rem;">PAYMENT DETAIls</h3>
+                    <hr class="border-success border-2 mb-3">
+
+                    @if(isset($reservationDetails->amount))
+                        <div class="row mb-2 mt-4 ">
+                            <div class="col-4 text-black text-uppercase text-break ">Room price:</div>
+                            <div class="col-8 text-break text-end">
+                                <div class="bg-success text-white rounded px-2 py-1 d-inline-block">
+                                    ₱{{ number_format($reservationDetails->amount, 2) }}
                                 </div>
                             </div>
-                        @elseif($reservationDetails->reservation_status == 'on-hold')
-                            <div class="mb-3">
-                                <div class="alert alert-primary" style="font-size: 0.9rem;">
-                                    <p class="mb-2">Your reservation is currently on hold. We will notify you once it has been confirmed.</p>
+                        </div>
+                        <div class="row mb-2 mt-2">
+                            <div class="col-4 text-black text-uppercase text-break ">Room price:</div>
+                            <div class="col-8 text-break text-end">
+                                <div class="bg-success text-white rounded px-2 py-1 d-inline-block">
+                                    ₱{{ number_format($reservationDetails->amount, 2) }}
                                 </div>
                             </div>
+                        </div>
                         @endif
-                    @endif
+                                   
+                        <hr class="border-success border-2 mb-2"> <!--line-->
+
+                        @if(isset($reservationDetails->amount))
+                        <div class="row mb-2 justify-content-center text-center">
+                            <div class="col-12 fw-bold text-uppercase text-black text-break">total amount to pay:</div>
+                            <div class="col-12">
+                                <div class="bg-success text-white rounded mt-1 px-2 py-1 d-inline-block">
+                                    ₱{{ number_format($reservationDetails->amount, 2) }}
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+                        
+                        @if(isset($reservationDetails->amount))
+                        <div class="row mb-2">
+                            <div class="col-8 text-black text-uppercase text-break ">Required 15% Downpayment:</div>
+                            <div class="col-4 text-break text-end">
+                                <div class="bg-success text-white rounded px-2 py-1 d-inline-block">
+                                    ₱{{ number_format($reservationDetails->amount, 2) }}
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+
+                            <div class="d-flex justify-content-end mt-3">
+                                <a href="{{ route('homepage') }}"
+                                    class="btn btn-success d-flex align-items-center gap-1 px-3 py-1 fw-bold text-white rounded-pill"
+                                    style="font-family: 'Montserrat', sans-serif; background-color: #0b573d; font-style: italic; transition: all 0.3s ease-in-out; font-size: 0.875rem;">
+                                    Finish
+                                    <span
+                                        class="d-flex align-items-center justify-content-center bg-white rounded-circle"
+                                        style="width: 1.2rem; height: 1.2rem; transition: all 0.3s ease-in-out;">
+                                        <i class="fas fa-chevron-right"
+                                            style="color: #0b573d; transform: translateX(0);"></i>
+                                    </span>
+                                </a>
+                            </div>
+                    </div>
                 </div>
             </div>
-
-            <!-- Thank You Message - Will move to bottom on mobile -->
-            <div class="col-12 order-md-3 order-3 mt-n3">
-                <div class="p-4 bg-success text-white text-center rounded">
-                    <h3 class="mb-2">Thank You for Choosing Lelo's Resort!</h3>
-                    <p class="mb-0">We look forward to providing you with an exceptional experience during your stay.</p>
+        </div>
+    </div><!-- /container-sm -->
+    <!-- Banner -->
+    <div class="container mt-1 mb-2 px-3">
+        <div class="row g-3">
+            <div class="col-12">
+                <div class="py-5 bg-success text-white text-center rounded-0 shadow-lg" 
+                     style="background: linear-gradient(135deg, #0b573d 0%, #28a745 100%);">
+                    <h3 class="mb-2 fw-bold text-uppercase tracking-wide" style="letter-spacing: 1px;">
+                        Thank You for Choosing Lelo's Resort!
+                    </h3>
+                    <p class="mb-0 fs-5">
+                        We look forward to providing you with an exceptional experience during your stay.
+                    </p>
                 </div>
             </div>
         </div>
     </div>
-    <div class="pb-5"></div> <!-- Add padding at the bottom -->
+        
+        <div class="pb-5"></div> <!-- Add padding at the bottom -->
 
-    <!-- Feedback Modal -->
-    @if(isset($reservationDetails->id))
+
+     <!-- Feedback Modal -->
+     @if(isset($reservationDetails->id))
     <div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content" style="border-radius: 15px; border: none;">
@@ -408,6 +457,7 @@ $(document).ready(function() {
         link.click();
     }
 </script>
+
 
 </body>
 </html>

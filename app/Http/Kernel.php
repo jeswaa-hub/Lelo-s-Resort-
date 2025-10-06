@@ -68,6 +68,7 @@ class Kernel extends HttpKernel
         'isAdmin' => \App\Http\Middleware\IsAdmin::class,
         'IsStaff' => \App\Http\Middleware\IsStaff::class,
         'prevent.back' => \App\Http\Middleware\PreventBackHistory::class,
+        'prevent.summary.back' => \App\Http\Middleware\PreventBackHistoryForSummary::class,
         'check.auth' => \App\Http\Middleware\CheckAuth::class,
     ];
 }

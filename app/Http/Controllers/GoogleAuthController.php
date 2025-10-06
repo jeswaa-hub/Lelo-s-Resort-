@@ -98,5 +98,54 @@ class GoogleAuthController extends Controller
         
         return redirect()->route('homepage')->with('success', 'Welcome ' . $user->name . '!');
     }
-}
 
+    public function resendOTP(Request $request)
+{
+        // Validate that user_id is present and exists
+        $request->validate(['user_id' => 'required|exists:users,id']);
+
+    try {
+            $user = User::findOrFail($request->user_id);
+
+        // Check cooldown before sending OTP (60 seconds)
+            // Use a specific session key for Google OTP cooldown, unique per user
+            $lastSent = session('last_google_otp_sent_' . $user->id);
+            $now = now();
+
+            if ($lastSent && $now->diffInSeconds($lastSent) < 60) {
+                $waitTime = 60 - $now->diffInSeconds($lastSent);
+            return response()->json([
+                'success' => false,
+                'message' => "Please wait {$waitTime} seconds before requesting a new OTP."
+            ]);
+        }
+
+            // Generate new 6-digit OTP and expiration
+        $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+            $expiresAt = now()->addMinutes(5);
+
+            // Update user with new OTP in the database
+            $user->update([
+                'otp' => $otp,
+                'otp_expires_at' => $expiresAt,
+            ]);
+
+        // Send new OTP via email
+            Mail::to($user->email)->send(new SendOTP($otp));
+
+            // Store last sent timestamp in session for cooldown
+            session(['last_google_otp_sent_' . $user->id => $now]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'New OTP has been sent to your email.'
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to resend OTP. Please try again.'
+        ]);
+    }
+}
+}

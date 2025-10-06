@@ -473,7 +473,7 @@
                                             </label>
                                             <input type="number" class="form-control border-0 shadow-sm" 
                                                     id="quantity" name="quantity" min="1" value="1" required 
-                                                    oninput="validateQuantity()" 
+                                                    oninput="this.value = Math.round(this.value); validateQuantity()" step="1"
                                                     style="background: #f8f9fa; border-radius: 8px;">
                                             <div class="invalid-feedback mt-1" id="quantity_error">
                                                 Quantity exceeds available rooms.
@@ -578,8 +578,8 @@
                                                     id="stay_type" name="stay_type" required onchange="handleStayTypeChange()" 
                                                     style="background: #f8f9fa; border-radius: 8px;">
                                                 <option value="">Select Stay Type</option>
-                                                <option value="day">Day Stay (One Day)</option>
-                                                <option value="overnight">Overnight Stay</option>
+                                                <option value="day">Day Stay</option>
+                                                <option value="stay-in">Stay-in</option>
                                             </select>
                                         </div>
                                         <div class="col-12" id="sessionDiv">
@@ -707,7 +707,7 @@
                             const checkInTime = document.getElementById('check_in_time');
                             const checkOutTime = document.getElementById('check_out_time');
                             
-                            if (stayType === 'overnight') {
+                            if (stayType === 'stay-in') {
                                 sessionDiv.style.display = 'none';
                                 sessionSelect.value = ''; // Clear session selection
                                 checkInTime.value = '14:00'; // 2:00 PM

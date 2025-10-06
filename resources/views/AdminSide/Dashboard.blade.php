@@ -44,14 +44,14 @@
     /* Medium screens and below */
     @media (max-width: 768px) {
         #reservationChart {
-            height: 300px !important; /* taller for tablets/small screens */
+            height: 350px !important; /* taller for tablets/small screens */
         }
     }
 
     /* Extra small screens */
     @media (max-width: 576px) {
         #reservationChart {
-            height: 350px !important; /* even taller for phones */
+            height: 300px !important; /* adjust for very small screens */
         }
     }
     /* Custom legend styling */
@@ -60,15 +60,15 @@
         flex-wrap: wrap;
         justify-content: center;
         margin-top: 15px;
-        gap:10px;
+        gap: 5px;
     }
     
     .legend-item {
         display: flex;
         align-items: center;
-        margin: 5px;
+        margin: 3px;
         background: #f8f9fa;
-        padding: 5px 10px;
+        padding: 3px 8px;
         border-radius: 20px;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
@@ -352,7 +352,7 @@
 
                 <div class="row g-4">
                     <!-- Left Side - Graph -->
-                    <div class="col-12 col-md-6">
+                    <div class="col-12 col-md-4">
                         <div class="card shadow-lg rounded-4 border-0 h-100">
                             <div class="card-body p-4">
                                 <h5 class="card-title fw-bold mb-4">Reservation Breakdown Status</h5>
@@ -363,7 +363,7 @@
                     </div>
 
                     <!-- Right Side - Graph -->
-                    <div class="col-12 col-md-6">
+                    <div class="col-12 col-md-8">
                         <div class="card shadow-lg rounded-4 border-0 w-100">
                             <div class="card-body p-4">
                                 <h5 class="card-title fw-bold mb-4">Reservation And Rooms</h5>
@@ -385,7 +385,7 @@
             <div class="container">
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
                     <h2 class="fw-bold text-black mb-0 border-bottom text-center text-md-start" style="font-size: 2rem;">
-                        REVENUE OVERVIEW
+                        SALE OVERVIEW
                     </h2>
 
                     <!-- Filter Dropdowns for Revenue -->
@@ -412,9 +412,9 @@
 
                         <!-- Revenue Type -->
                         <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-2 w-100 w-sm-auto">
-                            <label for="revenueType" class="form-label font-paragraph fw-semibold mb-0" style="white-space: nowrap;">Revenue Type:</label>
+                            <label for="revenueType" class="form-label font-paragraph fw-semibold mb-0" style="white-space: nowrap;">Sale Type:</label>
                             <select id="revenueType" class="form-control" style="min-width: 100px; height: 50px;">
-                                <option value="">All Revenue</option>
+                                <option value="">All Sale</option>
                                 <option value="walkin">Walk-in</option>
                                 <option value="online">Online</option>
                             </select>
@@ -1248,8 +1248,8 @@
         const selectedYear = document.getElementById('revenueYearFilter').value;
         
         const chartData = filterRevenueData(selectedTimeFilter, selectedYear);
-        const label = selectedTimeFilter === 'daily' ? 'Daily Revenue' :
-                      selectedTimeFilter === 'weekly' ? 'Weekly Revenue' : 'Monthly Revenue';
+        const label = selectedTimeFilter === 'daily' ? 'Daily Sale' :
+                      selectedTimeFilter === 'weekly' ? 'Weekly Sale' : 'Monthly Sale';
         
         buildRevenueChart(chartData, label, selectedTimeFilter);
     });
@@ -1266,8 +1266,8 @@
         const selectedYear = document.getElementById('revenueYearFilter').value;
         
         const chartData = filterRevenueData(selectedTimeFilter, selectedYear);
-        const label = selectedTimeFilter === 'daily' ? 'Daily Revenue' :
-                      selectedTimeFilter === 'weekly' ? 'Weekly Revenue' : 'Monthly Revenue';
+        const label = selectedTimeFilter === 'daily' ? 'Daily Sale ' :
+                      selectedTimeFilter === 'weekly' ? 'Weekly Sale' : 'Monthly Sale';
         
         buildRevenueChart(chartData, label, selectedTimeFilter);
     });
@@ -1280,8 +1280,8 @@
     document.getElementById('revenueType').value = revenueTypeParam;
     
     const initialRevenueData = filterRevenueData(revenueTimeFilterParam, '{{ $selectedYear }}');
-    const initialRevenueLabel = revenueTimeFilterParam === 'daily' ? 'Daily Revenue' :
-                               revenueTimeFilterParam === 'weekly' ? 'Weekly Revenue' : 'Monthly Revenue';
+    const initialRevenueLabel = revenueTimeFilterParam === 'daily' ? 'Daily Sale' :
+                               revenueTimeFilterParam === 'weekly' ? 'Weekly Sale' : 'Monthly Sale';
     
     // Set a fixed height for the chart container
     document.getElementById('revenueChart').parentElement.style.height = '400px';

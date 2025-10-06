@@ -164,6 +164,21 @@ public function profilepage()
         // Update the user's profile
         $updated = DB::table('users')->where('id', Auth::id())->update($data);
 
+        // --- START OF FIX ---
+        // After updating the main user profile, also update the latest pending/on-hold reservation details.
+        if ($updated) {
+            $latestPendingReservation = DB::table('reservation_details')
+                ->where('user_id', Auth::id())
+                ->whereIn('reservation_status', ['pending', 'on-hold'])
+                ->orderByDesc('id')
+                ->first();
+
+            if ($latestPendingReservation) {
+                DB::table('reservation_details')->where('id', $latestPendingReservation->id)->update($data);
+            }
+        }
+        // --- END OF FIX ---
+
         // Handle AJAX response
         if ($request->expectsJson()) {
             if ($updated) {

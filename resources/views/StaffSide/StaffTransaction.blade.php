@@ -409,7 +409,7 @@ function openModal(id, status, amount) {
 
     // Format amount after calculation
     let formattedAmount = "₱" + amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    let discountAmount = amount * 0.15;
+    let discountAmount = amount * 0.20;
     let formattedDiscountAmount = "₱" + discountAmount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     let discountedAmount = amount - discountAmount;
     let formattedDiscountedAmount = "₱" + discountedAmount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -478,4 +478,3 @@ function openModal(id, status, amount) {
     </script>
 </body>
 </html>
-

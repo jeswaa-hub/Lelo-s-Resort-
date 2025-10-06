@@ -101,6 +101,7 @@
         .detail-value {
             color: #555;
             text-align: right;
+            text-transform: capitalize;
         }
         .amount-highlight {
             font-weight: bold;
@@ -197,7 +198,7 @@
                         </tr>
                         <tr>
                             <td class="detail-label">Address:</td>
-                            <td class="detail-value">{{ $reservation->address ?? 'N/A' }}</td>
+                            <td class="detail-value text-capitalize">{{ $reservation->address ?? 'N/A' }}</td>
                         </tr>
                         <tr>
                             <td class="detail-label">Total Amount:</td>
@@ -245,7 +246,7 @@
                 <div class="policies">
                     <h5>Booking Policies</h5>
                     <ul>
-                        <li>A 50% down payment is required to confirm your reservation.</li>
+                        <li>A 20% down payment is required to confirm your reservation.</li>
                         <li>Full payment must be settled upon check-in.</li>
                         <li>No refund for no-show or late cancellation.</li>
                         <li>Early check-in and late check-out are subject to room availability.</li>

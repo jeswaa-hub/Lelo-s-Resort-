@@ -121,7 +121,7 @@
             </li>
             
             <li class="nav-item">
-              <a href="{{ route('staff.guests') }}" class="nav-link text-black px-3 py-2 d-flex align-items-center {{ Request::routeIs('staff.guests') ? 'active bg-white bg-opacity-10' : '' }}">
+              <a href="{{ route('guests') }}" class="nav-link text-black px-3 py-2 d-flex align-items-center {{ Request::routeIs('staff.guests') ? 'active bg-white bg-opacity-10' : '' }}">
                 <i class="fas fa-users fs-5"></i>
                 <span class="ms-2">Guests</span>
               </a>

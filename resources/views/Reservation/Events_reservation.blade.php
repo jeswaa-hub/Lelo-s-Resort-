@@ -90,6 +90,64 @@
         .toast {
             z-index: 1050;
         }
+
+
+        .swal2-popup.custom-modal {
+        border-radius: 20px !important;
+        padding-top: 60px !important;
+    }
+
+    .swal2-popup.custom-modal {
+        border-radius: 12px !important;
+        padding: 20px !important;
+    }
+
+    .swal2-actions.custom-actions {
+        display: flex !important;
+        justify-content: flex-end !important;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .swal2-styled.custom-confirm {
+        background: #0b573d !important;
+        color: #fff !important;
+        border-radius: 6px !important;
+        padding: 8px 18px !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
+    }
+
+    .swal2-styled.custom-cancel {
+        background: #e0e0e0 !important;
+        color: #333 !important;
+        border-radius: 6px !important;
+        padding: 8px 18px !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
+    }
+
+    #calendar .fc-col-header-cell-cushion, /* Day of week headers */
+    #calendar .fc-daygrid-day-number, /* Day numbers */
+    #calendar .fc-button { /* Header buttons */
+        color: #0b573d !important;
+    }
+
+    #calendar .fc-button-primary {
+        background-color: transparent !important;
+        border-color: #0b573d !important;
+    }
+
+    #calendar .fc-button-primary:hover {
+        background-color: #0b573d !important;
+        color: white !important;
+    }
+
+    #calendar .fc-day-today .fc-daygrid-day-number { /* Today's date */
+        color: white !important;
+        background-color: #0b573d;
+        border-radius: 50%;
+    }
     </style>
 </head>
 <body class="font-paragraph">
@@ -120,469 +178,297 @@
                 <img src="{{ asset('images/logo new.png') }}" alt="App Logo" class="app-logo">
         </div>
     </nav>
-
-    <!-- Main Content -->
-    <div class="container-fluid py-4">
-        <div class="row">
-            <div class="col-md-4">
-                <div class="reservation-controls" style="background-color: white;">
-                    <div class="btn-group w-100 mb-4" role="group">
-                        <button type="button" class="btn btn-success active flex-grow-1 reservation-btn" id="stayinBtn">
-                            Stay-In
-                        </button>
-                        
-                        <button type="button" class="btn btn-success flex-grow-1 reservation-btn" id="daytourBtn">
-                            One Day Stay
-                        </button>
-                    </div>
-
-                    <style>
-                        .reservation-btn {
-                            position: relative;
-                            overflow: hidden;
-                            transition: all 0.3s ease;
-                        }
-
-                        .reservation-btn:hover {
-                            transform: translateY(-2px);
-                            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-                        }
-
-                        .reservation-btn.active {
-                            background-color: #1a6e3d !important;
-                            border-color: #1a6e3d !important;
-                            transform: scale(1.02);
-                            animation: buttonGlow 2s infinite;
-                            font-weight: bold;
-                        }
-
-                        @keyframes buttonGlow {
-                            0% {
-                                box-shadow: 0 0 5px #2ecc71;
-                            }
-                            50% {
-                                box-shadow: 0 0 20px #2ecc71, 0 0 30px #2ecc71;
-                            }
-                            100% {
-                                box-shadow: 0 0 5px #2ecc71;
-                            }
-                        }
-
-                        .reservation-btn:active {
-                            transform: scale(0.98);
-                            background-color: #145a32 !important;
-                        }
-                    </style>
-
-                    <div class="selected-dates mb-4 p-4 rounded-3" id="selectedDatesBox" style="background-color: white;">
-                        <h5 class="text-center mb-3 text-success">Chosen Dates:</h5>
-                        
-                        <div class="row text-center">
-                            <div class="col-6">
-                                <strong>Check-in:</strong>
-                                <div id="selectedCheckIn">-</div>
-                            </div>
-                            
-                            <div class="col-6">
-                                <strong>Check-out:</strong>
-                                <div id="selectedCheckOut">-</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="overnightInstructions" class="instructions-box p-4 rounded-3" style="background-color: white;">
-                        <h5 class="text-center mb-3 text-success">How to Book an Overnight Stay</h5>
-                        
-                        <ol class="mb-0">
-                            <li>Select your Check-In Date</li>
-                           <ul class="mt-1 mb-2">
-                            <li><span>Check-in Time: 2PM</span></li>
-                           </ul>
-                            
-                            <li>Then select your Check-out Date
-                                <ul class="mt-1">
-                                    <li><span>Check-out Time: 12PM</span></li>
-                                </ul>
-                            </li>
-                        </ol>
-                    </div>
-                        
-                    
-                    <div id="daytourInstructions" class="instructions-box p-4 rounded-3" style="display: none; background-color: white;">
-                        <h5 class="text-center mb-3 text-success">How to Book a Day Tour</h5>
-                        
-                        <ol class="mb-0">
-                            <li class="mb-2">Select your preferred date</li>
-                            
-                            <li class="mb-2">Note:
-                                <ul class="mt-1">
-                                    <li>Past dates cannot be selected</li>
-                                    
-                                </ul>
-                            </li>
-                            
-                            <li>Once selected, we'll check availability and show room options</li>
-                        </ol>
-                    </div>
-                </div>
+    
+    <div class="container" style="max-width: 75vw;">
+        <div class="d-flex justify-content-between align-items-center gap-4 flex-wrap mb-3">
+            <div class="flex-grow-1">
+                <select id="stayType" class="form-select bg-white rounded shadow-sm border-success text-success fw-bold" style="width: 15vw; min-width: 150px; font-size: 1.25rem; height: 45px;">
+                    <option value="one-day">One Day Stay</option>
+                    <option value="stay-in">Stay In</option>
+                </select>
             </div>
-            <div class="col-md-8 mb-4 mb-md-0">
-                <div id="calendar" class="p-3 mt-4 mt-md-0" style="border: 2px solid #198754; border-radius: 10px; background-color: white;"></div>
+            <div class="bg-white rounded p-4 shadow-sm d-flex align-items-center justify-content-center" style="width: 30vw; min-width: 280px; height: 45px;">
+                <span id="calendar-title" class="fw-bold text-success text-uppercase" style="font-size: 1.5rem;"></span>
+            </div>
+            <div class="flex-grow-1 d-flex justify-content-end">
+                <button id="helpBtn" class="btn btn-light d-flex justify-content-center align-items-center" 
+                    style="width:50px; height:45px; border-radius:8px;">
+                        <i class="fas fa-question text-success"></i>
+                </button>
             </div>
         </div>
     </div>
+
+    <div class="container bg-white rounded p-4 shadow-sm" style="max-width: 75vw;">
+        <div class="row">
+            <div class="col-lg-8">
+                <div id="calendar"></div>
+            </div>
+            <div class="col-lg-4 mt-4 mt-lg-0">
+                <div class="reservation-controls d-flex flex-column h-100">
+                    <h4 class="text-success fw-bold">Your Selection</h4>
+                    <hr>
+                    <div id="one-day-selection" style="display:none;">
+                        <div class="mb-3">
+                            <label for="selectedDate" class="form-label fw-semibold">Selected Date</label>
+                            <input type="text" id="selectedDate" class="form-control" readonly placeholder="Select a date from the calendar">
+                        </div>
+                    </div>
+                    <div id="stay-in-selection">
+                        <div class="mb-3">
+                            <label for="checkInDate" class="form-label fw-semibold">Check-in Date</label>
+                            <input type="text" id="checkInDate" class="form-control" readonly placeholder="Select a start date">
+                        </div>
+                        <div class="mb-3">
+                            <label for="checkOutDate" class="form-label fw-semibold">Check-out Date</label>
+                            <input type="text" id="checkOutDate" class="form-control" readonly placeholder="Select an end date">
+                        </div>
+                    </div>
+                    <div class="mt-auto">
+                        <button id="proceedBtn" class="btn btn-success w-100 fw-bold" disabled>Proceed</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+
+
+
     <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const calendarEl = document.getElementById('calendar');
-    const allEvents = @json($events);
-    const today = new Date().toISOString().split('T')[0];
-    const stayinBtn = document.getElementById('stayinBtn');
-    const daytourBtn = document.getElementById('daytourBtn');
-    let reservationType = 'stayin';
-    let checkInDate = null;
-    let checkOutDate = null;
-    let fullyBookedDates = new Set();
+    document.addEventListener('DOMContentLoaded', function() {
+        const calendarEl = document.getElementById('calendar');
+        const stayTypeSelect = document.getElementById('stayType');
+        const oneDaySelection = document.getElementById('one-day-selection');
+        const stayInSelection = document.getElementById('stay-in-selection');
+        const selectedDateInput = document.getElementById('selectedDate');
+        const checkInDateInput = document.getElementById('checkInDate');
+        const checkOutDateInput = document.getElementById('checkOutDate');
+        const proceedBtn = document.getElementById('proceedBtn');
 
-    function formatDateLong(dateString) {
-        const date = new Date(dateString);
-        const options = { 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
-        };
-        return date.toLocaleDateString('en-US', options);
-    }
+        let checkInDate = null;
+        let checkOutDate = null;
 
-    // Toggle reservation type
-    [stayinBtn, daytourBtn].forEach(btn => {
-        btn.addEventListener('click', function() {
-            reservationType = this.id.replace('Btn', '');
-            document.querySelectorAll('.btn-group .btn').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: '',
+                right: 'dayGridMonth',
+            },
+            buttonText: {
+                dayGridMonth: 'Month'
+            },
+            datesSet: function(dateInfo) {
+                const titleEl = document.getElementById('calendar-title');
+                if (titleEl) {
+                    titleEl.innerText = dateInfo.view.title;
+                }
+            },
+            events: @json($events),
+            selectable: true,
+            selectAllow: function(selectInfo) {
+                // All validation is now in the `dateClick` and `select` handlers to allow for error messages.
+                return true;
+            },
+            dateClick: function(info) {
+                handleDateSelection(info.date);
+            },
+            select: function(info) {
+                if (stayTypeSelect.value === 'stay-in') {
+                    // This handles drag-selection. Single-click selection is handled by dateClick.
+                    // A single click also triggers 'select', so we need to differentiate.
+                    const oneDay = 24 * 60 * 60 * 1000;
+                    if ((info.end.getTime() - info.start.getTime()) <= oneDay) {
+                        // This is a single-day click, let dateClick handle it to allow for range selection by two clicks.
+                        // We unselect to prevent the calendar from showing a selection for a single day click.
+                        calendar.unselect();
+                        return;
+                    }
+
+                    // This is a drag selection for a range.
+                    checkInDate = info.start;
+                    checkOutDate = info.end; // end is already exclusive
+                    updateDateInputs();
+                }
+            },
+            eventDidMount: function(info) {
+                if (info.event.title === 'Fully Booked') {
+                    info.el.style.backgroundColor = '#dc3545';
+                    info.el.style.borderColor = '#dc3545';
+                }
+            }
+        });
+
+        calendar.render();
+
+        function handleDateSelection(date) {
+            const stayType = stayTypeSelect.value;
+            const today = new Date(new Date().setHours(0, 0, 0, 0));
+
+            // Universal check for past dates on any click.
+            if (date < today) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Invalid Date',
+                    text: 'You cannot select a past date.',
+                    confirmButtonColor: '#0b573d'
+                });
+                return; // Stop processing the invalid date.
+            }
+
+            if (stayType === 'one-day') {
+                checkInDate = date;
+                checkOutDate = date;
+                updateDateInputs();
+            } else { // stay-in
+                if (!checkInDate) {
+                    // First click: Set the check-in date.
+                    checkInDate = date;
+                    checkOutDate = null; // Ensure check-out is cleared.
+                    updateDateInputs();
+                } else {
+                    // Second (or subsequent) click: Set/update the check-out date.
+                    if (date < checkInDate) {
+                        // The selected date is before the check-in date.
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Invalid Check-out Date',
+                            text: 'Your check-out date cannot be earlier than your check-in date.',
+                            confirmButtonColor: '#0b573d'
+                        });
+                        // Don't update dates, just show error.
+                    } else {
+                        // Valid date, update the check-out date.
+                        checkOutDate = new Date(date.getTime() + (24 * 60 * 60 * 1000)); // Make it exclusive for backend
+                        updateDateInputs();
+                    }
+                }
+            }
+        }
+
+        function updateDateInputs() {
+            const stayType = stayTypeSelect.value;
+            if (stayType === 'one-day') {
+                selectedDateInput.value = checkInDate ? checkInDate.toLocaleDateString() : '';
+                proceedBtn.disabled = !checkInDate;
+            } else {
+                checkInDateInput.value = checkInDate ? checkInDate.toLocaleDateString() : '';
+                // For display, if checkout was selected, show the actual day, not the exclusive one.
+                checkOutDateInput.value = checkOutDate ? new Date(checkOutDate.getTime() - (24 * 60 * 60 * 1000)).toLocaleDateString() : '';
+                proceedBtn.disabled = !(checkInDate && checkOutDate);
+            }
+        }
+
+        function toggleStayTypeView() {
+            const stayType = stayTypeSelect.value;
+            if (stayType === 'one-day') {
+                oneDaySelection.style.display = 'block';
+                stayInSelection.style.display = 'none';
+            } else {
+                oneDaySelection.style.display = 'none';
+                stayInSelection.style.display = 'block';
+            }
+            // Reset dates on type change
             checkInDate = null;
             checkOutDate = null;
-            highlightSelectedDates();
-            
-            // Toggle visibility of selected dates box
-            const selectedDatesBox = document.getElementById('selectedDatesBox');
-            const overnightInstructions = document.getElementById('overnightInstructions');
-            const daytourInstructions = document.getElementById('daytourInstructions');
-            
-            if (reservationType === 'daytour') {
-                selectedDatesBox.style.display = 'none';
-                overnightInstructions.style.display = 'none';
-                daytourInstructions.style.display = 'block';
-            } else {
-                selectedDatesBox.style.display = 'block';
-                overnightInstructions.style.display = 'block';
-                daytourInstructions.style.display = 'none';
-            }
-        });
-    });
+            updateDateInputs();
+        }
 
-    // Process events data
-    const eventsByDate = {};
-    allEvents.forEach(event => {
-        const eventDate = event.start;
-        eventsByDate[eventDate] = eventsByDate[eventDate] || [];
-        eventsByDate[eventDate].push(event);
-    });
+        stayTypeSelect.addEventListener('change', toggleStayTypeView);
 
-    const filteredEvents = [];
-    Object.entries(eventsByDate).forEach(([date, events]) => {
-        events.forEach(event => {
-            if (event.extendedProps?.status === 'reserved' || event.extendedProps?.status === 'checked-in') {
-                filteredEvents.push({
-                    title: event.title,
-                    start: event.start,
-                    end: event.end,
-                    allDay: true,
-                    color: event.extendedProps.status === 'checked-in' ? '#2ecc71' : '#97a97c',
-                    extendedProps: event.extendedProps
-                });
+        checkInDateInput.addEventListener('click', () => {
+            if (stayTypeSelect.value === 'stay-in') {
+                // Clicking the input field resets the entire selection
+                checkInDate = null;
+                checkOutDate = null;
+                updateDateInputs();
             }
         });
 
-        if (events.some(e => e.title === "Fully Booked")) {
-            fullyBookedDates.add(date);
-            filteredEvents.push({
-                title: "Fully Booked",
-                start: date,
-                allDay: true,
-                color: '#FF0000',
-                textColor: 'white'
-            });
-        }
-    });
-
-    // Initialize calendar
-    const calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
-        headerToolbar: {
-            left: 'prev,next today',
-            center: 'title',
-            right: 'dayGridMonth'
-        },
-        events: filteredEvents,
-        eventClick: function(info) {
-            if (info.event.title !== "Fully Booked") {
-                const props = info.event.extendedProps;
-                document.getElementById('event-name').textContent = props.name;
-                document.getElementById('event-date').textContent = `${new Date(info.event.start).toLocaleDateString()}`;
-                document.getElementById('event-check_in').textContent = props.check_in;
-                document.getElementById('event-check_out').textContent = props.check_out;
-                document.getElementById('event-accommodations').textContent = props.accommodations;
-                document.getElementById('event-activities').textContent = props.activities;
-                
-                const modal = new bootstrap.Modal(document.getElementById('eventModal'));
-                modal.show();
+        checkOutDateInput.addEventListener('click', () => {
+            if (stayTypeSelect.value === 'stay-in' && checkInDate) {
+                // Clicking the check-out input field clears it to allow re-selection
+                checkOutDate = null;
+                updateDateInputs();
             }
-        },
-        dateClick: handleDateClick,
-        dayCellDidMount: handleDayCellMount,
-        selectable: true,
-        selectConstraint: {
-            start: today,
-            end: '2100-12-31' // Far future date
-        },
-        validRange: {
-            start: today
-        },
-        dayCellClassNames: function(arg) {
-            if (arg.date < new Date(today)) {
-                return ['past-date'];
+        });
+
+        proceedBtn.addEventListener('click', function() {
+            const stayType = stayTypeSelect.value;
+            let url;
+            if (stayType === 'one-day' && checkInDate) {
+                const dateStr = checkInDate.toISOString().split('T')[0];
+                url = `{{ route('selectPackage') }}?checkIn=${dateStr}&checkOut=${dateStr}`;
+            } else if (stayType === 'stay-in' && checkInDate && checkOutDate) {
+                const checkInStr = checkInDate.toISOString().split('T')[0];
+                const checkOutStr = checkOutDate.toISOString().split('T')[0];
+                url = `{{ route('selectPackageCustom') }}?checkIn=${checkInStr}&checkOut=${checkOutStr}`;
             }
-            return [];
-        }
+
+            if (url) {
+                window.location.href = url;
+            }
+        });
+
+        // Initial setup
+        toggleStayTypeView();
     });
+    </script>
+<script>
+    document.getElementById("helpBtn").addEventListener("click", function () {
+    const stayType = document.getElementById("stayType").value;
 
-    // Add these styles to your existing style element
-    const style = document.createElement('style');
-    style.textContent = `
-        .past-date {
-            background-color: #f5f5f5 !important;
-            color: #999 !important;
-            cursor: not-allowed !important;
-        }
-        .fc-daygrid-day-number {
-            position: absolute !important;
-            top: 5px !important;
-            right: 5px !important;
-        }
-        .fc-day-today {
-            background-color: #e8f4ea !important;
-        }
-        .fc-day-today .fc-daygrid-day-number {
-            background-color: #198754 !important;
-            color: white !important;
-            border-radius: 50% !important;
-            width: 24px !important;
-            height: 24px !important;
-            text-align: center !important;
-            line-height: 24px !important;
-            padding: 0 !important;
-            margin: 5px !important;
-        }
-        
-        .fc-event {
-            display: flex !important;
-            justify-content: center !important;
-            align-items: center !important;
-            margin-top: 20px !important;
-            text-align: center !important;
-        }
-
-        .fc-daygrid-event-harness {
-            margin-top: 15px !important;
-        }
-
-        .fc-event-title {
-            text-align: center !important;
-            width: 100% !important;
-        }
+    let title, htmlContent;
+    const listStyle = `
+        list-style: none; 
+        padding-left: 0; 
+        text-align: left; 
+        font-size: 1rem;
     `;
-    document.head.appendChild(style);
+    const listItemStyle = `
+        display: flex; 
+        align-items: center; 
+        margin-bottom: 15px;
+    `;
+    const iconStyle = `
+        color: #198754; 
+        font-size: 1.5rem; 
+        margin-right: 15px; 
+        width: 30px; 
+        text-align: center;
+    `;
 
-    // Update handleDayCellMount function
-    function handleDayCellMount(info) {
-        const cellDate = info.date.toISOString().split('T')[0];
-        if(cellDate < today) {
-            info.el.classList.add('past-date');
-        }
+    if (stayType === "stay-in") {
+        title = 'Booking a Stay-In Reservation';
+        htmlContent = `
+            <ul style="${listStyle}">
+                <li style="${listItemStyle}"><i class="fas fa-calendar-day" style="${iconStyle}"></i><div><strong>Select Check-in:</strong> Click on your desired start date.</div></li>
+                <li style="${listItemStyle}"><i class="fas fa-calendar-week" style="${iconStyle}"></i><div><strong>Select Check-out:</strong> Click and drag to your desired end date.</div></li>
+                <li style="${listItemStyle}"><i class="fas fa-arrow-right" style="${iconStyle}"></i><div><strong>Proceed:</strong> Click the "Proceed" button to continue.</div></li>
+            </ul>
+        `;
+    } else if (stayType === "one-day") {
+        title = 'Booking a One-Day Stay';
+        htmlContent = `
+            <ul style="${listStyle}">
+                <li style="${listItemStyle}"><i class="fas fa-calendar-day" style="${iconStyle}"></i><div><strong>Select Date:</strong> Click on your desired date on the calendar.</div></li>
+                <li style="${listItemStyle}"><i class="fas fa-arrow-right" style="${iconStyle}"></i><div><strong>Proceed:</strong> Click the "Proceed" button to continue.</div></li>
+            </ul>
+        `;
     }
 
-    calendar.render();
-
-    function handleDateClick(info) {
-        const selectedDate = info.dateStr;
-
-        if(selectedDate < today) {
-            Swal.fire("Past Date", "Cannot select dates in the past", "warning");
-            return;
-        }
-
-        if(fullyBookedDates.has(selectedDate)) {
-            Swal.fire("Booked Out", "This date is unavailable", "error");
-            return;
-        }
-
-        if(reservationType === 'daytour') {
-            handleDayTour(selectedDate);
-        } else {
-            handleStayIn(selectedDate);
-        }
-
-        highlightSelectedDates();
-    }
-
-    function handleDayTour(date) {
-        checkInDate = date;
-        checkOutDate = date;
-        const urlParams = new URLSearchParams(window.location.search);
-        const selectedRoomId = urlParams.get('roomid');
-        const selectedRoomName = urlParams.get('room');
-        Swal.fire({
-            title: 'Check in Date Selected',
-            text: `Date: ${new Date(date).toLocaleDateString()}`,
-            icon: 'success'
-        }).then(() => {
-            window.location.href = `{{ route('selectPackage') }}?checkIn=${date}&checkOut=${date}&type=daytour&roomid=${selectedRoomId}`;
-        });
-    }
-
-    function handleStayIn(date) {
-        if(!checkInDate) {
-            checkInDate = date;
-            // Update the selected dates display
-            
-            document.getElementById('selectedCheckIn').textContent = new Date(date).toLocaleDateString();
-            document.getElementById('selectedCheckOut').textContent = '-';
-            
-            Swal.fire({
-                title: 'Check-in Date Selected',
-                text: 'Please select a Check-out Date',
-                html: `Check-in Date: ${new Date(date).toLocaleDateString()}<br><br>
-                       <strong>Please select a Check-out Date on the calendar</strong>`,
-                icon: 'info',
-                confirmButtonText: 'OK',
-                confirmButtonColor: '#2ecc71'
-            });
-        } else if(!checkOutDate && date > checkInDate) {
-            checkOutDate = date;
-            // Update the selected dates display
-            const urlParams = new URLSearchParams(window.location.search);
-            const selectedRoomId = urlParams.get('roomid');
-            const selectedRoomName = urlParams.get('room');
-            document.getElementById('selectedCheckOut').textContent = new Date(date).toLocaleDateString();
-            
-            // Check availability for each accommodation type
-            fetch(`/check-accommodation-availability?checkIn=${checkInDate}&checkOut=${checkOutDate}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data && data.available_accommodations && data.available_accommodations.length > 0) {
-                        Swal.fire({
-                            title: 'Selected Dates',
-                            html: `<strong>Check-in:</strong> ${new Date(checkInDate).toLocaleDateString()}<br>
-                                  <strong>Check-out:</strong> ${new Date(checkOutDate).toLocaleDateString()}`,
-                            icon: 'success',
-                            confirmButtonColor: '#2ecc71'
-                        }).then(() => {
-                            window.location.href = `{{ route('selectPackageCustom') }}?checkIn=${checkInDate}&checkOut=${checkOutDate}&roomid=${selectedRoomId}`;
-                        });
-                    } else {
-                        throw new Error('No accommodations available');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    Swal.fire({
-                        title: 'Error',
-                        text: error.message || 'Failed to check availability',
-                        icon: 'error',
-                        confirmButtonColor: '#e74c3c'
-                    });
-                    checkInDate = null;
-                    checkOutDate = null;
-                    highlightSelectedDates();
-                });
-        } else if(date <= checkInDate) {
-            Swal.fire({
-                title: 'Invalid Date',
-                text: 'Check-out date must be after the Check-in date',
-                icon: 'error',
-                confirmButtonColor: '#e74c3c'
-            });
-        } else {
-            checkInDate = date;
-            checkOutDate = null;
-            Swal.fire({
-                title: 'New Check-in Date',
-                text: 'Please select a new Check-out Date',
-                html: `New Check-in Date: ${new Date(date).toLocaleDateString()}<br><br>
-                       <strong>Please select Check-out Date on the calendar</strong>`,
-                icon: 'info',
-                confirmButtonColor: '#2ecc71'
-            });
-        }
-    }
-
-    function highlightSelectedDates() {
-        document.querySelectorAll('.fc-daygrid-day').forEach(day => {
-            const date = day.dataset.date;
-            day.style.backgroundColor = '';
-            day.style.color = '';
-
-            if(date === checkInDate) {
-                day.style.backgroundColor = '#2ecc71';
-                day.style.color = 'white';
-            } else if(date === checkOutDate) {
-                day.style.backgroundColor = '#e74c3c';
-                day.style.color = 'white';
-            } else if(checkInDate && checkOutDate && date > checkInDate && date < checkOutDate) {
-                day.style.backgroundColor = '#f1c40f';
-            }
-        });
-    }
-});
-</script>
-<script>
-// Add this after your existing button click handlers
-document.addEventListener('DOMContentLoaded', function() {
-    const stayinBtn = document.getElementById('stayinBtn');
-    const daytourBtn = document.getElementById('daytourBtn');
-    const overnightInstructions = document.getElementById('overnightInstructions');
-    const daytourInstructions = document.getElementById('daytourInstructions');
-
-    stayinBtn.addEventListener('click', function() {
-        overnightInstructions.style.display = 'block';
-        daytourInstructions.style.display = 'none';
-    });
-
-    daytourBtn.addEventListener('click', function() {
-        overnightInstructions.style.display = 'none';
-        daytourInstructions.style.display = 'block';
+    Swal.fire({
+        icon: 'info',
+        iconColor: '#0b573d',
+        title: title,
+        html: htmlContent,
+        confirmButtonText: 'Got it!',
+        confirmButtonColor: '#0b573d'
     });
 });
-</script>
-<script>
-    // Add function to reset selected dates display
-function resetSelectedDates() {
-    document.getElementById('selectedCheckIn').textContent = '-';
-    document.getElementById('selectedCheckOut').textContent = '-';
-}
 
-// Update the reservation type toggle to reset dates
-[stayinBtn, daytourBtn].forEach(btn => {
-    btn.addEventListener('click', function() {
-        resetSelectedDates();
-    });
-});
 </script>
-
 </body>
 </html>

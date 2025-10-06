@@ -29,6 +29,7 @@
         z-index: 10001; /* Mas mataas na z-index */
         overflow: hidden;
     }
+    .custom-toast:hover { cursor: pointer; background-color: #0d6e4c; }
     .custom-toast.show {
         opacity: 1;
         transform: translateX(0);
@@ -86,17 +87,17 @@
                 
                 const toastHtml = `
                     <div class="custom-toast" data-notification-id="${notification.id}">
-                        <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex justify-content-between align-items-center" onclick="window.location.href = '{{ route('staff.reservation') }}?status=pending'">
                             <div>
                                 <p class="mb-1">${notification.message}</p>
-                                <small class="text-white-50">${moment(notification.created_at).fromNow()}</small>
+                                <small class="text-white-50 time-ago" data-created-at="${notification.created_at}">${moment(notification.created_at).fromNow()}</small>
                             </div>
                         </div>
-                        <div class="timer"></div>
                     </div>
                 `;
                 
-                const $toast = $(toastHtml);
+                const $toast = $(toastHtml);                
+
                 $('.toast-container').append($toast);
                 
                 setTimeout(() => {
@@ -109,11 +110,18 @@
                         currentNotificationIndex++;
                         showNextNotification();
                     });
-                }, 5000);
+                }, 5000); // 5 seconds
             } else {
                 // Reset index kung wala nang notifications
                 currentNotificationIndex = 0;
             }
+        }
+
+        function updateTimestamps() {
+            $('.time-ago').each(function() {
+                const createdAt = $(this).data('created-at');
+                $(this).text(moment(createdAt).fromNow());
+            });
         }
 
         function markAsReadHandler(id) {
@@ -150,8 +158,10 @@
         }
 
         loadNotifications();
-        setInterval(loadNotifications, 30000);
+        setInterval(loadNotifications, 30000); // Check for new notifications every 30 seconds
+        setInterval(updateTimestamps, 1000); // Update time every second
     });
     </script>
 </body>
 </html>
+                

@@ -16,6 +16,7 @@ use App\Http\Controllers\SignUpController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\Admin\RoomController;
+use App\Http\Controllers\PaymentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,10 +28,6 @@ use App\Http\Controllers\Admin\RoomController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-// Admin Login
-Route::get('/login/admin', [AdminSideController::class, 'AdminLogin'])->name('AdminLogin');
-Route::post('/login/admin/authenticate', [AdminSideController::class, 'login'])->name('authenticate');
-
 // Apply middleware to admin-specific routes only
 Route::middleware(['isAdmin', 'prevent.back'])->group(function () {
     // ADMIN ROUTES
@@ -81,15 +78,15 @@ Route::get('/login', [LoginController::class, 'login'])->name('login');
 Route::post('/login/verify-recaptcha', [LoginController::class, 'verifyRecaptcha'])->name('login.verifyRecaptcha');
 Route::post('/login/send-login-otp', [LoginController::class, 'sendLoginOTP'])->name('send-login-otp');
 Route::post('/login/verify-login-otp', [LoginController::class, 'verifyLoginOTP'])->name('verify-login-otp');
-Route::post('/login/resend-otp', [LoginController::class, 'resendOTP'])->name('resend-login-otp');
+Route::post('/login/resend-otp', [LoginController::class, 'resendOTP'])->name('resendOTP');
 Route::post('/login/authenticate', [LoginController::class, 'authenticate'])->name('login.authenticate');
 Route::post('/forgot/otp', [LoginController::class, 'sendOtp'])->name('forgot.sendOTP');
 Route::post('/forgot/reset', [LoginController::class, 'resetPassword'])->name('forgot.reset');
 
 // SIGNUP
 Route::get('/signup', [SignUpController::class, 'signup'])->name('signup');
-Route::post('/signup/send-otp', [SignUpController::class, 'sendOTP'])->name('signup.sendOTP');
-Route::post('/check-email', [SignUpController::class, 'checkEmail'])->name('check.email');
+Route::post('/signup/send-otp', [SignUpController::class, 'sendOTP'])->name('signup.send-otp');
+Route::post('/signup/check-email', [SignUpController::class, 'checkEmail'])->name('check.email');
 Route::post('/signup/verify-otp', [SignUpController::class, 'verifyOTP'])->name('signup.verifyOTP');
 /*Landing page/index */
 Route::get('/', [LandingPageController::class, 'index'])->name('landingpage');
@@ -112,6 +109,7 @@ Route::middleware(['auth', 'prevent.back'])->group(function () {
     Route::get('/check-accommodation-availability', [ReservationController::class, 'checkAccommodationAvailability']);
     Route::get('/reservation/fetch-addons', [ReservationController::class, 'fetchAddons'])->name('fetchAddons');
     Route::get('/reservation/payment-process', [ReservationController::class, 'paymentProcess'])->name('paymentProcess');
+    Route::get('/reservation/status/{id}', [ReservationController::class, 'getReservationStatus'])->name('reservation.status');
     Route::get('/reservation/display-summary', [ReservationController::class, 'displayReservationSummary'])->name('summary');
     Route::post('/reservation/feedback', [ReservationController::class, 'feedback'])->name('feedback.store');
 
@@ -125,6 +123,28 @@ Route::middleware(['auth', 'prevent.back'])->group(function () {
     Route::post('/homepage/reservation', [ReservationController::class, 'homepageReservation'])->name('homepageReservation');
     Route::post('/reservation/save-payment-process', [ReservationController::class, 'savePaymentProcess'])->name('savePaymentProcess');
     Route::get('/reservation/display-packages', [ReservationController::class, 'displayPackageSelection'])->name('authenticatedPackages');
+    // PayMongo
+    Route::post('/checkout', [PaymentController::class, 'checkout'])->name('checkout');
+    Route::post('/paymongo/checkout', [PaymentController::class, 'createCheckout'])->name('paymongo.checkout');
+
+    // This route is the success_url for PayMongo.
+    Route::get('/payment/success', function (Request $request) {
+        $reservationId = $request->input('reservation_id');
+        $message = 'Your payment was successful! Your reservation is now being processed.'; // Default message
+
+        if ($reservationId) {
+            $reservation = \Illuminate\Support\Facades\DB::table('reservation_details')->find($reservationId);
+            if ($reservation && $reservation->reservation_status === 'reserved') {
+                $message = 'Thank you for your reservation. Your reservation is now reserved';
+            }
+        }
+
+        return redirect()->route('summary')->with('success', $message);
+    });
+
+    Route::get('/payment/cancel', function () {
+        return redirect()->route('paymentProcess')->with('error', 'Your payment was cancelled.');
+    });
     // API
     Route::get('/get-reservations', function () {
         $reservations = Reservation::select('name', 'reservation_date', 'reservation_time')->get();
@@ -159,6 +179,7 @@ Route::middleware(['auth', 'prevent.back'])->group(function () {
 Route::get('/auth/google/redirect',[GoogleAuthController::class, 'redirect'])->name('google.redirect');
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback']);
 Route::post('/verify-otp', [GoogleAuthController::class, 'verifyOTP'])->name('verifyOTP');
+Route::post('/google/resend-otp', [GoogleAuthController::class, 'resendOTP'])->name('google.resend.otp');
 
 //Staff Route
 Route::middleware(['IsStaff' , 'prevent.back'])->group(function () {
@@ -190,5 +211,3 @@ Route::middleware(['IsStaff' , 'prevent.back'])->group(function () {
     Route::get('/staff/guests', [StaffController::class, 'guests'])->name('staff.guests');
     Route::get('/staff/logout', [StaffController::class, 'logout'])->name('staff.logout');
 });
-
-

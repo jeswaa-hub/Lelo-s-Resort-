@@ -392,7 +392,7 @@ public function reservations(Request $request)
 
     // Add stay_type filter
     if ($request->has('stay_type') && $request->stay_type !== '') {
-        if ($request->stay_type === 'overnight') {
+        if ($request->stay_type === 'stay-in') {
             $query->whereRaw('reservation_details.reservation_check_in_date <> reservation_details.reservation_check_out_date');
         } elseif ($request->stay_type === 'one_day') {
             $query->whereRaw('reservation_details.reservation_check_in_date = reservation_details.reservation_check_out_date');
@@ -442,7 +442,7 @@ public function reservations(Request $request)
             if ($reservation->reservation_check_in_date == $reservation->reservation_check_out_date) {
                 $reservation->stay_type = 'One Day Stay';
             } else {
-                $reservation->stay_type = 'Overnight';
+                $reservation->stay_type = 'Stay-in';
             }
         } else {
             $reservation->stay_type = 'Unknown';
@@ -954,12 +954,6 @@ public function UpdateStatus(Request $request, $id)
             $accommodationIdsAfterUpdate = json_decode($packageRoomsAfterUpdate, true) ?? [];
         }
 
-        /**
-         * 🚫 Removed: Global quantity decrement/increment
-         * The quantity in accomodations table remains fixed.
-         * Availability is now computed dynamically when checking for bookings.
-         */
-
         // Prepare change log for activity record
         $statusChanges = [];
         if ($originalPaymentStatus != $request->payment_status) {
@@ -1169,7 +1163,7 @@ public function UpdateStatus(Request $request, $id)
                 'reservation_status' => 'required',
                 'payment_method' => 'required|string|in:cash,gcash',
                 'amount' => 'required|numeric|min:0',
-                'quantity' => 'required|integer|min:1'
+                'quantity' => 'required|integer|min:1',
             ]);
             // Get accommodation details
             $accommodation = DB::table('accomodations')

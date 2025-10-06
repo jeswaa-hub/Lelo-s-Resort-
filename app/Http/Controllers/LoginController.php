@@ -324,7 +324,7 @@ public function resendOTP(Request $request)
         // Generate new 6-digit OTP
         $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
-        // Update OTP in session and cooldown timestamp
+        // Update OTP in session, using the correct keys
         session(['login_otp' => $otp, 'login_otp_email' => $email, 'last_otp_sent' => $currentTimestamp]);
 
         // Send new OTP via email

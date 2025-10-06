@@ -376,6 +376,11 @@
                         <button type="submit" class="btn btn-success">Verify OTP</button>
                     </div>
                 </form>
+                <div class="text-center mt-3">
+                    <small class="text-muted">Didn't receive the code?</small>
+                    <button type="button" id="resendLoginOtpBtn" class="btn btn-link text-decoration-none p-0" disabled>Resend OTP</button>
+                    <small id="loginOtpTimer" class="text-muted ms-1">(60s)</small>
+                </div>
             </div>
         </div>
     </div>
@@ -385,32 +390,46 @@
 <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-md">
         <div class="modal-content rounded-4 border-0" style="background-color: #f8f9fa;">
-            <div class="modal-header bg-success text-white py-3 rounded-top-4">
-                <h5 class="modal-title fw-bold" id="forgotPasswordModalLabel">Forgot Password</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-4">
-                <form action="{{ route('forgot.reset') }}" method="POST" id="passwordResetForm">
+            <div class="modal-body p-4 p-lg-5">
+                <button type="button" class="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
+
+                <form action="{{ route('forgot.reset') }}" method="POST" id="passwordResetForm" class="mt-3">
                     @csrf
-                    <div class="mb-3">
-                        <label for="email" class="form-label fw-bold text-success">Email</label>
-                        <input type="email" class="form-control" name="email" id="email" placeholder="Enter your email" required>
+
+                    <!-- Step 1: Email -->
+                    <div id="forgot-step-1">
+                        <h4 class="fw-bold text-success mb-2">Reset Password</h4>
+                        <p class="text-muted mb-4">Enter your email and we'll send you an OTP to reset your password.</p>
+                        <div class="mb-3">
+                            <label for="email" class="form-label fw-bold text-success">Email Address</label>
+                            <input type="email" class="form-control p-3" name="email" id="email" placeholder="you@example.com" required>
+                        </div>
+                        <button type="button" id="sendOTPBtn" class="btn btn-success w-100 fw-bold py-2 mt-3">Send OTP</button>
                     </div>
-                    <div class="mb-3">
-                        <label for="otp" class="form-label fw-bold text-success">OTP Code</label>
-                        <div class="d-flex">
-                            <div class="position-relative w-100">
-                                <input type="number" class="form-control me-2" name="otp" id="otp" placeholder="Enter OTP" required maxlength="6">
-                            </div>
-                            <button type="button" id="sendOTPBtn" class="btn btn-success text-center mx-auto d-block ms-2" style="font-size: 10px; height: 50px;">Send OTP</button>
+
+                    <!-- Step 2: OTP -->
+                    <div id="forgot-step-2" style="display: none;">
+                        <h4 class="fw-bold text-success mb-2">Enter OTP</h4>
+                        <p class="text-muted mb-4">A 6-digit code has been sent to <strong id="otp-sent-to-email"></strong>.</p>
+                        <div class="mb-3">
+                            <label for="otp" class="form-label fw-bold text-success">OTP Code</label>
+                            <input type="text" class="form-control p-3 text-center" name="otp" id="otp" placeholder="_ _ _ _ _ _" required maxlength="6" style="letter-spacing: 0.5rem;">
+                        </div>
+                        <button type="button" id="verifyOtpBtn" class="btn btn-success w-100 fw-bold py-2 mt-3">Verify OTP</button>
+                        <div class="text-center mt-3">
+                            <a href="#" id="backToEmail" class="text-decoration-none text-success small">Go back</a>
                         </div>
                     </div>
-                    <div id="passwordFields" style="display: none; opacity: 0; transition: opacity 0.3s ease-in-out;">
+
+                    <!-- Step 3: New Password -->
+                    <div id="passwordFields" style="display: none;">
+                        <h4 class="fw-bold text-success mb-2">Set New Password</h4>
+                        <p class="text-muted mb-4">Create a new, strong password.</p>
                         <div class="mb-3">
                             <label for="newPassword" class="form-label fw-bold text-success">New Password</label>
                             <div class="input-group">
-                                <input type="password" class="form-control" name="password" id="newPassword" placeholder="Enter new password" required>
-                                <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('newPassword', 'newPasswordIcon')" style="height: 50px;">
+                                <input type="password" class="form-control p-3 m-0" name="password" id="newPassword" placeholder="Enter new password" required>
+                                <button class="btn btn-outline-secondary py-3" type="button" onclick="togglePasswordVisibility('newPassword', 'newPasswordIcon')">
                                     <i class="fas fa-eye" id="newPasswordIcon"></i>
                                 </button>
                             </div>
@@ -421,19 +440,19 @@
                                 <small id="passwordHelp" class="form-text text-muted"></small>
                             </div>
                         </div>
-                        <div class="mb-3">
+                        <div class="mb-4">
                             <label for="password_confirmation" class="form-label fw-bold text-success">Confirm Password</label>
                             <div class="input-group">
-                                <input type="password" class="form-control" name="password_confirmation" id="confirmPassword" placeholder="Confirm your password" required>
-                                <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('confirmPassword', 'confirmPasswordIcon')" style="height: 50px;">
+                                <input type="password" class="form-control p-3 m-0" name="password_confirmation" id="confirmPassword" placeholder="Confirm your password" required>
+                                <button class="btn btn-outline-secondary py-3" type="button" onclick="togglePasswordVisibility('confirmPassword', 'confirmPasswordIcon')">
                                     <i class="fas fa-eye" id="confirmPasswordIcon"></i>
                                 </button>
                             </div>
                             <div id="passwordMatch" class="mt-2"></div>
                         </div>
-                        <div class="text-center mt-4">
+                        <div class="text-center">
                             <button type="submit" class="btn btn-success w-100 fw-bold py-2" id="submitBtn" disabled>
-                            Reset Password
+                                Reset Password
                             </button>
                         </div>
                     </div>
@@ -442,6 +461,7 @@
         </div>
     </div>
 </div>
+
 
 <!-- Google Auth OTP Modal -->
 @if(session('show_otp_modal'))
@@ -469,6 +489,11 @@
                         <button type="submit" class="btn btn-success">Verify OTP</button>
                     </div>
                 </form>
+                <div class="text-center mt-3">
+                    <small class="text-muted">Didn't receive the code?</small>
+                    <button type="button" id="resendGoogleOtpBtn" class="btn btn-link text-decoration-none p-0" disabled>Resend OTP</button>
+                    <small id="googleOtpTimer" class="text-muted ms-1">(60s)</small>
+                </div>
             </div>
         </div>
     </div>
@@ -485,6 +510,49 @@ document.addEventListener('DOMContentLoaded', function() {
     @if(session('show_otp_modal'))
         var googleOtpModal = new bootstrap.Modal(document.getElementById('googleOtpModal'));
         googleOtpModal.show();
+
+        const resendBtn = document.getElementById('resendGoogleOtpBtn');
+        const timerEl = document.getElementById('googleOtpTimer');
+        let timer;
+
+        function startOtpTimer() {
+            let seconds = 60;
+            resendBtn.disabled = true;
+            timerEl.style.display = 'inline';
+
+            timer = setInterval(() => {
+                seconds--;
+                timerEl.textContent = `(${seconds}s)`;
+                if (seconds <= 0) {
+                    clearInterval(timer);
+                    resendBtn.disabled = false;
+                    timerEl.style.display = 'none';
+                }
+            }, 1000);
+        }
+
+        resendBtn.addEventListener('click', async () => {
+            resendBtn.disabled = true;
+            resendBtn.innerHTML = 'Sending...';
+
+            try {
+                const response = await fetch("{{ route('google.resend.otp') }}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
+                    },
+                    body: JSON.stringify({ user_id: "{{ session('otp_user_id') }}" })
+                });
+                const data = await response.json();
+                showBootstrapToast(data.message, data.success ? 'success' : 'error');
+            } finally {
+                resendBtn.innerHTML = 'Resend OTP';
+                startOtpTimer();
+            }
+        });
+
+        startOtpTimer(); // Start timer when modal is shown
     @endif
 
     function showBootstrapToast(message, type = 'success') {
@@ -608,6 +676,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         document.getElementById('otpEmail').textContent = userCredential;
                         document.getElementById('otpEmailInput').value = userCredential;
                         otpModal.show();
+                        setupOtpTimer('resendLoginOtpBtn', 'loginOtpTimer', userCredential); // Start timer for login modal
                     } else {
                         showBootstrapToast(data.message || 'Failed to send OTP. Please try again.', 'error');
                     }
@@ -626,9 +695,56 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // --- OTP TIMER AND RESEND LOGIC ---
+    function setupOtpTimer(resendBtnId, timerElId, email) {
+        const resendBtn = document.getElementById(resendBtnId);
+        const timerEl = document.getElementById(timerElId);
+        let timer;
+
+        function startTimer() {
+            let seconds = 60;
+            resendBtn.disabled = true;
+            timerEl.style.display = 'inline';
+
+            timer = setInterval(() => {
+                seconds--;
+                timerEl.textContent = `(${seconds}s)`;
+                if (seconds <= 0) {
+                    clearInterval(timer);
+                    resendBtn.disabled = false;
+                    timerEl.style.display = 'none';
+                }
+            }, 1000);
+        }
+
+        resendBtn.addEventListener('click', async () => {
+            resendBtn.disabled = true;
+            resendBtn.innerHTML = 'Sending...';
+
+            try {
+                const response = await fetch("{{ route('resendOTP') }}", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content") },
+                    body: JSON.stringify({ email: email })
+                });
+                const data = await response.json();
+                showBootstrapToast(data.message, data.success ? 'success' : 'error');
+            } finally {
+                resendBtn.innerHTML = 'Resend OTP';
+                startTimer();
+            }
+        });
+
+        startTimer();
+    }
+
     // --- FORGOT PASSWORD LOGIC ---
     const forgotPasswordModal = document.getElementById('forgotPasswordModal');
     if(forgotPasswordModal) {
+        const step1 = forgotPasswordModal.querySelector('#forgot-step-1');
+        const step2 = forgotPasswordModal.querySelector('#forgot-step-2');
+        const step3 = forgotPasswordModal.querySelector('#passwordFields');
+
         const sendOTPBtn = document.getElementById('sendOTPBtn');
         sendOTPBtn.addEventListener('click', async function() {
             const email = forgotPasswordModal.querySelector('#email').value;
@@ -652,6 +768,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 const data = await response.json();
                 showBootstrapToast(data.message, data.success ? 'success' : 'error');
 
+                if (data.success) {
+                    step1.style.display = 'none';
+                    step2.style.display = 'block';
+                    document.getElementById('otp-sent-to-email').textContent = email;
+                }
             } catch (error) {
                 console.error("Error sending OTP:", error);
                 showBootstrapToast('Failed to send OTP. Please try again.', 'error');
@@ -659,6 +780,26 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.disabled = false;
                 this.textContent = "Send OTP";
             }
+        });
+
+        const verifyOtpBtn = document.getElementById('verifyOtpBtn');
+        verifyOtpBtn.addEventListener('click', function() {
+            const otp = forgotPasswordModal.querySelector('#otp').value;
+            if (otp.length === 6) {
+                step2.style.display = 'none';
+                step3.style.display = 'block';
+                step3.offsetHeight; 
+                step3.style.opacity = '1'; // Make it visible and trigger fade-in
+            } else {
+                showBootstrapToast('Please enter the 6-digit OTP.', 'warning');
+            }
+        });
+
+        const backToEmailBtn = document.getElementById('backToEmail');
+        backToEmailBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            step2.style.display = 'none';
+            step1.style.display = 'block';
         });
 
         const passwordResetForm = document.getElementById('passwordResetForm');
@@ -697,23 +838,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        const otpInput = forgotPasswordModal.querySelector('#otp');
-        const passwordFields = forgotPasswordModal.querySelector('#passwordFields');
-
-        otpInput.addEventListener('input', function() {
-            if (this.value.length === 6) {
-                passwordFields.style.display = 'block';
-                setTimeout(() => {
-                    passwordFields.style.opacity = '1';
-                }, 10);
-            } else {
-                passwordFields.style.opacity = '0';
-                setTimeout(() => {
-                    passwordFields.style.display = 'none';
-                }, 300);
-            }
-        });
-
         const newPasswordInput = forgotPasswordModal.querySelector('#newPassword');
         const confirmPasswordInput = forgotPasswordModal.querySelector('#confirmPassword');
         const passwordMatchElement = forgotPasswordModal.querySelector('#passwordMatch');

@@ -384,29 +384,25 @@ public function reports(Request $request)
         ->pluck('count', 'day')
         ->toArray();
 
-    // Get most booked room type
-    $mostBookedRoomType = DB::table('reservation_details')
+    // Get most booked room type - CORRECTED LOGIC
+    $mostBookedRoomId = DB::table('reservation_details')
         ->whereYear('reservation_check_in_date', $selectedYear)
         ->whereMonth('reservation_check_in_date', $selectedMonth)
         ->where('payment_status', 'paid')
-        ->whereNotNull('accomodation_id') // Only include records with accommodation IDs
+        ->whereNotNull('accomodation_id')
         ->get()
         ->flatMap(function($reservation) {
             $accomodationIds = json_decode($reservation->accomodation_id, true);
-            if (!is_array($accomodationIds)) {
-                $accomodationIds = explode(',', $reservation->accomodation_id);
-            }
-            return array_filter($accomodationIds); // Remove any empty/null values
+            return is_array($accomodationIds) ? $accomodationIds : [];
         })
-        ->map(function($id) {
-            $accommodation = DB::table('accomodations')
-                ->where('accomodation_id', $id)
-                ->first();
-            return $accommodation ? $accommodation->accomodation_name : null;
-        })
-        ->filter() // Remove null values
-        ->unique() // Get unique room types
-        ->first(); // Get the first (most booked) room type
+        ->countBy()
+        ->sortDesc()
+        ->keys()
+        ->first();
+
+    $mostBookedRoomType = $mostBookedRoomId 
+        ? DB::table('accomodations')->where('accomodation_id', $mostBookedRoomId)->value('accomodation_name') 
+        : 'N/A';
     $totalBookings = DB::table('reservation_details')
         ->whereYear('reservation_check_in_date', $selectedYear)
         ->whereMonth('reservation_check_in_date', $selectedMonth)
@@ -586,6 +582,12 @@ public function login(Request $request) {
         abort(404, 'Admin credentials not found');
     }
 
+    // Eager load all accommodation names to avoid N+1 queries inside loops
+    $allAccommodations = DB::table('accomodations')
+        ->pluck('accomodation_name', 'accomodation_id')
+        ->all();
+
+
     // Total Bookings (sum of quantities from both tables)
     $onlineBookingsToday = DB::table('reservation_details')
         ->whereDate('reservation_check_in_date', Carbon::today())
@@ -625,32 +627,25 @@ public function login(Request $request) {
     ->groupBy(DB::raw('DATE(rd.reservation_check_in_date)'))
     ->orderBy('date', 'asc')
     ->get()
-    ->map(function($reservation) {
+    ->map(function($reservation) use ($allAccommodations) {
         $rawJsonStrings = explode('|', $reservation->accomodation_ids);
         $quantities = explode('|', $reservation->quantities);
         $allAccommodationIds = [];
 
         foreach ($rawJsonStrings as $index => $jsonString) {
             $decoded = json_decode($jsonString, true);
-            if (is_array($decoded)) {
-                $qty = $quantities[$index] ?? 1;
-                for ($i = 0; $i < $qty; $i++) {
-                    $allAccommodationIds = array_merge($allAccommodationIds, $decoded);
-                }
+            if (is_array($decoded) && !empty($decoded)) {
+                $qty = (int)($quantities[$index] ?? 1);
+                $allAccommodationIds = array_merge($allAccommodationIds, array_fill(0, $qty, $decoded));
             }
         }
-
-        $allAccommodationIds = array_filter($allAccommodationIds);
-
-        $uniqueIds = array_unique($allAccommodationIds);
-        $idToName = DB::table('accomodations')
-            ->whereIn('accomodation_id', $uniqueIds)
-            ->pluck('accomodation_name', 'accomodation_id')
-            ->toArray();
+        // Flatten the array of arrays
+        $allAccommodationIds = collect($allAccommodationIds)->flatten()->filter()->all();
 
         $roomTypes = [];
         foreach ($allAccommodationIds as $id) {
-            $roomTypes[] = $idToName[$id] ?? 'Unknown';
+            // Use the pre-loaded accommodation names
+            $roomTypes[] = $allAccommodations[$id] ?? 'Unknown';
         }
 
         return [
@@ -670,32 +665,26 @@ public function login(Request $request) {
         ->groupBy('week')
         ->orderBy('week', 'asc')
         ->get()
-        ->map(function($reservation) {
+        ->map(function($reservation) use ($allAccommodations) {
         $rawJsonStrings = explode('|', $reservation->accomodation_ids);
         $quantities = explode('|', $reservation->quantities);
         $allAccommodationIds = [];
         
         foreach ($rawJsonStrings as $index => $jsonString) {
-        $decoded = json_decode($jsonString, true);
-        if (is_array($decoded)) {
-        $qty = $quantities[$index] ?? 1;
-        for ($i = 0; $i < $qty; $i++) {
-        $allAccommodationIds = array_merge($allAccommodationIds, $decoded);
-        }
-        }
+            $decoded = json_decode($jsonString, true);
+            if (is_array($decoded) && !empty($decoded)) {
+                $qty = (int)($quantities[$index] ?? 1);
+                $allAccommodationIds = array_merge($allAccommodationIds, array_fill(0, $qty, $decoded));
+            }
         }
         
-        $allAccommodationIds = array_filter($allAccommodationIds);
-        
-        $uniqueIds = array_unique($allAccommodationIds);
-        $idToName = DB::table('accomodations')
-        ->whereIn('accomodation_id', $uniqueIds)
-        ->pluck('accomodation_name', 'accomodation_id')
-        ->toArray();
+        // Flatten the array of arrays
+        $allAccommodationIds = collect($allAccommodationIds)->flatten()->filter()->all();
         
         $roomTypes = [];
         foreach ($allAccommodationIds as $id) {
-        $roomTypes[] = $idToName[$id] ?? 'Unknown';
+            // Use the pre-loaded accommodation names
+            $roomTypes[] = $allAccommodations[$id] ?? 'Unknown';
         }
         
         return [
@@ -716,32 +705,26 @@ public function login(Request $request) {
         ->groupBy('month')
         ->orderBy(DB::raw('MIN(rd.reservation_check_in_date)'), 'asc')
         ->get()
-        ->map(function($reservation) {
+        ->map(function($reservation) use ($allAccommodations) {
         $rawJsonStrings = explode('|', $reservation->accomodation_ids);
         $quantities = explode('|', $reservation->quantities);
         $allAccommodationIds = [];
         
         foreach ($rawJsonStrings as $index => $jsonString) {
-        $decoded = json_decode($jsonString, true);
-        if (is_array($decoded)) {
-        $qty = $quantities[$index] ?? 1;
-        for ($i = 0; $i < $qty; $i++) {
-            $allAccommodationIds = array_merge($allAccommodationIds, $decoded);
-        }
-        }
+            $decoded = json_decode($jsonString, true);
+            if (is_array($decoded) && !empty($decoded)) {
+                $qty = (int)($quantities[$index] ?? 1);
+                $allAccommodationIds = array_merge($allAccommodationIds, array_fill(0, $qty, $decoded));
+            }
         }
         
-        $allAccommodationIds = array_filter($allAccommodationIds);
-        
-        $uniqueIds = array_unique($allAccommodationIds);
-        $idToName = DB::table('accomodations')
-            ->whereIn('accomodation_id', $uniqueIds)
-            ->pluck('accomodation_name', 'accomodation_id')
-            ->toArray();
+        // Flatten the array of arrays
+        $allAccommodationIds = collect($allAccommodationIds)->flatten()->filter()->all();
 
         $roomTypes = [];
         foreach ($allAccommodationIds as $id) {
-            $roomTypes[] = $idToName[$id] ?? 'Unknown';
+            // Use the pre-loaded accommodation names
+            $roomTypes[] = $allAccommodations[$id] ?? 'Unknown';
         }
         
         return [
@@ -762,32 +745,26 @@ public function login(Request $request) {
         ->groupBy('year')
         ->orderBy('year', 'asc')
         ->get()
-        ->map(function($reservation) {
+        ->map(function($reservation) use ($allAccommodations) {
         $rawJsonStrings = explode('|', $reservation->accomodation_ids);
         $quantities = explode('|', $reservation->quantities);
         $allAccommodationIds = [];
         
         foreach ($rawJsonStrings as $index => $jsonString) {
-        $decoded = json_decode($jsonString, true);
-        if (is_array($decoded)) {
-        $qty = $quantities[$index] ?? 1;
-        for ($i = 0; $i < $qty; $i++) {
-            $allAccommodationIds = array_merge($allAccommodationIds, $decoded);
-        }
-        }
+            $decoded = json_decode($jsonString, true);
+            if (is_array($decoded) && !empty($decoded)) {
+                $qty = (int)($quantities[$index] ?? 1);
+                $allAccommodationIds = array_merge($allAccommodationIds, array_fill(0, $qty, $decoded));
+            }
         }
         
-        $allAccommodationIds = array_filter($allAccommodationIds);
-        
-        $uniqueIds = array_unique($allAccommodationIds);
-        $idToName = DB::table('accomodations')
-            ->whereIn('accomodation_id', $uniqueIds)
-            ->pluck('accomodation_name', 'accomodation_id')
-            ->toArray();
+        // Flatten the array of arrays
+        $allAccommodationIds = collect($allAccommodationIds)->flatten()->filter()->all();
 
         $roomTypes = [];
         foreach ($allAccommodationIds as $id) {
-            $roomTypes[] = $idToName[$id] ?? 'Unknown';
+            // Use the pre-loaded accommodation names
+            $roomTypes[] = $allAccommodations[$id] ?? 'Unknown';
         }
         
         return [
@@ -809,29 +786,23 @@ public function login(Request $request) {
         ->groupBy(DB::raw('DATE(wg.reservation_check_in_date)'))
         ->orderBy('date', 'asc')
         ->get()
-        ->map(function($walkin) {
+        ->map(function($walkin) use ($allAccommodations) {
         $accomodationIds = explode('|', $walkin->accomodation_ids);
         $quantities = explode('|', $walkin->quantities);
         $allAccommodationIds = [];
         
         foreach ($accomodationIds as $index => $id) {
-        if (!empty($id)) {
-        $qty = $quantities[$index] ?? 1;
-        $allAccommodationIds = array_merge($allAccommodationIds, array_fill(0, $qty, $id));
-        }
+            if (!empty($id)) {
+                $qty = (int)($quantities[$index] ?? 1);
+                $allAccommodationIds = array_merge($allAccommodationIds, array_fill(0, $qty, $id));
+            }
         }
         
         $allAccommodationIds = array_filter($allAccommodationIds);
-        
-        $uniqueIds = array_unique($allAccommodationIds);
-        $idToName = DB::table('accomodations')
-            ->whereIn('accomodation_id', $uniqueIds)
-            ->pluck('accomodation_name', 'accomodation_id')
-            ->toArray();
 
         $roomTypes = [];
         foreach ($allAccommodationIds as $id) {
-            $roomTypes[] = $idToName[$id] ?? 'Unknown';
+            $roomTypes[] = $allAccommodations[$id] ?? 'Unknown';
         }
         
         return [
@@ -853,29 +824,23 @@ public function login(Request $request) {
         ->groupBy('week')
         ->orderBy('week', 'asc')
         ->get()
-        ->map(function($walkin) {
+        ->map(function($walkin) use ($allAccommodations) {
         $accomodationIds = explode('|', $walkin->accomodation_ids);
         $quantities = explode('|', $walkin->quantities);
         $allAccommodationIds = [];
         
         foreach ($accomodationIds as $index => $id) {
-        if (!empty($id)) {
-        $qty = $quantities[$index] ?? 1;
-        $allAccommodationIds = array_merge($allAccommodationIds, array_fill(0, $qty, $id));
-        }
+            if (!empty($id)) {
+                $qty = (int)($quantities[$index] ?? 1);
+                $allAccommodationIds = array_merge($allAccommodationIds, array_fill(0, $qty, $id));
+            }
         }
         
         $allAccommodationIds = array_filter($allAccommodationIds);
-        
-        $uniqueIds = array_unique($allAccommodationIds);
-        $idToName = DB::table('accomodations')
-            ->whereIn('accomodation_id', $uniqueIds)
-            ->pluck('accomodation_name', 'accomodation_id')
-            ->toArray();
 
         $roomTypes = [];
         foreach ($allAccommodationIds as $id) {
-            $roomTypes[] = $idToName[$id] ?? 'Unknown';
+            $roomTypes[] = $allAccommodations[$id] ?? 'Unknown';
         }
         
         return [
@@ -897,29 +862,23 @@ public function login(Request $request) {
         ->groupBy('month')
         ->orderBy(DB::raw('MIN(wg.reservation_check_in_date)'), 'asc')
         ->get()
-        ->map(function($walkin) {
+        ->map(function($walkin) use ($allAccommodations) {
         $accomodationIds = explode('|', $walkin->accomodation_ids);
         $quantities = explode('|', $walkin->quantities);
         $allAccommodationIds = [];
         
         foreach ($accomodationIds as $index => $id) {
-        if (!empty($id)) {
-        $qty = $quantities[$index] ?? 1;
-        $allAccommodationIds = array_merge($allAccommodationIds, array_fill(0, $qty, $id));
-        }
+            if (!empty($id)) {
+                $qty = (int)($quantities[$index] ?? 1);
+                $allAccommodationIds = array_merge($allAccommodationIds, array_fill(0, $qty, $id));
+            }
         }
         
         $allAccommodationIds = array_filter($allAccommodationIds);
-        
-        $uniqueIds = array_unique($allAccommodationIds);
-        $idToName = DB::table('accomodations')
-            ->whereIn('accomodation_id', $uniqueIds)
-            ->pluck('accomodation_name', 'accomodation_id')
-            ->toArray();
 
         $roomTypes = [];
         foreach ($allAccommodationIds as $id) {
-            $roomTypes[] = $idToName[$id] ?? 'Unknown';
+            $roomTypes[] = $allAccommodations[$id] ?? 'Unknown';
         }
         
         return [
@@ -940,29 +899,23 @@ public function login(Request $request) {
         ->groupBy('year')
         ->orderBy('year', 'asc')
         ->get()
-        ->map(function($walkin) {
+        ->map(function($walkin) use ($allAccommodations) {
         $accomodationIds = explode('|', $walkin->accomodation_ids);
         $quantities = explode('|', $walkin->quantities);
         $allAccommodationIds = [];
         
         foreach ($accomodationIds as $index => $id) {
-        if (!empty($id)) {
-        $qty = $quantities[$index] ?? 1;
-        $allAccommodationIds = array_merge($allAccommodationIds, array_fill(0, $qty, $id));
-        }
+            if (!empty($id)) {
+                $qty = (int)($quantities[$index] ?? 1);
+                $allAccommodationIds = array_merge($allAccommodationIds, array_fill(0, $qty, $id));
+            }
         }
         
         $allAccommodationIds = array_filter($allAccommodationIds);
-        
-        $uniqueIds = array_unique($allAccommodationIds);
-        $idToName = DB::table('accomodations')
-            ->whereIn('accomodation_id', $uniqueIds)
-            ->pluck('accomodation_name', 'accomodation_id')
-            ->toArray();
 
         $roomTypes = [];
         foreach ($allAccommodationIds as $id) {
-            $roomTypes[] = $idToName[$id] ?? 'Unknown';
+            $roomTypes[] = $allAccommodations[$id] ?? 'Unknown';
         }
         
         return [
@@ -1439,6 +1392,24 @@ public function exportExcelReports(Request $request)
 
     $cancellationPercentage = $totalBookings > 0 ? ($cancelledBookings / $totalBookings) * 100 : 0;
 
+    // Get most booked room type
+    $mostBookedRoomId = DB::table('reservation_details')
+        ->whereYear('reservation_check_in_date', $selectedYear)
+        ->whereMonth('reservation_check_in_date', $selectedMonth)
+        ->where('payment_status', 'paid')
+        ->whereNotNull('accomodation_id')
+        ->get()
+        ->flatMap(function($reservation) {
+            $accomodationIds = json_decode($reservation->accomodation_id, true);
+            return is_array($accomodationIds) ? $accomodationIds : [];
+        })
+        ->countBy()
+        ->sortDesc()
+        ->keys()
+        ->first();
+
+    $mostBookedRoomType = $mostBookedRoomId ? DB::table('accomodations')->where('accomodation_id', $mostBookedRoomId)->value('accomodation_name') : 'N/A';
+
     // Get checked out count
     $checkedOutCount = DB::table('reservation_details')
         ->whereYear('reservation_check_in_date', $selectedYear)
@@ -1454,6 +1425,15 @@ public function exportExcelReports(Request $request)
         ->whereRaw('DATE(updated_at) < reservation_check_out_date')
         ->count();
 
+    // Get payment status breakdown
+    $paymentStatusBreakdown = DB::table('reservation_details')
+        ->whereYear('reservation_check_in_date', $selectedYear)
+        ->whereMonth('reservation_check_in_date', $selectedMonth)
+        ->select('payment_status', DB::raw('count(*) as count'))
+        ->groupBy('payment_status')
+        ->pluck('count', 'payment_status')
+        ->toArray();
+
     // Pass all data to the Excel view
     $data = [
         'selectedMonth' => $selectedMonth,
@@ -1464,7 +1444,9 @@ public function exportExcelReports(Request $request)
         'cancelledBookings' => $cancelledBookings,
         'cancellationPercentage' => $cancellationPercentage,
         'checkedOutCount' => $checkedOutCount,
-        'earlyCheckedOutCount' => $earlyCheckedOutCount
+        'earlyCheckedOutCount' => $earlyCheckedOutCount,
+        'mostBookedRoomType' => $mostBookedRoomType,
+        'paymentStatusData' => $paymentStatusBreakdown
     ];
 
     return Excel::download(new ReportsExport($data), 'monthly-report-' . $monthYear . '.xlsx');
@@ -1563,6 +1545,24 @@ public function exportPDFReports(Request $request)
         ->pluck('count', 'payment_status')
         ->toArray();
 
+    // Get most booked room type - ADDED CORRECTED LOGIC
+    $mostBookedRoomId = DB::table('reservation_details')
+        ->whereYear('reservation_check_in_date', $selectedYear)
+        ->whereMonth('reservation_check_in_date', $selectedMonth)
+        ->where('payment_status', 'paid')
+        ->whereNotNull('accomodation_id')
+        ->get()
+        ->flatMap(function($reservation) {
+            $accomodationIds = json_decode($reservation->accomodation_id, true);
+            return is_array($accomodationIds) ? $accomodationIds : [];
+        })
+        ->countBy()
+        ->sortDesc()
+        ->keys()
+        ->first();
+
+    $mostBookedRoomType = $mostBookedRoomId ? DB::table('accomodations')->where('accomodation_id', $mostBookedRoomId)->value('accomodation_name') : 'N/A';
+
     $data = [
         'confirmedBookings' => $confirmedBookings,
         'adultGuests' => $adultGuests,
@@ -1574,7 +1574,8 @@ public function exportPDFReports(Request $request)
         'earlyCheckedOutCount' => $earlyCheckedOutCount,
         'paymentStatusData' => $paymentStatusBreakdown,
         'selectedMonth' => $selectedMonth,
-        'selectedYear' => $selectedYear
+        'selectedYear' => $selectedYear,
+        'mostBookedRoomType' => $mostBookedRoomType // Added this line
     ];
 
     $pdf = PDF::loadView('exports.reports-pdf', $data);
@@ -2043,6 +2044,7 @@ public function addRoom(Request $request)
 {
     $request->validate([
         'accomodation_image' => 'required|image|mimes:jpeg,png,jpg,gif',
+        'extra_images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048', // ✅ added for multiple extra images
         'accomodation_name' => 'required|string|max:255',
         'accomodation_type' => 'required|in:room,cottage,cabin',
         'accomodation_capacity' => 'required|numeric|min:1',
@@ -2050,19 +2052,30 @@ public function addRoom(Request $request)
         'accomodation_status' => 'required|in:available,unavailable',
         'room_id' => 'required|numeric',
         'accomodation_description' => 'nullable|string',
-        'quantity' => 'required|numeric|min:1', // Added quantity validation
-        'amenities' => 'nullable|string', // Added amenities validation
+        'quantity' => 'required|numeric|min:1',
+        'amenities' => 'nullable|string',
     ]);
 
-    // Attempt to store the image
+    // ✅ Store the main image
     $imagePath = $request->file('accomodation_image')->store('accomodations', 'public');
 
-    // Check if the image was successfully saved
     if (!$imagePath) {
         return redirect()->back()->with('error', 'Failed to upload image. Please try again.');
     }
 
-    // Ensure the accomodation_type value is a valid string
+    // ✅ Handle multiple extra images
+    $extraImages = [];
+    if ($request->hasFile('extra_images')) {
+        foreach ($request->file('extra_images') as $extraImage) {
+            $path = $extraImage->store('accomodations', 'public');
+            $extraImages[] = $path;
+        }
+    }
+
+    // Convert to JSON (or null if none)
+    $extraImagesJson = !empty($extraImages) ? json_encode($extraImages) : null;
+
+    // ✅ Ensure the accommodation type is valid
     $accomodationType = in_array($request->accomodation_type, ['room', 'cottage', 'cabin']) 
                         ? $request->accomodation_type 
                         : null;
@@ -2070,23 +2083,24 @@ public function addRoom(Request $request)
     if (!$accomodationType) {
         return redirect()->back()->with('error', 'Invalid accommodation type. Please select a valid type.');
     }
-    // Save the data into the database
+
+    // ✅ Insert data into database
     $inserted = DB::table('accomodations')->insert([
         'accomodation_image' => $imagePath,
+        'extra_images' => $extraImagesJson, // ✅ save JSON string here
         'accomodation_name' => $request->accomodation_name,
-        'accomodation_type' => $request->accomodation_type,
+        'accomodation_type' => $accomodationType,
         'accomodation_capacity' => $request->accomodation_capacity,
         'accomodation_price' => $request->accomodation_price,
         'accomodation_status' => $request->accomodation_status,
         'room_id' => $request->room_id,
         'accomodation_description' => $request->accomodation_description,
         'quantity' => $request->quantity,
-        'amenities' => $request->amenities, // Added amenities field
+        'amenities' => $request->amenities,
         'created_at' => now(),
         'updated_at' => now(),
     ]);
 
-    // Check if database insert was successful
     if (!$inserted) {
         return redirect()->back()->with('error', 'Failed to save accommodation. Please try again.');
     }
@@ -2094,70 +2108,87 @@ public function addRoom(Request $request)
     return redirect()->route('rooms')->with('success', 'Accommodation added successfully!');
 }
 
+
 public function updateRoom(Request $request, $accomodation_id)
 {
     $request->validate([
         'accomodation_image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+        'extra_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif',
         'accomodation_name' => 'required|string|max:255',
         'accomodation_type' => 'required|string',
         'accomodation_capacity' => 'required|numeric|min:1',
         'accomodation_price' => 'required|numeric|min:0',
-        'accomodation_status' => 'required|string', // Make sure this is string
+        'accomodation_status' => 'required|string',
         'room_id' => 'required|numeric',
         'accomodation_description' => 'nullable|string',
         'amenities' => 'nullable|string',
         'quantity' => 'required|numeric|min:0',
     ]);
 
-    // Find accommodation using Eloquent
     $accomodation = Accomodation::find($accomodation_id);
 
     if (!$accomodation) {
         return redirect()->back()->with('error', 'Accommodation not found.');
     }
 
-    // Handle image upload
+    // ✅ Handle main image upload
     if ($request->hasFile('accomodation_image')) {
-        // Delete the old image if it exists
+        // Delete old image
         if ($accomodation->accomodation_image && Storage::exists('public/' . $accomodation->accomodation_image)) {
             Storage::delete('public/' . $accomodation->accomodation_image);
         }
 
-        // Store the new image
+        // Store new main image
         $imagePath = $request->file('accomodation_image')->store('public/accomodations');
         $accomodation->accomodation_image = str_replace('public/', '', $imagePath);
     }
 
-    // Debug: Check what status is being received
-    \Log::info('Updating accommodation status to: ' . $request->accomodation_status);
+    // ✅ Handle multiple extra images
+    if ($request->hasFile('extra_images')) {
+        $extraImagePaths = [];
 
-    // Update fields using fill() method for cleaner code
-    $accomodation->update([
-        'accomodation_name' => $request->accomodation_name,
-        'accomodation_type' => $request->accomodation_type,
-        'accomodation_capacity' => $request->accomodation_capacity,
-        'accomodation_price' => $request->accomodation_price,
-        'accomodation_status' => $request->accomodation_status,
-        'room_id' => $request->room_id,
-        'accomodation_description' => $request->accomodation_description,
-        'amenities' => $request->amenities,
-        'quantity' => $request->quantity,
-    ]);
+        // Delete old extra images (optional; comment this if you want to keep old ones)
+        if ($accomodation->extra_images) {
+            $oldExtras = explode(',', $accomodation->extra_images);
+            foreach ($oldExtras as $old) {
+                if (Storage::exists('public/' . $old)) {
+                    Storage::delete('public/' . $old);
+                }
+            }
+        }
+
+        // Store new extra images
+        foreach ($request->file('extra_images') as $extraImage) {
+            $path = $extraImage->store('public/accomodations/extra');
+            $extraImagePaths[] = str_replace('public/', '', $path);
+        }
+
+        // Convert array to string (comma-separated)
+        $accomodation->extra_images = implode(',', $extraImagePaths);
+    }
+
+    // ✅ Update main fields
+    $accomodation->accomodation_name = $request->accomodation_name;
+    $accomodation->accomodation_type = $request->accomodation_type;
+    $accomodation->accomodation_capacity = $request->accomodation_capacity;
+    $accomodation->accomodation_price = $request->accomodation_price;
+    $accomodation->accomodation_status = $request->accomodation_status;
+    $accomodation->room_id = $request->room_id;
+    $accomodation->accomodation_description = $request->accomodation_description;
+    $accomodation->amenities = $request->amenities;
+    $accomodation->quantity = $request->quantity;
 
     try {
-        $saved = $accomodation->save();
-        
-        // Debug: Check if save was successful and verify the status
-        if ($saved) {
-            \Log::info('Accommodation saved. Status in DB: ' . $accomodation->fresh()->accomodation_status);
-        }
-        
+        $accomodation->save();
+        \Log::info('Accommodation updated successfully. Status: ' . $accomodation->accomodation_status);
     } catch (\Exception $e) {
         \Log::error('Failed to update accommodation: ' . $e->getMessage());
         return redirect()->back()->with('error', 'Failed to update accommodation: ' . $e->getMessage());
     }
+
     return redirect()->route('rooms')->with('success', 'Accommodation updated successfully!');
 }
+
 
     public function deleteRoom($accomodation_id)
     {

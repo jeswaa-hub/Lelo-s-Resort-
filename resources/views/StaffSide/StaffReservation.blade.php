@@ -266,7 +266,6 @@
                                         name="status" onchange="this.form.submit()" 
                                         style="border-color: #0b573d; font-weight: 500; min-width: 200px;">
                                     <option value="pending" {{ (!request('status') || request('status') == 'pending') ? 'selected' : '' }}>📋 Pending ({{ $pendingCount ?? 0 }})</option>
-                                    <option value="on-hold" {{ request('status') == 'on-hold' ? 'selected' : '' }}>⏸️ On-Hold ({{ $OnHoldCount ?? 0 }})</option>
                                     <option value="reserved" {{ request('status') == 'reserved' ? 'selected' : '' }}>📅 Reserved ({{ $reservedCount ?? 0 }})</option>
                                     <option value="checked-in" {{ request('status') == 'checked-in' ? 'selected' : '' }}>🏨 Checked-in ({{ $checkedInCount ?? 0 }})</option>
                                     <option value="checked-out" {{ request('status') == 'checked-out' ? 'selected' : '' }}>✅ Checked-out ({{ $checkedOutCount ?? 0 }})</option>
@@ -277,7 +276,7 @@
                                 <select name="stay_type" class="form-select" onchange="this.form.submit()" 
                                         style="border-color: #0b573d; font-weight: 500; min-width: 160px;">
                                     <option value="">All Stay Types</option>
-                                    <option value="overnight" {{ request('stay_type') == 'overnight' ? 'selected' : '' }}>🌙 Overnight</option>
+                                    <option value="stay-in" {{ request('stay_type') == 'stay-in' ? 'selected' : '' }}>🌙 Stay-in</option>
                                     <option value="one_day" {{ request('stay_type') == 'one_day' ? 'selected' : '' }}>☀️ Day Stay</option>
                                 </select>
                                 
@@ -326,7 +325,6 @@
                                                 name="status" onchange="this.form.submit()" 
                                                 style="border-color: #0b573d; font-weight: 500;">
                                             <option value="pending" {{ (!request('status') || request('status') == 'pending') ? 'selected' : '' }}>📋 Pending ({{ $pendingCount ?? 0 }})</option>
-                                            <option value="on-hold" {{ request('status') == 'on-hold' ? 'selected' : '' }}>⏸️ On-Hold ({{ $OnHoldCount ?? 0 }})</option>
                                             <option value="reserved" {{ request('status') == 'reserved' ? 'selected' : '' }}>📅 Reserved ({{ $reservedCount ?? 0 }})</option>
                                             <option value="checked-in" {{ request('status') == 'checked-in' ? 'selected' : '' }}>🏨 Checked-in ({{ $checkedInCount ?? 0 }})</option>
                                             <option value="checked-out" {{ request('status') == 'checked-out' ? 'selected' : '' }}>✅ Checked-out ({{ $checkedOutCount ?? 0 }})</option>
@@ -338,8 +336,8 @@
                                     <div class="col-md-4">
                                         <select name="stay_type" class="form-select" onchange="this.form.submit()" 
                                                 style="border-color: #0b573d; font-weight: 500;">
-                                            <option value="">All Stay Types</option>
-                                            <option value="overnight" {{ request('stay_type') == 'overnight' ? 'selected' : '' }}>🌙 Overnight</option>
+                                            <option value="">All Stay Types</option> 
+                                            <option value="stay-in" {{ request('stay_type') == 'stay-in' ? 'selected' : '' }}>🌙 Stay-in</option>
                                             <option value="one_day" {{ request('stay_type') == 'one_day' ? 'selected' : '' }}>☀️ Day Stay</option>
                                         </select>
                                     </div>
@@ -391,7 +389,6 @@
                                         name="status" onchange="this.form.submit()" 
                                         style="border-color: #0b573d; font-weight: 500;">
                                     <option value="pending" {{ (!request('status') || request('status') == 'pending') ? 'selected' : '' }}>📋 Pending ({{ $pendingCount ?? 0 }})</option>
-                                    <option value="on-hold" {{ request('status') == 'on-hold' ? 'selected' : '' }}>⏸️ On-Hold ({{ $OnHoldCount ?? 0 }})</option>
                                     <option value="reserved" {{ request('status') == 'reserved' ? 'selected' : '' }}>📅 Reserved ({{ $reservedCount ?? 0 }})</option>
                                     <option value="checked-in" {{ request('status') == 'checked-in' ? 'selected' : '' }}>🏨 Checked-in ({{ $checkedInCount ?? 0 }})</option>
                                     <option value="checked-out" {{ request('status') == 'checked-out' ? 'selected' : '' }}>✅ Checked-out ({{ $checkedOutCount ?? 0 }})</option>
@@ -404,8 +401,8 @@
                             <div class="d-flex gap-2 mb-3">
                                 <select name="stay_type" class="form-select flex-grow-1" onchange="this.form.submit()" 
                                         style="border-color: #0b573d; font-weight: 500;">
-                                    <option value="">All Stay Types</option>
-                                    <option value="overnight" {{ request('stay_type') == 'overnight' ? 'selected' : '' }}>🌙 Overnight</option>
+                                    <option value="">All Stay Types</option> 
+                                    <option value="stay-in" {{ request('stay_type') == 'stay-in' ? 'selected' : '' }}>🌙 Stay-in</option>
                                     <option value="one_day" {{ request('stay_type') == 'one_day' ? 'selected' : '' }}>☀️ Day Stay</option>
                                 </select>
                                 
@@ -482,8 +479,8 @@
                                                         $displayStayType = 'Day Stay';
                                                         $icon = '☀️';
                                                     } else {
-                                                        $stayType = 'overnight';
-                                                        $displayStayType = 'Overnight';
+                                                        $stayType = 'stay-in';
+                                                        $displayStayType = 'Stay-in';
                                                         $icon = '🌙';
                                                     }
                                                 @endphp
@@ -526,10 +523,9 @@
                                             </td>
                                             <td class="text-center align-middle">
                                                 <span class="badge rounded-pill py-2 px-3
-                                                    {{ $reservation->payment_status == 'pending' ? 'bg-warning' : 
-                                                    ($reservation->payment_status == 'paid' ? 'bg-success' : 
-                                                    ( $reservation->payment_status == 'on-hold' ? 'bg-warning' : 
-                                                    ($reservation->payment_status == 'booked' ? 'bg-primary' : 'bg-danger'))) }}" style="font-size: .7rem;">
+                                                    {{ $reservation->payment_status == 'pending' ? 'bg-warning' :
+                                                       ($reservation->payment_status == 'paid' ? 'bg-success' :
+                                                       ($reservation->payment_status == 'booked' ? 'bg-primary' : 'bg-danger')) }}" style="font-size: .7rem;">
                                                     {{ ucfirst($reservation->payment_status) }}
                                                 </span>
                                             </td>
@@ -616,7 +612,6 @@
                                                                 </label>
                                                             <select class="form-select form-select-lg border-2" name="reservation_status" id="reservation_status" style="border-color: #0b573d">
                                                                 <option value="" disabled selected hidden>Choose reservation status</option>
-                                                                <option value="on-hold" {{ $reservation->reservation_status == 'on-hold' ? 'selected' : '' }}>On-Hold</option>
                                                                 <option value="reserved" {{ $reservation->reservation_status == 'reserved' ? 'selected' : '' }}>Reserved</option>
                                                                 <option value="checked-in" {{ $reservation->reservation_status == 'checked-in' ? 'selected' : '' }}>Checked-In</option>
                                                                 <option value="early-checked-out" {{ $reservation->reservation_status == 'early-checked-out' ? 'selected' : '' }}>Early Checked-Out</option>
@@ -640,7 +635,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        
+
                                         <!-- View Reservation Details Modal -->
                                         <div class="modal fade" id="viewReservationModal{{ $reservation->id }}" tabindex="-1" aria-hidden="true">
                                             <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -652,6 +647,7 @@
                                                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                                                     </div>
                                                     <form action="{{ route('staff.extendReservation', $reservation->id) }}" method="POST">
+                                                        @if($reservation->reservation_status == 'checked-in')
                                                         @csrf
                                                         <div class="modal-body p-4" style="background-color: #f8f9fa;">
                                                             <input type="hidden" name="additional_payment" id="additional_payment" value="0">
@@ -681,7 +677,7 @@
                                                                         <div class="card-body">
                                                                             <div class="form-group mb-3">
                                                                                 <label class="form-label">New Check-out Date</label>
-                                                                                <input type="date" class="form-control" name="new_checkout_date" 
+                                                                                <input type="date" class="form-control new-checkout-date" name="new_checkout_date" 
                                                                                     min="{{ \Carbon\Carbon::parse($reservation->reservation_check_out_date)->addDay()->format('Y-m-d') }}"
                                                                                     required>
                                                                             </div>
@@ -698,12 +694,11 @@
                                                                         <div class="card-body">
                                                                             <div class="row">
                                                                                 <div class="col-md-6">
-                                                                                    <p class="mb-2"><strong>Current Total:</strong> ₱{{ number_format($reservation->amount, 2) }}</p>
-                                                                                    <p class="mb-2"><strong>Extension Fee (per night):</strong> ₱<span id="extension_fee">{{ number_format($reservation->accomodation_price, 2) ?? '0.00' }}</span></p>
+                                                                                    <p class="mb-2"><strong>Current Total:</strong> ₱{{ number_format($reservation->amount, 2) }}</p>                                                                                    <p class="mb-2"><strong>Extension Fee (per night):</strong> ₱<span class="extension-fee">{{ number_format($reservation->accomodation_price, 2) ?? '0.00' }}</span></p>
                                                                                 </div>
                                                                                 <div class="col-md-6">
-                                                                                    <p class="mb-2"><strong>Additional Nights:</strong> <span id="additional_nights">0</span></p>
-                                                                                    <p class="mb-2"><strong>Total Extension Cost:</strong> ₱<span id="total_extension_cost" name="additional_payment">0.00</span></p>
+                                                                                    <p class="mb-2"><strong>Additional Nights:</strong> <span class="additional-nights">0</span></p>
+                                                                                    <p class="mb-2"><strong>Total Extension Cost:</strong> ₱<span class="total-extension-cost">0.00</span></p>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -718,13 +713,22 @@
                                                                 <i class="fas fa-check me-2"></i>Confirm Extension
                                                             </button>
                                                         </div>
+                                                        @else
+                                                        <div class="modal-body p-4 text-center">
+                                                            <div class="alert alert-info">
+                                                                <i class="fas fa-info-circle me-2"></i>
+                                                                Reservation can only be extended if the status is 'Checked-in'.
+                                                            </div>
+                                                            <p><strong>Current Status:</strong> <span class="badge bg-secondary">{{ ucfirst($reservation->reservation_status) }}</span></p>
+                                                        </div>
+                                                        @endif
                                                     </form>
                                                 </div>
                                             </div>
                                         </div>
                                     @empty
                                         <tr>
-                                            <td colspan="13" class="text-center py-5">
+                                            <td colspan="14" class="text-center py-5">
                                                 <div class="d-flex flex-column align-items-center">
                                                     <i class="fas fa-calendar-times fs-1 text-muted mb-3"></i>
                                                     <h5 class="text-muted">No Reservations Found</h5>
@@ -1314,6 +1318,51 @@
         if (toggleBtn) toggleBtn.style.display = 'block';
         if (stopBtn) stopBtn.style.display = 'none';
         isCameraOn = false;
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Function to handle the calculation for extending a reservation
+        function calculateExtension(modal) {
+            const newCheckoutDateInput = modal.querySelector('.new-checkout-date');
+            const additionalNightsSpan = modal.querySelector('.additional-nights');
+            const totalExtensionCostSpan = modal.querySelector('.total-extension-cost');
+            const additionalPaymentInput = modal.querySelector('input[name="additional_payment"]');
+            const extensionFeeSpan = modal.querySelector('.extension-fee');
+
+            if (!newCheckoutDateInput || !additionalNightsSpan || !totalExtensionCostSpan || !additionalPaymentInput || !extensionFeeSpan) {
+                console.error('One or more elements for calculation are missing in the modal.');
+                return;
+            }
+
+            const currentCheckoutDate = new Date(newCheckoutDateInput.min).getTime() - (24 * 60 * 60 * 1000); // Get original checkout date
+            const newCheckoutDate = new Date(newCheckoutDateInput.value).getTime();
+            const roomPriceText = extensionFeeSpan.textContent.replace(/,/g, '');
+            const roomPrice = parseFloat(roomPriceText) || 0;
+
+            if (newCheckoutDate > currentCheckoutDate) {
+                const timeDiff = newCheckoutDate - currentCheckoutDate;
+                const additionalNights = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                const extensionCost = additionalNights * roomPrice;
+
+                additionalNightsSpan.textContent = additionalNights;
+                totalExtensionCostSpan.textContent = extensionCost.toFixed(2);
+                additionalPaymentInput.value = extensionCost.toFixed(2);
+            } else {
+                additionalNightsSpan.textContent = '0';
+                totalExtensionCostSpan.textContent = '0.00';
+                additionalPaymentInput.value = '0';
+            }
+        }
+
+        // Add event listeners to all "Extend Reservation" modals
+        const extendModals = document.querySelectorAll('[id^="viewReservationModal"]');
+        extendModals.forEach(modal => {
+            const newCheckoutDateInput = modal.querySelector('.new-checkout-date');
+            if (newCheckoutDateInput) {
+                newCheckoutDateInput.addEventListener('change', () => calculateExtension(modal));
+            }
+        });
     });
 </script>
 

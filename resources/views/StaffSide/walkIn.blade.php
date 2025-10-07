@@ -41,11 +41,11 @@
                                 <!-- Greeting -->
                                 <div class="d-flex flex-column align-items-start text-start" 
                                      style="padding: 0 20px;">
-                                    <p class="text-white" style="font-family: 'Poppins', sans-serif; font-size: clamp(2rem, 5vw, 3rem); letter-spacing: 5px;">
+                                    <p class="text-white" style="font-family: 'Poppins', sans-serif; font-size: clamp(1.2rem, 4vw, 3rem); letter-spacing: 3px;">
                                         Hello,
                                     </p>
                                     <h1 class="text-capitalize fw-bolder" 
-                                        style="font-family: 'Montserrat', sans-serif; font-size: clamp(3rem, 8vw, 5rem); color:#ffffff; letter-spacing: clamp(5px, 2vw, 15px); white-space: normal; overflow-wrap: break-word; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
+                                        style="font-family: 'Montserrat', sans-serif; font-size: clamp(1.8rem, 6vw, 5rem); color:#ffffff; letter-spacing: clamp(3px, 1.5vw, 15px); white-space: normal; overflow-wrap: break-word; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
                                         {{$staffCredentials->username}}
                                     </h1>
                                 </div>
@@ -63,7 +63,8 @@
                                                 Total Reservations
                                             </p>
                                         </div>
-                                        <div class="d-flex align-items-center">
+                                        <!-- Icon hidden on small screens -->
+                                        <div class="d-none d-md-flex align-items-center">
                                             <i class="fas fa-calendar-check text-white" style="font-size: clamp(2.2rem, 4.5vw, 3.5rem);"></i>
                                         </div>
                                     </div>
@@ -83,7 +84,8 @@
                                                 <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.7rem, 3vw, 3.5rem); text-shadow: 0 2px 4px rgba(0,0,0,0.3);">{{ $totalWalkInGuests ?? 0 }}</h1>
                                                 <p class="mb-0 text-uppercase fw-semibold text-white" style="font-size: clamp(0.9rem, 1.4vw, 1.3rem); opacity: 0.95;">Walk-In</p>
                                             </div>
-                                            <div class="d-flex align-items-center">
+                                            <!-- Icon hidden on small screens -->
+                                            <div class="d-none d-md-flex align-items-center">
                                                 <i class="fas fa-user-check text-white" style="font-size: clamp(2.2rem, 4.5vw, 3.5rem);"></i>
                                             </div>
                                         </div>
@@ -99,7 +101,8 @@
                                                 <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.7rem, 3vw, 3.5rem); text-shadow: 0 2px 4px rgba(0,0,0,0.3);">{{ $totalCheckedOutGuests ?? 0 }}</h1>
                                                 <p class="mb-0 text-uppercase fw-semibold text-white" style="font-size: clamp(0.9rem, 1.4vw, 1.3rem); opacity: 0.95;">Check-out</p>
                                             </div>
-                                            <div class="d-flex align-items-center">
+                                            <!-- Icon hidden on small screens -->
+                                            <div class="d-none d-md-flex align-items-center">
                                                 <i class="fas fa-sign-out-alt text-white" style="font-size: clamp(2.2rem, 4.5vw, 3.5rem);"></i>
                                             </div>
                                         </div>
@@ -115,7 +118,8 @@
                                                 <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.7rem, 3vw, 3.5rem); text-shadow: 0 2px 4px rgba(0,0,0,0.3);">{{ $totalCheckedInGuests ?? 0 }}</h1>
                                                 <p class="mb-0 text-uppercase fw-semibold text-white" style="font-size: clamp(0.9rem, 1.4vw, 1.3rem); opacity: 0.95;">Checked-in</p>
                                             </div>
-                                            <div class="d-flex align-items-center">
+                                            <!-- Icon hidden on small screens -->
+                                            <div class="d-none d-md-flex align-items-center">
                                                 <i class="fas fa-user-check text-white" style="font-size: clamp(2.2rem, 4.5vw, 3.5rem);"></i>
                                             </div>
                                         </div>
@@ -131,7 +135,8 @@
                                                 <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.7rem, 3vw, 3.5rem); text-shadow: 0 2px 4px rgba(0,0,0,0.3);">{{ $totalReservedGuests ?? 0 }}</h1>
                                                 <p class="mb-0 text-uppercase fw-semibold text-white" style="font-size: clamp(0.9rem, 1.4vw, 1.3rem); opacity: 0.95;">Reserved</p>
                                             </div>
-                                            <div class="d-flex align-items-center">
+                                            <!-- Icon hidden on small screens -->
+                                            <div class="d-none d-md-flex align-items-center">
                                                 <i class="fas fa-user-check text-white" style="font-size: clamp(2.2rem, 4.5vw, 3.5rem);"></i>
                                             </div>
                                         </div>

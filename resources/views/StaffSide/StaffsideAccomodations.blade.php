@@ -94,15 +94,14 @@
                                 <!-- Greeting -->
                                 <div class="d-flex flex-column align-items-start text-start" 
                                      style="padding: 0 20px;">
-                                    <p class="text-white" style="font-family: 'Poppins', sans-serif; font-size: clamp(2rem, 5vw, 3rem); letter-spacing: 5px;">
+                                    <p class="text-white" style="font-family: 'Poppins', sans-serif; font-size: clamp(1.2rem, 4vw, 3rem); letter-spacing: 3px;">
                                         Hello,
                                     </p>
                                     <h1 class="text-capitalize fw-bolder" 
-                                        style="font-family: 'Montserrat', sans-serif; font-size: clamp(3rem, 8vw, 5rem); color:#ffffff; letter-spacing: clamp(5px, 2vw, 15px); white-space: normal; overflow-wrap: break-word; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
+                                        style="font-family: 'Montserrat', sans-serif; font-size: clamp(1.8rem, 6vw, 5rem); color:#ffffff; letter-spacing: clamp(3px, 1.5vw, 15px); white-space: normal; overflow-wrap: break-word; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
                                         {{$staffCredentials->username}}
                                     </h1>
                                 </div>
-                                
                                 <!-- Total Rooms -->
                                 <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" 
                                      style="background: linear-gradient(135deg, #43cea2 0%, #385E3C 100%); border: 1px solid #ffffff;">
@@ -111,7 +110,8 @@
                                             <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.5rem, 2.5vw, 3rem);">{{ $totalRooms ?? 0 }}</h1>
                                             <p class="mb-0 text-uppercase fw-semibold text-white" style="font-size: clamp(0.8rem, 1.2vw, 1.2rem);">Total Rooms</p>
                                         </div>
-                                        <div class="d-flex align-items-center">
+                                        <!-- Icon hidden on small screens -->
+                                        <div class="d-none d-md-flex align-items-center">
                                             <i class="fas fa-bed text-white" style="font-size: clamp(2.2rem, 4.5vw, 3.5rem);"></i>
                                         </div>
                                     </div>
@@ -132,7 +132,8 @@
                                                     <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.5rem, 2.5vw, 3rem); text-shadow: 0 2px 4px rgba(0,0,0,0.3);">{{ $vacantRooms ?? 0 }}</h1>
                                                     <p class="mb-0 text-uppercase fw-semibold text-white" style="font-size: clamp(0.8rem, 1.2vw, 1rem); opacity: 0.95;">Vacant Rooms</p>
                                                 </div>
-                                                <div class="d-flex align-items-center">
+                                                <!-- Icon hidden on small screens -->
+                                                <div class="d-none d-md-flex align-items-center">
                                                     <i class="fas fa-door-open text-white" style="font-size: clamp(2rem, 4vw, 3rem);"></i>
                                                 </div>
                                             </div>
@@ -150,7 +151,8 @@
                                                     <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.5rem, 2.5vw, 3rem); text-shadow: 0 2px 4px rgba(0,0,0,0.3);">{{ $reservedRooms ?? 0 }}</h1>
                                                     <p class="mb-0 text-uppercase fw-semibold text-white" style="font-size: clamp(0.8rem, 1.2vw, 1rem); opacity: 0.95;">Reserved Rooms</p>
                                                 </div>
-                                                <div class="d-flex align-items-center">
+                                                <!-- Icon hidden on small screens -->
+                                                <div class="d-none d-md-flex align-items-center">
                                                     <i class="fas fa-door-closed text-white" style="font-size: clamp(2rem, 4vw, 3rem);"></i>
                                                 </div>
                                             </div>

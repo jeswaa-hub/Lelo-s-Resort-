@@ -117,13 +117,15 @@
 <div class="row">
     <div class="col-11 mx-auto">
         <div class="hero-banner d-flex flex-column justify-content-center text-white p-3 p-sm-4 p-md-5"
-            style="background-image:url('{{ asset('images/staff-admin-bg.jpg') }}'); 
-                   background-size: cover; background-position: center; min-height: 450px; border-radius: 15px;">
+            style="background-color: white; min-height: 450px; border-radius: 15px;">
 
             <div class="row g-3 g-md-4">
-                <!-- Left Side -->
+                <!-- Left Side with background image -->
                 <div class="col-12 col-md-6">
-                    <div class="d-flex flex-column gap-3">
+                    <div class="d-flex flex-column gap-3 h-100"
+                         style="background-image:url('{{ asset('images/staff-admin-bg.jpg') }}'); 
+                                background-size: cover; background-position: center; 
+                                border-radius: 15px; padding: 2rem;">
                         <!-- Greeting -->
                         <div class="d-flex flex-column align-items-start text-start" 
                             style="padding: 0 20px;">
@@ -138,110 +140,100 @@
                         
                         <!-- Total Reservations -->
                         <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" 
-                             style="background: linear-gradient(135deg, #ffffff 50%, #f8f9fa 50%);">
+                             style="background: linear-gradient(135deg, #43cea2 0%, #385E3C 100%); border: 1px solid #ffffff;">
                             <div class="d-flex align-items-center justify-content-between w-100">
-                                <div class="d-flex align-items-baseline gap-2">
-                                    <h1 class="fw-bold mb-0 text-success" 
-                                        style="font-size: clamp(1.5rem, 2.5vw, 3rem);">
+                                <div class="d-flex flex-column gap-1">
+                                    <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.3rem, 2vw, 2.5rem); text-shadow: 0 1px 2px rgba(0,0,0,0.3);">
                                         {{ $totalCount ?? 0 }}
                                     </h1>
-                                    <p class="mb-0 text-uppercase fw-semibold text-success" style="font-size: clamp(0.8rem, 1.2vw, 1.2rem);">
+                                    <p class="mb-0 text-uppercase fw-semibold text-white" style="font-size: clamp(0.75rem, 1.1vw, 1rem); opacity: 0.95;">
                                         Total Reservations
                                     </p>
                                 </div>
                                 <div class="d-flex align-items-center">
-                                    <i class="fas fa-calendar-check text-success" 
-                                       style="font-size: clamp(2rem, 4vw, 4rem);">
-                                    </i>
+                                    <i class="fas fa-calendar-check text-white" style="font-size: clamp(2.2rem, 4.5vw, 3.5rem);"></i>
                                 </div>
-                            </div>
-                            <div class="position-absolute top-0 end-0 opacity-25 d-none d-md-block">
-                                <i class="fas fa-calendar-check text-success" 
-                                   style="font-size: 5rem; margin: -10px;">
-                                </i>
                             </div>
                         </div>
                     </div>
                 </div>
                 
-
-                <!-- Right Side -->
+                <!-- Right Side without background image -->
                 <div class="col-12 col-md-6">
-                    <div class="row row-cols-1 row-cols-sm-2 g-3 g-md-4">
+                    <div class="row row-cols-2 g-2 g-md-3 g-lg-4 h-100">
                         <!-- Checked-in -->
-                        <div class="col">
-                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg, #ffffff 50%, #f8f9fa 50%);">
-                                <div class="d-flex align-items-center justify-content-between w-100">
-                                    <div class="d-flex flex-column gap-2">
-                                        <h1 class="fw-bold mb-0 text-success" style="font-size: clamp(1.5rem, 2.5vw, 3rem);">{{ $checkedInCount ?? 0 }}</h1>
-                                        <p class="mb-0 text-uppercase fw-semibold text-success" style="font-size: clamp(0.8rem, 1.2vw, 1.2rem);">Check-in</p>
-                                    </div>
-                                    <div class="d-flex align-items-center">
-                                        <i class="fas fa-user-check text-success" style="font-size: clamp(2rem, 4vw, 2.5rem);"></i>
+                        <div class="col d-flex align-items-stretch">
+                            <a href="{{ route('staff.reservation', ['status' => 'checked-in']) }}" class="text-decoration-none w-100">
+                                <div class="d-flex align-items-center text-dark p-4 p-md-5 p-lg-6 rounded-4 shadow-lg w-100 position-relative overflow-hidden dashboard-card" 
+                                     style="background: linear-gradient(135deg, #43cea2 0%, #385E3C 100%); border: none;">
+                                    <div class="d-flex align-items-center justify-content-between w-100 position-relative">
+                                        <div class="d-flex flex-column gap-1">
+                                            <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.7rem, 3vw, 3.5rem); text-shadow: 0 2px 4px rgba(0,0,0,0.3);">{{ $checkedInCount ?? 0 }}</h1>
+                                            <p class="mb-0 text-uppercase fw-semibold text-white" style="font-size: clamp(0.9rem, 1.4vw, 1.3rem); opacity: 0.95;">Check-in</p>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-user-check text-white" style="font-size: clamp(2.2rem, 4.5vw, 3.5rem);"></i>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="position-absolute top-0 end-0 opacity-25 d-none d-md-block">
-                                    <i class="fas fa-user-check text-success" style="font-size: 4rem; margin: -10px;"></i>
-                                </div>
-                            </div>
+                            </a>
                         </div>
 
                         <!-- Checked-out -->
-                        <div class="col">
-                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg, #ffffff 50%, #f8f9fa 50%);">
-                                <div class="d-flex align-items-center justify-content-between w-100">
-                                    <div class="d-flex flex-column gap-2">
-                                        <h1 class="fw-bold mb-0 text-success" style="font-size: clamp(1.5rem, 2.5vw, 3rem);">{{ $checkedOutCount ?? 0 }}</h1>
-                                        <p class="mb-0 text-uppercase fw-semibold text-success" style="font-size: clamp(0.8rem, 1.2vw, 1.2rem);">Check-out</p>
-                                    </div>
-                                    <div class="d-flex align-items-center">
-                                        <i class="fas fa-sign-out-alt text-success" style="font-size: clamp(2rem, 4vw, 5rem);"></i>
+                        <div class="col d-flex align-items-stretch">
+                            <a href="{{ route('staff.reservation', ['status' => 'checked-out']) }}" class="text-decoration-none w-100">
+                                <div class="d-flex align-items-center text-dark p-4 p-md-5 p-lg-6 rounded-4 shadow-lg w-100 position-relative overflow-hidden dashboard-card" 
+                                     style="background: linear-gradient(135deg,rgb(75, 96, 7) 0%,rgb(129, 235, 48) 100%); border: none;">
+                                    <div class="d-flex align-items-center justify-content-between w-100 position-relative">
+                                        <div class="d-flex flex-column gap-1">
+                                            <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.7rem, 3vw, 3.5rem); text-shadow: 0 2px 4px rgba(0,0,0,0.3);">{{ $checkedOutCount ?? 0 }}</h1>
+                                            <p class="mb-0 text-uppercase fw-semibold text-white" style="font-size: clamp(0.9rem, 1.4vw, 1.3rem); opacity: 0.95;">Check-out</p>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-sign-out-alt text-white" style="font-size: clamp(2.2rem, 4.5vw, 3.5rem);"></i>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="position-absolute top-0 end-0 opacity-25 d-none d-md-block">
-                                    <i class="fas fa-sign-out-alt text-success" style="font-size: 4rem; margin: -10px;"></i>
-                                </div>
-                            </div>
+                            </a>
                         </div>
+
                         <!-- Pending -->
-                        <div class="col">
-                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg, #ffffff 50%, #f8f9fa 50%);">
-                                <div class="d-flex align-items-center justify-content-between w-100">
-                                    <div class="d-flex flex-column gap-2">
-                                        <h1 class="fw-bold mb-0 text-success" style="font-size: clamp(1.5rem, 2.5vw, 3rem);">{{ $pendingCount ?? 0 }}</h1>
-                                        <p class="mb-0 text-uppercase fw-semibold text-success" style="font-size: clamp(0.8rem, 1.2vw, 1.2rem);">Pending</p>
-                                    </div>
-                                    <div class="d-flex align-items-center">
-                                        <i class="fas fa-clock text-success" style="font-size: clamp(2rem, 4vw, 2.5rem);"></i>
+                        <div class="col d-flex align-items-stretch">
+                            <a href="{{ route('staff.reservation', ['status' => 'pending']) }}" class="text-decoration-none w-100">
+                                <div class="d-flex align-items-center text-dark p-4 p-md-5 p-lg-6 rounded-4 shadow-lg w-100 position-relative overflow-hidden dashboard-card" 
+                                     style="background: linear-gradient(135deg,rgb(75, 96, 7) 0%,rgb(129, 235, 48) 100%); border: none;">
+                                    <div class="d-flex align-items-center justify-content-between w-100 position-relative">
+                                        <div class="d-flex flex-column gap-1">
+                                            <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.7rem, 3vw, 3.5rem); text-shadow: 0 2px 4px rgba(0,0,0,0.3);">{{ $pendingCount ?? 0 }}</h1>
+                                            <p class="mb-0 text-uppercase fw-semibold text-white" style="font-size: clamp(0.9rem, 1.4vw, 1.3rem); opacity: 0.95;">Pending</p>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-clock text-white" style="font-size: clamp(2.2rem, 4.5vw, 3.5rem);"></i>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="position-absolute top-0 end-0 opacity-25 d-none d-md-block">
-                                    <i class="fas fa-clock text-success" style="font-size: 4rem; margin: -10px;"></i>
-                                </div>
-                            </div>
+                            </a>
                         </div>
 
                         <!-- Reserved -->
-                        <div class="col">
-                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg, #ffffff 50%, #f8f9fa 50%);">
-                                <div class="d-flex align-items-center justify-content-between w-100">
-                                    <div class="d-flex flex-column gap-2">
-                                        <h1 class="fw-bold mb-0 text-success" style="font-size: clamp(1.5rem, 2.5vw, 3rem);">{{ $reservedCount ?? 0 }}</h1>
-                                        <p class="mb-0 text-uppercase fw-semibold text-success" style="font-size: clamp(0.8rem, 1.2vw, 1.2rem);">Reserved</p>
-                                    </div>
-                                    <div class="d-flex align-items-center">
-                                        <i class="fas fa-bookmark text-success" style="font-size: clamp(2rem, 4vw, 2.5rem);"></i>
+                        <div class="col d-flex align-items-stretch">
+                            <a href="{{ route('staff.reservation', ['status' => 'reserved']) }}" class="text-decoration-none w-100">
+                                <div class="d-flex align-items-center text-dark p-4 p-md-5 p-lg-6 rounded-4 shadow-lg w-100 position-relative overflow-hidden dashboard-card" 
+                                     style="background: linear-gradient(135deg, #43cea2 0%, #385E3C 100%); border: none;">
+                                    <div class="d-flex align-items-center justify-content-between w-100 position-relative">
+                                        <div class="d-flex flex-column gap-1">
+                                            <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.7rem, 3vw, 3.5rem); text-shadow: 0 2px 4px rgba(0,0,0,0.3);">{{ $reservedCount ?? 0 }}</h1>
+                                            <p class="mb-0 text-uppercase fw-semibold text-white" style="font-size: clamp(0.9rem, 1.4vw, 1.3rem); opacity: 0.95;">Reserved</p>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-bookmark text-white" style="font-size: clamp(2.2rem, 4.5vw, 3.5rem);"></i>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="position-absolute top-0 end-0 opacity-25 d-none d-md-block">
-                                    <i class="fas fa-bookmark text-success" style="font-size: 4rem; margin: -10px;"></i>
-                                </div>
-                            </div>
+                            </a>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
 
         <!-- Additional Hero Banner -->
         <div class="container-fluid mt-4 shadow-lg p-4 bg-white rounded" style="max-width: 100%; margin: 0 auto;">

@@ -59,7 +59,7 @@
 
                         @if(!empty($reservationDetails->mobileNo))
                         <div class="row mb-2">
-                            <div class="fw-bold text-success text-break" style="font-size: 0.875rem;">Mobile No.:</div>
+                            <div class="fw-bold text-success text-break" style="font-size: 0.875rem;">Mobile No:</div>
                             <div class="col-8 fw-bold text-break">{{ $reservationDetails->mobileNo }}</div>
                         </div>
                         @endif
@@ -182,26 +182,55 @@
                             </button>
                             
 
-                            <!-- Modal -->
-                            <div class="modal fade" id="instructionsModal" tabindex="-1" aria-labelledby="instructionsModalLabel" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered">
-                                    <div class="modal-content">
-                                        <div class="modal-header bg-success text-white">
-                                            <h5 class="modal-title" id="instructionsModalLabel">Instructions</h5>
-                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <p class="mb-2"><strong>1.</strong> Present this summary upon arrival at the resort.</p>
-                                            <p class="mb-2"><strong>2.</strong> Follow the check-in and check-out times strictly.</p>
-                                            <p class="mb-2"><strong>3.</strong> Keep your reservation ID and reference number handy.</p>
-                                            <p class="mb-0"><strong>4.</strong> Contact us for any changes or special requests.</p>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                        </div>
+                                                <!-- Modal -->
+                        <div class="modal fade" id="instructionsModal" tabindex="-1" aria-labelledby="instructionsModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content shadow-lg border-0" style="border-radius: 16px; overflow: hidden; background: linear-gradient(135deg, #1b6e47 0%, #28a745 100%); color: #ffffff;">
+
+                            <!-- Header -->
+                            <div class="modal-header border-0 pb-2" style="background: rgba(0,0,0,0.05);">
+                                <h5 class="modal-title fw-bold text-uppercase tracking-wide" id="instructionsModalLabel" style="letter-spacing: 1px;">Check-in Instructions</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+
+                            <!-- Body -->
+                            <div class="modal-body px-4 py-4">
+                                <div class="row align-items-center gx-4">
+                                <!-- Left column -->
+                                <div class="col-12 col-md-6 text-center">
+                                    <div class="qr-wrapper d-inline-block p-2 bg-white rounded-3 shadow-sm">
+                                    <canvas id="qr-code" class="d-block mx-auto" style="max-width: 140px; max-height: 140px;"></canvas>
                                     </div>
                                 </div>
+                                <!-- Right column -->
+                                <div class="col-12 col-md-6">
+                                    <p class="mb-3 d-flex align-items-start">
+                                    <span class="badge bg-light text-success me-2 mt-1">1</span>
+                                    <span>Download your QR code by clicking the button below.</span>
+                                    </p>
+                                    <p class="mb-0 d-flex align-items-start">
+                                    <span class="badge bg-light text-success me-2 mt-1">2</span>
+                                    <span>Present this QR code upon check-in at our resort.</span>
+                                    </p>
+                                </div>
+                                </div>
                             </div>
+
+                            <!-- Footer -->
+                            <div class="modal-footer border-0 p-0">
+                                <div class="d-flex w-100">
+                                <button type="button" class="btn btn-link text-white text-decoration-none fw-semibold flex-fill py-3" data-bs-dismiss="modal">
+                                    <i class="fas fa-arrow-left me-2"></i>Back
+                                </button>
+                                <div class="vr bg-white opacity-50"></div>
+                                <button type="button" id="download-qr" class="btn btn-link text-white text-decoration-none fw-semibold flex-fill py-3" onclick="downloadQRCode()">
+                                    <i class="fas fa-download me-2"></i>Download QR
+                                </button>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                        </div>
                             @if(isset($reservationDetails->reservation_status))
                             <span class="ms-3 fw-bold text-black text-uppercase" style="font-size: 1.5rem;">Instructions</span>
                             <span class="ms-auto badge fs-5
@@ -213,19 +242,29 @@
                                 @endif text-white">
                                 {{ ucfirst($reservationDetails->reservation_status) }}
                             </span>
-                            @else
                             @endif
                     </div>
                     <!-- Additional header below the button -->
                     <h3 class="fw-bold text-uppercase text-success mb-3 mt-2" style="font-size: 1.75rem;">PAYMENT DETAIls</h3>
                     <hr class="border-success border-2 mb-3">
 
+                    @if(isset($reservationDetails->reservation_status) && !in_array($reservationDetails->reservation_status, ['pending', 'on-hold']))
                     @if(isset($reservationDetails->amount))
                         <div class="row mb-2 mt-4 ">
-                            <div class="col-4 text-black text-uppercase text-break ">Room price:</div>
+                            <div class="col-4 text-black text-uppercase text-break ">Total Room Price:</div>
                             <div class="col-8 text-break text-end">
                                 <div class="bg-success text-white rounded px-2 py-1 d-inline-block">
-                                    ₱{{ number_format($reservationDetails->amount, 2) }}
+                                    @php
+                                        $totalRoomPrice = 0;
+                                        $accommodationIds = json_decode($reservationDetails->accomodation_id, true) ?? [];
+                                        $roomDetails = DB::table('accomodations')->whereIn('accomodation_id', $accommodationIds)->get();
+                                        $quantity = $reservationDetails->quantity ?? 1;
+                                        $checkIn = new \DateTime($reservationDetails->reservation_check_in_date);
+                                        $checkOut = new \DateTime($reservationDetails->reservation_check_out_date);
+                                        $nights = $checkIn->diff($checkOut)->days > 0 ? $checkIn->diff($checkOut)->days : 1;
+                                        $totalRoomPrice = $roomDetails->sum('accomodation_price') * $quantity * $nights;
+                                    @endphp
+                                    ₱{{ number_format($totalRoomPrice, 2) }}
                                 </div>
                             </div>
                         </div>
@@ -257,25 +296,19 @@
                             <div class="col-8 text-black text-uppercase text-break ">Required 15% Downpayment:</div>
                             <div class="col-4 text-break text-end">
                                 <div class="bg-success text-white rounded px-2 py-1 d-inline-block">
-                                    ₱{{ number_format($reservationDetails->amount, 2) }}
+                                    ₱{{ number_format($reservationDetails->downpayment, 2) }}
                                 </div>
                             </div>
                         </div>
                         @endif
-
-                            <div class="d-flex justify-content-end mt-3">
-                                <a href="{{ route('homepage') }}"
-                                    class="btn btn-success d-flex align-items-center gap-1 px-3 py-1 fw-bold text-white rounded-pill"
-                                    style="font-family: 'Montserrat', sans-serif; background-color: #0b573d; font-style: italic; transition: all 0.3s ease-in-out; font-size: 0.875rem;">
-                                    Finish
-                                    <span
-                                        class="d-flex align-items-center justify-content-center bg-white rounded-circle"
-                                        style="width: 1.2rem; height: 1.2rem; transition: all 0.3s ease-in-out;">
-                                        <i class="fas fa-chevron-right"
-                                            style="color: #0b573d; transform: translateX(0);"></i>
-                                    </span>
-                                </a>
-                            </div>
+                    @else
+                        <div class="alert alert-info mt-4">
+                            <h5 class="alert-heading fw-bold">Thank You for Your Reservation!</h5>
+                            <p>Your booking is currently being processed. We will notify you via email once it is confirmed.</p>
+                            <hr>
+                            <p class="mb-0">Please wait for the staff to approve your reservation before proceeding with any payment.</p>
+                        </div>
+                        @endif
                     </div>
                 </div>
             </div>

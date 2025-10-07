@@ -25,135 +25,123 @@
         @include('Navbar.sidenavbarStaff')
         <!-- Main Content  -->
 
-       <div class="row">
-        <div class="col-11 mx-auto">
-            <div class="hero-banner d-flex flex-column justify-content-center text-white p-3 p-sm-4 p-md-5"
-             style="background-image:url('{{ asset('images/staff-admin-bg.jpg') }}'); 
-                   background-size: cover; background-position: center; min-height: 450px; border-radius: 15px;">
+        <!-- HERO BANNER -->
+        <div class="row">
+            <div class="col-11 mx-auto">
+                <div class="hero-banner d-flex flex-column justify-content-center text-white p-3 p-sm-4 p-md-5"
+                     style="background-color: white; min-height: 450px; border-radius: 15px;">
 
-            <div class="row g-3 g-md-4">
-                <!-- Left Side -->
-                <div class="col-12 col-md-6">
-                    <div class="d-flex flex-column gap-3">
-                        <!-- Greeting -->
-                        <div class="d-flex flex-column align-items-start text-start" 
-                            style="padding: 0 20px;">
-                            <p class="text-white" style="font-family: 'Poppins', sans-serif; font-size: clamp(2rem, 5vw, 3rem); letter-spacing: 5px;">
-                                Hello,
-                            </p>
-                            <h1 class="text-capitalize fw-bolder" 
-                                style="font-family: 'Montserrat', sans-serif; font-size: clamp(3rem, 8vw, 5rem); color:#ffffff; letter-spacing: clamp(5px, 2vw, 15px); white-space: normal; overflow-wrap: break-word; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
-                                {{$staffCredentials->username}}
-                            </h1>
-                        </div>
-                        
-                        <!-- Total Reservations -->
-                        <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" 
-                             style="background: linear-gradient(135deg, #ffffff 50%, #f8f9fa 50%);">
-                            <div class="d-flex align-items-center justify-content-between w-100">
-                                <div class="d-flex align-items-baseline gap-2">
-                                    <h1 class="fw-bold mb-0 text-success" 
-                                        style="font-size: clamp(1.5rem, 2.5vw, 3rem);">
-                                        {{ $totalWalkInGuests ?? 0 }}
-                                    </h1>
-                                    <p class="mb-0 text-uppercase fw-semibold text-success" style="font-size: clamp(0.8rem, 1.2vw, 1.2rem);">
-                                        Total Reservations
+                    <div class="row g-3 g-md-4">
+                        <!-- Left Side with background image -->
+                        <div class="col-12 col-md-6">
+                            <div class="d-flex flex-column gap-3 h-100"
+                                 style="background-image:url('{{ asset('images/staff-admin-bg.jpg') }}'); 
+                                        background-size: cover; background-position: center; 
+                                        border-radius: 15px; padding: 2rem;">
+                                <!-- Greeting -->
+                                <div class="d-flex flex-column align-items-start text-start" 
+                                     style="padding: 0 20px;">
+                                    <p class="text-white" style="font-family: 'Poppins', sans-serif; font-size: clamp(2rem, 5vw, 3rem); letter-spacing: 5px;">
+                                        Hello,
                                     </p>
+                                    <h1 class="text-capitalize fw-bolder" 
+                                        style="font-family: 'Montserrat', sans-serif; font-size: clamp(3rem, 8vw, 5rem); color:#ffffff; letter-spacing: clamp(5px, 2vw, 15px); white-space: normal; overflow-wrap: break-word; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
+                                        {{$staffCredentials->username}}
+                                    </h1>
                                 </div>
-                                <div class="d-flex align-items-center">
-                                    <i class="fas fa-calendar-check text-success" 
-                                       style="font-size: clamp(2rem, 4vw, 4rem);">
-                                    </i>
-                                </div>
-                            </div>
-                            <div class="position-absolute top-0 end-0 opacity-25 d-none d-md-block">
-                                <i class="fas fa-calendar-check text-success" 
-                                   style="font-size: 5rem; margin: -10px;">
-                                </i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Right Side -->
-                <div class="col-12 col-md-6">
-                    <div class="row row-cols-1 row-cols-sm-2 g-3 g-md-4">
-                        <!-- Walk-in Reservation -->
-                        <div class="col">
-                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg, #ffffff 50%, #f8f9fa 50%);">
-                                <div class="d-flex align-items-center justify-content-between w-100">
-                                    <div class="d-flex flex-column gap-2">
-                                        <h1 class="fw-bold mb-0 text-success" style="font-size: clamp(1.5rem, 2.5vw, 3rem);">{{ $totalWalkInGuests ?? 0 }}</h1>
-                                        <p class="mb-0 text-uppercase fw-semibold text-success" style="font-size: clamp(0.8rem, 1.2vw, 1.2rem);">Walk-In</p>
+                                
+                                <!-- Total Reservations -->
+                                <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" 
+                                     style="background: linear-gradient(135deg, #43cea2 0%, #385E3C 100%); border: 1px solid #ffffff;">
+                                    <div class="d-flex align-items-center justify-content-between w-100">
+                                        <div class="d-flex align-items-baseline gap-2">
+                                            <h1 class="fw-bold mb-0 text-white" 
+                                                style="font-size: clamp(1.5rem, 2.5vw, 3rem);">
+                                                {{ $totalCount ?? 0 }}
+                                            </h1>
+                                            <p class="mb-0 text-uppercase fw-semibold text-white" style="font-size: clamp(0.8rem, 1.2vw, 1.2rem);">
+                                                Total Reservations
+                                            </p>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-calendar-check text-white" style="font-size: clamp(2.2rem, 4.5vw, 3.5rem);"></i>
+                                        </div>
                                     </div>
-                                    <div class="d-flex align-items-center">
-                                        <i class="fas fa-user-check text-success" style="font-size: clamp(2rem, 4vw, 2.5rem);"></i>
-                                    </div>
-                                </div>
-                                <div class="position-absolute top-0 end-0 opacity-25 d-none d-md-block">
-                                    <i class="fas fa-user-check text-success" style="font-size: 4rem; margin: -10px;"></i>
                                 </div>
                             </div>
                         </div>
                         
+                        <!-- Right Side without background image -->
+                        <div class="col-12 col-md-6">
+                            <div class="row row-cols-2 g-2 g-md-3 g-lg-4 h-100">
+                                <!-- Walk-in Reservation -->
+                                <div class="col d-flex align-items-stretch">
+                                    <div class="d-flex align-items-center text-dark p-4 p-md-5 p-lg-6 rounded-4 shadow-lg w-100 position-relative overflow-hidden dashboard-card" 
+                                         style="background: linear-gradient(135deg, #43cea2 0%, #385E3C 100%); border: none;">
+                                        <div class="d-flex align-items-center justify-content-between w-100 position-relative">
+                                            <div class="d-flex flex-column gap-1">
+                                                <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.7rem, 3vw, 3.5rem); text-shadow: 0 2px 4px rgba(0,0,0,0.3);">{{ $totalWalkInGuests ?? 0 }}</h1>
+                                                <p class="mb-0 text-uppercase fw-semibold text-white" style="font-size: clamp(0.9rem, 1.4vw, 1.3rem); opacity: 0.95;">Walk-In</p>
+                                            </div>
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-user-check text-white" style="font-size: clamp(2.2rem, 4.5vw, 3.5rem);"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
 
+                                <!-- Checked-out -->
+                                <div class="col d-flex align-items-stretch">
+                                    <div class="d-flex align-items-center text-dark p-4 p-md-5 p-lg-6 rounded-4 shadow-lg w-100 position-relative overflow-hidden dashboard-card" 
+                                         style="background: linear-gradient(135deg,rgb(75, 96, 7) 0%,rgb(129, 235, 48) 100%); border: none;">
+                                        <div class="d-flex align-items-center justify-content-between w-100 position-relative">
+                                            <div class="d-flex flex-column gap-1">
+                                                <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.7rem, 3vw, 3.5rem); text-shadow: 0 2px 4px rgba(0,0,0,0.3);">{{ $totalCheckedOutGuests ?? 0 }}</h1>
+                                                <p class="mb-0 text-uppercase fw-semibold text-white" style="font-size: clamp(0.9rem, 1.4vw, 1.3rem); opacity: 0.95;">Check-out</p>
+                                            </div>
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-sign-out-alt text-white" style="font-size: clamp(2.2rem, 4.5vw, 3.5rem);"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
 
-                        <!-- Checked-out -->
-                        <div class="col">
-                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg, #ffffff 50%, #f8f9fa 50%);">
-                                <div class="d-flex align-items-center justify-content-between w-100">
-                                    <div class="d-flex flex-column gap-2">
-                                        <h1 class="fw-bold mb-0 text-success" style="font-size: clamp(1.5rem, 2.5vw, 3rem);">{{ $totalCheckedOutGuests ?? 0 }}</h1>
-                                        <p class="mb-0 text-uppercase fw-semibold text-success" style="font-size: clamp(0.8rem, 1.2vw, 1.2rem);">Check-out</p>
-                                    </div>
-                                    <div class="d-flex align-items-center">
-                                        <i class="fas fa-sign-out-alt text-success" style="font-size: clamp(2rem, 4vw, 2.5rem);"></i>
+                                <!-- Checked-in Reservations -->
+                                <div class="col d-flex align-items-stretch">
+                                    <div class="d-flex align-items-center text-dark p-4 p-md-5 p-lg-6 rounded-4 shadow-lg w-100 position-relative overflow-hidden dashboard-card" 
+                                         style="background: linear-gradient(135deg,rgb(75, 96, 7) 0%,rgb(129, 235, 48) 100%); border: none;">
+                                        <div class="d-flex align-items-center justify-content-between w-100 position-relative">
+                                            <div class="d-flex flex-column gap-1">
+                                                <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.7rem, 3vw, 3.5rem); text-shadow: 0 2px 4px rgba(0,0,0,0.3);">{{ $totalCheckedInGuests ?? 0 }}</h1>
+                                                <p class="mb-0 text-uppercase fw-semibold text-white" style="font-size: clamp(0.9rem, 1.4vw, 1.3rem); opacity: 0.95;">Checked-in</p>
+                                            </div>
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-user-check text-white" style="font-size: clamp(2.2rem, 4.5vw, 3.5rem);"></i>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="position-absolute top-0 end-0 opacity-25 d-none d-md-block">
-                                    <i class="fas fa-sign-out-alt text-success" style="font-size: 4rem; margin: -10px;"></i>
-                                </div>
-                            </div>
-                        </div>
 
-                        <!-- Checked-in Reservations -->
-                        <div class="col">
-                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg, #ffffff 50%, #f8f9fa 50%);">
-                                <div class="d-flex align-items-center justify-content-between w-100">
-                                    <div class="d-flex flex-column gap-2">
-                                        <h1 class="fw-bold mb-0 text-success" style="font-size: clamp(1.5rem, 2.5vw, 3rem);">{{ $totalCheckedInGuests ?? 0 }}</h1>
-                                        <p class="mb-0 text-uppercase fw-semibold text-success" style="font-size: clamp(0.8rem, 1.2vw, 1.2rem);">Checked-in</p>
+                                <!-- Total Walk-in -->
+                                <div class="col d-flex align-items-stretch">
+                                    <div class="d-flex align-items-center text-dark p-4 p-md-5 p-lg-6 rounded-4 shadow-lg w-100 position-relative overflow-hidden dashboard-card" 
+                                         style="background: linear-gradient(135deg, #43cea2 0%, #385E3C 100%); border: none;">
+                                        <div class="d-flex align-items-center justify-content-between w-100 position-relative">
+                                            <div class="d-flex flex-column gap-1">
+                                                <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.7rem, 3vw, 3.5rem); text-shadow: 0 2px 4px rgba(0,0,0,0.3);">{{ $totalReservedGuests ?? 0 }}</h1>
+                                                <p class="mb-0 text-uppercase fw-semibold text-white" style="font-size: clamp(0.9rem, 1.4vw, 1.3rem); opacity: 0.95;">Reserved</p>
+                                            </div>
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-user-check text-white" style="font-size: clamp(2.2rem, 4.5vw, 3.5rem);"></i>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="d-flex align-items-center">
-                                        <i class="fas fa-user-check text-success" style="font-size: clamp(2rem, 4vw, 2.5rem);"></i>
-                                    </div>
-                                </div>
-                                <div class="position-absolute top-0 end-0 opacity-25 d-none d-md-block">
-                                    <i class="fas fa-user-check text-success" style="font-size: 4rem; margin: -10px;"></i>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Total Walk-in -->
-                        <div class="col">
-                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg, #ffffff 50%, #f8f9fa 50%);">
-                                <div class="d-flex align-items-center justify-content-between w-100">
-                                    <div class="d-flex flex-column gap-2">
-                                        <h1 class="fw-bold mb-0 text-success" style="font-size: clamp(1.5rem, 2.5vw, 3rem);">{{ $totalReservedGuests ?? 0 }}</h1>
-                                        <p class="mb-0 text-uppercase fw-semibold text-success" style="font-size: clamp(0.8rem, 1.2vw, 1.2rem);">Reserved</p>
-                                    </div>
-                                    <div class="d-flex align-items-center">
-                                        <i class="fas fa-user-check text-success" style="font-size: clamp(2rem, 4vw, 2.5rem);"></i>
-                                    </div>
-                                </div>
-                                <div class="position-absolute top-0 end-0 opacity-25 d-none d-md-block">
-                                    <i class="fas fa-user-check text-success" style="font-size: 4rem; margin: -10px;"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
 
 

@@ -45,6 +45,61 @@
         flex: 0 0 100% !important;
         max-width: 100% !important;
     }
+    .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    margin-top: 20px;
+    font-family: 'Poppins', 'Montserrat', sans-serif;
+}
+
+.pagination .page-item {
+    list-style: none;
+}
+
+.pagination .page-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #fff;
+    color: #0b573d;
+    border: 2px solid #0b573d;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-weight: 600;
+}
+
+.pagination .page-link:hover {
+    background-color: #0b573d;
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(11, 87, 61, 0.2);
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #0b573d;
+    color: #fff;
+    border-color: #0b573d;
+}
+
+.pagination .page-item.disabled .page-link {
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+    color: #6c757d;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.pagination .page-item:first-child .page-link,
+.pagination .page-item:last-child .page-link {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
 </style>
 
 <body
@@ -570,54 +625,52 @@
                                 </table>
 
                                 <!-- Pagination -->
-                              <div class="d-flex justify-content-between align-items-center mt-4 border-top pt-3">
-    <div class="text-muted">
-        Showing {{ $reservationDetails->firstItem() ?? 0 }} 
-        to {{ $reservationDetails->lastItem() ?? 0 }} 
-        of {{ $reservationDetails->total() ?? 0 }} entries
-    </div>
-
-    <nav aria-label="Page navigation">
-        <ul class="pagination mb-0">
-            {{-- Previous Page Link --}}
-            @if ($reservationDetails->onFirstPage())
-                <li class="page-item disabled">
-                    <span class="page-link">&laquo;</span>
-                </li>
-            @else
-                <li class="page-item">
-                    <a class="page-link" href="{{ $reservationDetails->previousPageUrl() }}" rel="prev">&laquo;</a>
-                </li>
-            @endif
-
-            {{-- Pagination Elements --}}
-            @foreach ($reservationDetails->getUrlRange(1, $reservationDetails->lastPage()) as $page => $url)
-                @if ($page == $reservationDetails->currentPage())
-                    <li class="page-item active" aria-current="page">
-                        <span class="page-link">{{ $page }}</span>
-                    </li>
-                @else
-                    <li class="page-item">
-                        <a class="page-link" href="{{ $url }}">{{ $page }}</a>
-                    </li>
-                @endif
-            @endforeach
-
-            {{-- Next Page Link --}}
-            @if ($reservationDetails->hasMorePages())
-                <li class="page-item">
-                    <a class="page-link" href="{{ $reservationDetails->nextPageUrl() }}" rel="next">&raquo;</a>
-                </li>
-            @else
-                <li class="page-item disabled">
-                    <span class="page-link">&raquo;</span>
-                </li>
-            @endif
-        </ul>
-    </nav>
-</div>
-
-
+                                <div class="d-flex justify-content-between align-items-center mt-4 border-top pt-3">
+                                    <div class="text-muted small">
+                                        Showing <strong>{{ $reservationDetails->firstItem() ?? 0 }}</strong> 
+                                        to <strong>{{ $reservationDetails->lastItem() ?? 0 }}</strong> 
+                                        of <strong>{{ $reservationDetails->total() ?? 0 }}</strong> entries
+                                    </div>
+                                
+                                    <nav aria-label="Page navigation">
+                                        <ul class="pagination mb-0">
+                                            {{-- Previous Page Link --}}
+                                            @if ($reservationDetails->onFirstPage())
+                                                <li class="page-item disabled">
+                                                    <span class="page-link">&laquo;</span>
+                                                </li>
+                                            @else
+                                                <li class="page-item">
+                                                    <a class="page-link" href="{{ $reservationDetails->previousPageUrl() }}" rel="prev">&laquo;</a>
+                                                </li>
+                                            @endif
+                                
+                                            {{-- Pagination Elements --}}
+                                            @foreach ($reservationDetails->getUrlRange(1, $reservationDetails->lastPage()) as $page => $url)
+                                                @if ($page == $reservationDetails->currentPage())
+                                                    <li class="page-item active" aria-current="page">
+                                                        <span class="page-link">{{ $page }}</span>
+                                                    </li>
+                                                @else
+                                                    <li class="page-item">
+                                                        <a class="page-link" href="{{ $url }}">{{ $page }}</a>
+                                                    </li>
+                                                @endif
+                                            @endforeach
+                                
+                                            {{-- Next Page Link --}}
+                                            @if ($reservationDetails->hasMorePages())
+                                                <li class="page-item">
+                                                    <a class="page-link" href="{{ $reservationDetails->nextPageUrl() }}" rel="next">&raquo;</a>
+                                                </li>
+                                            @else
+                                                <li class="page-item disabled">
+                                                    <span class="page-link">&raquo;</span>
+                                                </li>
+                                            @endif
+                                        </ul>
+                                    </nav>
+                                </div>
                             </div>
                         </div>
                     </div>

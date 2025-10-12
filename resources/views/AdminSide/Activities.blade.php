@@ -197,12 +197,6 @@
                                     style="font-family: 'Anton', sans-serif; letter-spacing: 0.1em;">
                                     ACTIVITY OVERVIEW
                                 </h1>
-                                <select class="form-select w-auto" id="roomTypeFilter" style="width: 150px !important;">
-                                    <option value="all">All Rooms</option>
-                                    <option value="room">Room</option>
-                                    <option value="cottage">Cottage</option>
-                                    <option value="cabin">Cabin</option>
-                                </select>
                                 <div
                                     class="d-flex align-items-center gap-2 px-3 py-2 border-0 rounded text-white fw-bold ms-auto">
                                     <button type="button"
@@ -220,11 +214,6 @@
                                     <tr>
                                         <th scope="col">Activity Image</th>
                                         <th scope="col">Activity Name</th>
-                                        <th scope="col">Activity Description</th>
-                                        <th scope="col">Activity Type</th>
-                                        <th scope="col">Activity Qty</th>
-                                        <th scope="col">Price</th>
-                                        <th scope="col">Capacity</th>
                                         <th scope="col">Availability</th>
                                         <th scope="col" class="text-center">Actions</th>
                                     </tr>
@@ -237,11 +226,6 @@
                                                     alt="Activity Image" width="100" height="80" class="rounded">
                                             </td>
                                             <td>{{ $activity->activity_name }}</td>
-                                            <td>Add description</td>
-                                            <td>Physical Activity</td>
-                                            <td>5</td>
-                                            <td>₱3,000.00</td>
-                                            <td>5</td>
                                             <td>
                                                 <span
                                                     class="badge rounded-pill {{ $activity->activity_status == 'Available' ? 'bg-success' : 'bg-danger' }} px-3 py-2">
@@ -294,9 +278,13 @@
                                                                 <select class="form-select rounded-3" id="activity_status"
                                                                     name="activity_status">
                                                                     <option value="Available" @if ($activity->activity_status == 'Available') selected
-                                                                    @endif>Available</option>
+                                                                    @endif>
+                                                                        Available
+                                                                    </option>
                                                                     <option value="Unavailable" @if ($activity->activity_status == 'Unavailable') selected
-                                                                    @endif>Unavailable</option>
+                                                                    @endif>
+                                                                        Unavailable
+                                                                    </option>
                                                                 </select>
                                                             </div>
                                                             <button type="submit"

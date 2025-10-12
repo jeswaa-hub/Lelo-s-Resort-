@@ -87,18 +87,19 @@
     @include('Alert.loginSuccessUser')
     @include('Alert.errornotification')
 
-<div class="w-100 d-flex justify-content-between align-items-center p-3">
-    <!-- Back Button -->
-    <a href="{{ url('login') }}" class="d-flex align-items-center justify-content-center rounded-circle shadow ms-3"
-        style="width: 45px; height: 45px; background-color: #0B5D3B; text-decoration: none;">
-        <i class="fa-solid fa-arrow-left text-white"></i>
-    </a>
+    <div class="w-100 d-flex justify-content-between align-items-center p-3">
+        <!-- Back Button -->
+        <a href="{{ url('login') }}" class="d-flex align-items-center justify-content-center rounded-circle shadow ms-3"
+            style="width: 45px; height: 45px; background-color: #0B5D3B; text-decoration: none;">
+            <i class="fa-solid fa-arrow-left text-white"></i>
+        </a>
 
-    <!-- Logo -->
-    <a href="{{ url('/') }}" class="text-decoration-none">
-        <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" class="rounded-pill" style="width: 100px; height: auto;">
-    </a>
-</div>
+        <!-- Logo -->
+        <a href="{{ url('/') }}" class="text-decoration-none">
+            <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" class="rounded-pill"
+                style="width: 100px; height: auto;">
+        </a>
+    </div>
 
     <div class="d-flex justify-content-center align-items-center mb-5">
         <div class="container p-4 shadow-lg rounded-4 bg-white" style="max-width: 1000px;">
@@ -132,7 +133,7 @@
                                 <input type="text" class="form-control p-2 font-paragraph" id="mobileNo" name="mobileNo"
                                     placeholder="Mobile Number..." required maxlength="11"
                                     oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11);"
-                                    pattern="\d{11}" title="Please enter a valid 11-digit mobile number" required> 
+                                    pattern="\d{11}" title="Please enter a valid 11-digit mobile number" required>
                             </div>
                         </div>
                         <div class="mb-3">
@@ -140,7 +141,8 @@
                                 <input type="password" class="form-control p-2 font-paragraph" id="password"
                                     name="password" placeholder="Password..." required oninput="checkPasswordMatch()"
                                     maxlength="20" required>
-                                <button class="btn btn-outline-secondary" type="button" id="togglePassword" style="height:42px;">
+                                <button class="btn btn-outline-secondary" type="button" id="togglePassword"
+                                    style="height:42px;">
                                     <i class="fa-solid fa-eye"></i>
                                 </button>
                             </div>
@@ -160,7 +162,8 @@
                                     id="password_confirmation" name="password_confirmation"
                                     placeholder="Confirm Password..." required oninput="checkPasswordMatch()"
                                     maxlength="20" required>
-                                <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword"  style="height:42px;">
+                                <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword"
+                                    style="height:42px;">
                                     <i class="fa-solid fa-eye"></i>
                                 </button>
                             </div>
@@ -444,7 +447,7 @@
                     url: "{{ url('/signup/send-otp') }}",
                     method: "POST",
                     data: formData,
-                    beforeSend: function() {
+                    beforeSend: function () {
                         // Check if enough time has passed since last request
                         const now = Date.now();
                         if (now - lastOtpRequest < OTP_COOLDOWN) {
@@ -585,11 +588,11 @@
             }
         });
         // Add this script before </html>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const form = document.querySelector('form');
             const submitBtn = document.querySelector('button[type="submit"]');
             const requiredInputs = form.querySelectorAll('input[required]');
-            
+
             function checkForm() {
                 let allFilled = true;
                 requiredInputs.forEach(input => {
@@ -597,11 +600,11 @@
                 });
                 submitBtn.disabled = !allFilled;
             }
-            
+
             requiredInputs.forEach(input => {
                 input.addEventListener('input', checkForm);
             });
-            
+
             // Initial check on page load
             checkForm();
         });

@@ -67,7 +67,7 @@
     @include('Alert.loginSucess')
     @include('Navbar.navbarAdmin')
     @if ($errors->any())
-                                                                                                                                                    <div class="
+                                                                                                                                                                <div class="
         alert alert-danger alert-dismissible fade show" role="alert">
         <strong>Error!</strong>
         <ul>
@@ -88,8 +88,6 @@
                     width: 100%;
                     height: 100vh;
                     border-radius: 30px;">
-
-
                     <div class="mb-5 text-white" style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); margin-top: 13%;">
                         <h2 class="mb-0 fs-1" style="font-size: 4.5rem !important;">Hello,</h2>
                         <h1 class="display-1 fw-bold" style="font-size: 5.5rem !important;">Admin User!</h1>
@@ -145,10 +143,10 @@
                                             <!-- Status -->
                                             <td>
                                                 <span class="badge text-capitalize 
-                                                                                            @if($report->status == 'pending') status-pending 
-                                                                                            @elseif($report->status == 'in-progress') status-inprogress 
-                                                                                            @elseif($report->status == 'resolved') status-resolved 
-                                                                                            @endif">
+                                                                                                        @if($report->status == 'pending') status-pending 
+                                                                                                        @elseif($report->status == 'in-progress') status-inprogress 
+                                                                                                        @elseif($report->status == 'resolved') status-resolved 
+                                                                                                        @endif">
                                                     {{ $report->status }}
                                                 </span>
                                             </td>

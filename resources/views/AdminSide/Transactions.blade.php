@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="{{ asset('images/logo new.png') }}">
     <link
         href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Anton&display=swap"
         rel="stylesheet">
@@ -45,12 +46,46 @@
         flex: 0 0 100% !important;
         max-width: 100% !important;
     }
+
+    /* Custom Pagination Styles */
+    .pagination .page-link {
+        border-radius: 50% !important;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 3px;
+        border: 2px solid #0b573d;
+        color: #0b573d;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .pagination .page-link:hover {
+        background-color: #0b573d;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: #0b573d;
+        border-color: #0b573d;
+        color: white;
+    }
+
+    .pagination .page-item.disabled .page-link {
+        background-color: #e9ecef;
+        border-color: #dee2e6;
+        color: #6c757d;
+    }
 </style>
 
 <body
     style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76))">
-    @include('Alert.loginSucess')
-    @include('Alert.errornotification')
+    @include('Alert.errorLogin')
+    @include('Alert.loginSuccessUser')
     @include('Navbar.sidenavbar')
     <div class="container-fluid min-vh-100 d-flex p-0">
         <div class="d-flex w-100" id="mainLayout" style="min-height: 100vh;">
@@ -64,14 +99,14 @@
                     <!-- Payment Table -->
                     <div class="mb-5 text-white" style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); margin-top: 10%;">
                         <h2 class="mb-0 fs-1" style="font-size: 4.5rem !important;">Hello,</h2>
-                        <h1 class="display-1 fw-bold" style="font-size: 5.5rem !important;">Admin User!</h1>
+                        <h1 class="display-1 fw-bold text-capitalize" style="font-size: 5.5rem !important;">{{ $adminCredentials->username}}</h1>
                     </div>
 
                 <div>
                     <!-- Export Buttons -->
                     <div class="d-flex justify-content-end mb-3">
                         <div class="btn-group">
-                            <a href="{{ route('transactions.export.pdf') }}"
+                            <a href="{{ route('transactions.export.pdf', request()->query()) }}"
                                 class="btn btn-danger btn-sm me-2 rounded-2"
                                 style="font-size: 14px; transition: all 0.3s ease;"
                                 onmouseover="this.style.transform='scale(1.1)'"
@@ -91,52 +126,70 @@
                         <div class="btn-group">
 
                             <script>
-                                function printContent() {
-                                    // Create a new window for printing
-                                    var printWindow = window.open('', '_blank');
+                            function printContent() {
+                                // Create a new window for printing
+                                var printWindow = window.open('', '_blank');
 
-                                    // Get the content to print
-                                    var contentToPrint = document.querySelector('.table-responsive').innerHTML;
+                                // Get the content to print - clone the entire card holding the table
+                                var contentToPrint = document.getElementById('transactionsTableCard').cloneNode(true);
 
-                                    // Add some basic styling
-                                    var styles = `
-                                        <style>
-                                            table { 
-                                                width: 100%;
-                                                border-collapse: collapse;
-                                            }
-                                            th, td {
-                                                border: 1px solid #ddd;
-                                                padding: 8px;
-                                                text-align: left;
-                                            }
-                                            th {
-                                                background-color: #0b573d;
-                                                color: white;
-                                            }
-                                            .badge {
-                                                padding: 5px 10px;
-                                                border-radius: 20px;
-                                                color: white;
-                                            }
-                                            .bg-success { background-color: #198754; }
-                                            .bg-warning { background-color: #ffc107; }
-                                            .bg-primary { background-color: #0d6efd; }
-                                            .bg-danger { background-color: #dc3545; }
-                                            /* Hide pagination when printing */
-                                            .pagination, nav[aria-label="Page navigation"] {
-                                                display: none !important;
-                                            }
-                                            @media print {
-                                                body { print-color-adjust: exact; }
-                                            }
-                                        </style>
+                                // Remove pagination from the cloned content
+                                var paginationElement = contentToPrint.querySelector('.d-flex.justify-content-between.align-items-center.mt-4.pt-3');
+                                if (paginationElement) {
+                                    paginationElement.remove();
+                                }
+
+                                // Add comprehensive styling for a professional report look
+                                var styles = `
+                                    <style>
+                                        body { font-family: 'Poppins', sans-serif; color: #333; }
+                                        .card-body { padding: 0; }
+                                        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+                                        th, td { border: 1px solid #dee2e6; padding: 10px; text-align: left; vertical-align: middle; }
+                                        thead tr { background-color: #0b573d !important; color: white !important; }
+                                        th { font-weight: 600; }
+                                        .badge {
+                                            padding: 6px 12px;
+                                            border-radius: 20px;
+                                            color: white;
+                                            font-size: 11px;
+                                            font-weight: 600;
+                                            text-transform: capitalize;
+                                        }
+                                        .bg-success { background-color: #198754 !important; }
+                                        .bg-warning { background-color: #ffc107 !important; color: #000 !important; }
+                                        .bg-primary { background-color: #0d6efd !important; }
+                                        .bg-danger { background-color: #dc3545 !important; }
+                                        .text-muted { color: #6c757d !important; }
+                                        .text-center { text-align: center !important; }
+                                        .py-4 { padding-top: 1.5rem !important; padding-bottom: 1.5rem !important; }
+                                        /* Hide elements not needed for printing */
+                                        .pagination, nav[aria-label="Page navigation"], form {
+                                            display: none !important;
+                                        }
+                                        @media print {
+                                            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                                            thead tr { background-color: #0b573d !important; color: white !important; }
+                                            .bg-success { background-color: #198754 !important; }
+                                            .bg-warning { background-color: #ffc107 !important; }
+                                            .bg-primary { background-color: #0d6efd !important; }
+                                            .bg-danger { background-color: #dc3545 !important; }
+                                        }
+                                    </style>
+                                `;
+
+                                // Create the header with logo and title
+                                var logoUrl = "{{ asset('images/logo new.png') }}";
+                                var header = `
+                                        <div style="text-align: center; margin-bottom: 20px;">
+                                            <img src="${logoUrl}" alt="Logo" style="width: 100px; height: auto;">
+                                            <h2 style="margin: 10px 0 0 0; color: #0b573d; font-family: 'Montserrat', sans-serif;">Lelo's Resort</h2>
+                                            <p style="margin: 0; color: #6c757d;">Transactions Report</p>
+                                        </div>
                                     `;
-
-                                    // Write the content to the new window
                                     printWindow.document.write('<html><head><title>Lelo\'s Resort - Transactions</title>' + styles + '</head><body>');
-                                    printWindow.document.write('<h2 style="text-align: center; margin-bottom: 20px;">Lelo\'s Resort - Transactions Report</h2>');
-                                    printWindow.document.write(contentToPrint);
+                                    printWindow.document.write(header);
+                                    printWindow.document.write(contentToPrint.outerHTML);
                                     printWindow.document.write('</body></html>');
 
                                     // Wait for content to load then print
@@ -146,7 +199,7 @@
                                         printWindow.print();
                                         printWindow.close();
                                     };
-                                }
+                            }
                             </script>
                         </div>
                         </div>
@@ -213,9 +266,8 @@
                                                 <select class="form-select border-start-0" id="payment_status"
                                                     name="payment_status" style="height: 45px;">
                                                     <option value="">All</option>
-                                                    <option value="pending" {{ request('payment_status') == 'pending' ? 'selected' : '' }}>Pending</option>
                                                     <option value="paid" {{ request('payment_status') == 'paid' ? 'selected' : '' }}>Paid</option>
-                                                    <option value="cancelled" {{ request('payment_status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                                                    <option value="partial" {{ request('payment_status') == 'partial' ? 'selected' : '' }}>Partial</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -295,21 +347,49 @@
                                                             <span
                                                                 class="fs-6 me-3 fw-bold">₱{{ number_format($fee->entrance_fee, 2) }}</span>
                                                             <a href="#" class="edit-entrance-fee text-primary"
-                                                                data-bs-toggle="modal"
-                                                                data-bs-target="#editEntranceFeeModal"
-                                                                data-id="{{ $fee->id }}" data-session="{{ $fee->session }}"
-                                                                data-start-time="{{ $fee->start_time }}"
-                                                                data-end-time="{{ $fee->end_time }}"
-                                                                data-type="{{ $fee->type }}"
-                                                                data-age-range="{{ $fee->age_range }}"
+                                                                data-bs-toggle="modal" data-bs-target="#editEntranceFeeModal"
+                                                                data-id="{{ $fee->id }}"
+                                                                data-session="{{ $fee->session }}"
+                                                                data-start-time="{{ $fee->start_time }}" data-end-time="{{ $fee->end_time }}"
+                                                                data-type="{{ $fee->type }}" data-age-range="{{ $fee->age_range }}"
                                                                 data-entrance-fee="{{ $fee->entrance_fee }}">
                                                                 <i class="fas fa-edit fs-5"></i>
+                                                            </a>
+                                                            <a href="#" class="delete-entrance-fee text-danger ms-2"
+                                                                data-bs-toggle="modal" data-bs-target="#deleteEntranceFeeModal"
+                                                                data-id="{{ $fee->id }}">
+                                                                <i class="fas fa-trash fs-5"></i>
                                                             </a>
                                                         </div>
                                                     </div>
                                                 </div>
                                             @endforeach
                                         </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Delete Entrance Fee Modal -->
+                        <div class="modal fade" id="deleteEntranceFeeModal" tabindex="-1" aria-labelledby="deleteEntranceFeeModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header bg-danger text-white">
+                                        <h5 class="modal-title" id="deleteEntranceFeeModalLabel">
+                                            <i class="fas fa-exclamation-triangle me-2"></i>Confirm Deletion
+                                        </h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Are you sure you want to delete this entrance fee? This action cannot be undone.</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        <form id="deleteEntranceFeeForm" method="POST">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
@@ -323,18 +403,18 @@
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="addEntranceFeeModalLabel">Edit Entrance Fee</h5>
+                                <h5 class="modal-title" id="addEntranceFeeModalLabel">Add Entrance Fee</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"
                                         aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <form id="entranceFeeForm" method="POST" action="{{ route('updatePrice') }}">
+                                    <form id="entranceFeeForm" method="POST" action="{{ route('addPrice') }}">
                                         @csrf
                                         <div class="mb-3">
                                             <label for="session" class="form-label">Session</label>
                                             <select class="form-select" id="session" name="session" required>
-                                                <option value="Morning Session">Morning Session</option>
-                                                <option value="Night Session">Night Session</option>
+                                            <option value="Morning">Morning Session</option>
+                                            <option value="Evening">Evening Session</option>
                                             </select>
                                         </div>
                                         <div class="mb-3">
@@ -513,6 +593,21 @@
                                         if (entranceFeeField) entranceFeeField.value = entranceFee;
                                     });
                                 });
+
+                                // Handle delete modal
+                                const deleteButtons = document.querySelectorAll('.delete-entrance-fee');
+                                if (deleteButtons) {
+                                    deleteButtons.forEach(button => {
+                                        button.addEventListener('click', function() {
+                                            const feeId = this.getAttribute('data-id');
+                                            const deleteForm = document.getElementById('deleteEntranceFeeForm');
+                                            if (deleteForm) {
+                                                // Set the form action dynamically
+                                                deleteForm.action = `/transactions/delete-price/${feeId}`;
+                                            }
+                                        });
+                                    });
+                                }
                             } else {
                                 console.log('No edit entrance fee buttons found on the page');
                             }
@@ -521,7 +616,7 @@
 
 
                     <!-- Table -->
-                    <div class="card shadow-lg border-0 rounded-4">
+                    <div class="card shadow-lg border-0 rounded-4" id="transactionsTableCard">
                         <div class="card-body">
                             <div class="table-responsive">
                                 <table class="table table-hover align-middle">
@@ -531,8 +626,6 @@
                                             <th scope="col" class="py-3 px-4">Rooms Booked</th>
                                             <th scope="col" class="py-3 px-4">Amount Paid</th>
                                             <th scope="col" class="py-3 px-4">Remaining Balance</th>
-                                            <th scope="col" class="py-3 px-4">Reference Number</th>
-                                            <th scope="col" class="py-3 px-4">Payment Mode</th>
                                             <th scope="col" class="py-3 px-4">Check In - Out Date</th>
                                             <th scope="col" class="py-3 px-4">Payment Status</th>
                                         </tr>
@@ -540,20 +633,18 @@
                                     <tbody>
                                         @forelse($reservationDetails as $transaction)
                                             <tr class="align-middle border-bottom">
-                                                <td class="py-3 px-4">{{ $transaction->name }}</td>
-                                                <td class="py-3 px-4">{{ $transaction->accomodation_name }}</td>
-                                                <td class="py-3 px-4">₱{{ number_format($transaction->amount, 2) }}</td>
-                                                <td class="py-3 px-4">
+                                                <td class="py-3 px-4 text-center">{{ $transaction->name }}</td>
+                                                <td class="py-3 px-4 text-center">{{ $transaction->accomodation_name }}</td>
+                                                <td class="py-3 px-4 text-center">₱{{ number_format($transaction->amount, 2) }}</td>
+                                                <td class="py-3 px-4 text-center">
                                                     ₱{{ in_array($transaction->payment_status, ['paid', 'cancelled', 'checked-out']) ? '0.00' : number_format($transaction->balance, 2) }}
                                                 </td>
-                                                <td class="py-3 px-4">{{ $transaction->reference_num }}</td>
-                                                <td class="py-3 px-4">{{ $transaction->payment_method }}</td>
-                                                <td class="py-3 px-4">
+                                                <td class="py-3 px-4 text-center">
                                                     {{ \Carbon\Carbon::parse($transaction->reservation_check_in_date)->format('M d, Y') }}
                                                     -
                                                     {{ \Carbon\Carbon::parse($transaction->reservation_check_out_date)->format('M d, Y') }}
                                                 </td>
-                                                <td class="py-3 px-4">
+                                                <td class="py-3 px-4 text-center">
                                                     <span
                                                         class="badge rounded-pill {{ $transaction->payment_status === 'paid' ? 'bg-success' : ($transaction->payment_status === 'pending' ? 'bg-warning text-dark' : ($transaction->payment_status === 'booked' ? 'bg-primary' : 'bg-danger')) }}">
                                                         {{ ucfirst($transaction->payment_status) }}
@@ -570,54 +661,19 @@
                                 </table>
 
                                 <!-- Pagination -->
-                              <div class="d-flex justify-content-between align-items-center mt-4 border-top pt-3">
-    <div class="text-muted">
-        Showing {{ $reservationDetails->firstItem() ?? 0 }} 
-        to {{ $reservationDetails->lastItem() ?? 0 }} 
-        of {{ $reservationDetails->total() ?? 0 }} entries
-    </div>
+                                <div class="d-flex justify-content-between align-items-center mt-4 pt-3">
+                                    <div class="text-muted small">
+                                        Showing {{ $reservationDetails->firstItem() ?? 0 }} 
+                                        to {{ $reservationDetails->lastItem() ?? 0 }} 
+                                        of {{ $reservationDetails->total() ?? 0 }} entries
+                                    </div>
 
-    <nav aria-label="Page navigation">
-        <ul class="pagination mb-0">
-            {{-- Previous Page Link --}}
-            @if ($reservationDetails->onFirstPage())
-                <li class="page-item disabled">
-                    <span class="page-link">&laquo;</span>
-                </li>
-            @else
-                <li class="page-item">
-                    <a class="page-link" href="{{ $reservationDetails->previousPageUrl() }}" rel="prev">&laquo;</a>
-                </li>
-            @endif
-
-            {{-- Pagination Elements --}}
-            @foreach ($reservationDetails->getUrlRange(1, $reservationDetails->lastPage()) as $page => $url)
-                @if ($page == $reservationDetails->currentPage())
-                    <li class="page-item active" aria-current="page">
-                        <span class="page-link">{{ $page }}</span>
-                    </li>
-                @else
-                    <li class="page-item">
-                        <a class="page-link" href="{{ $url }}">{{ $page }}</a>
-                    </li>
-                @endif
-            @endforeach
-
-            {{-- Next Page Link --}}
-            @if ($reservationDetails->hasMorePages())
-                <li class="page-item">
-                    <a class="page-link" href="{{ $reservationDetails->nextPageUrl() }}" rel="next">&raquo;</a>
-                </li>
-            @else
-                <li class="page-item disabled">
-                    <span class="page-link">&raquo;</span>
-                </li>
-            @endif
-        </ul>
-    </nav>
-</div>
-
-
+                                    <nav aria-label="Page navigation">
+                                        <ul class="pagination mb-0">
+                                            {{ $reservationDetails->links('pagination.custom') }}
+                                        </ul>
+                                    </nav>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -754,6 +810,31 @@
                 });
             }
         });
+
+        // Logic for editEntranceFeeModal to auto-update time based on session
+        const editSessionSelect = document.getElementById('edit_session');
+        if (editSessionSelect) {
+            const transactionsData = @json($transactions);
+            const editStartTimeInput = document.getElementById('edit_start_time');
+            const editEndTimeInput = document.getElementById('edit_end_time');
+
+            editSessionSelect.addEventListener('change', function () {
+                const selectedSession = this.value;
+                
+                // Find a transaction that matches the selected session to get its times
+                const sessionInfo = transactionsData.find(t => t.session === selectedSession);
+
+                if (sessionInfo) {
+                    // Update the time fields
+                    if(editStartTimeInput) editStartTimeInput.value = sessionInfo.start_time;
+                    if(editEndTimeInput) editEndTimeInput.value = sessionInfo.end_time;
+                } else {
+                    // Clear if no match is found
+                    if(editStartTimeInput) editStartTimeInput.value = '';
+                    if(editEndTimeInput) editEndTimeInput.value = '';
+                }
+            });
+        }
     </script>
 </body>
 </html>

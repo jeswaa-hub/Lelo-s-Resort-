@@ -14,14 +14,14 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use App\Mail\ReservationStatusUpdated;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
-use App\Models\WalkInGuest;
+use App\Models\WalkinGuest;
 use App\Models\Transaction;
 use App\Models\Notification;
 use App\Models\DamageReport;
 use App\Models\ActivityLog;
 use DateTime;
+use Carbon\Carbon;
 
 class StaffController extends Controller
 {
@@ -195,8 +195,7 @@ public function dashboard()
 
         // Get counts for dashboard cards
         $pendingReservations = DB::table('reservation_details')
-            ->where('payment_status', 'pending')
-            ->where('reservation_status', 'pending')
+            ->where('reservation_status', 'reserved') // Count based on reservation status only
             ->count();
 
         $checkedInGuests = DB::table('reservation_details')
@@ -210,8 +209,7 @@ public function dashboard()
         // Get pending reservations list - limited to 3 records with name and date only
         $pendingReservationsList = DB::table('reservation_details')
             ->join('users', 'reservation_details.user_id', '=', 'users.id')
-            ->where('reservation_details.payment_status', 'pending')
-            ->where('reservation_details.reservation_status', 'pending')
+            ->where('reservation_details.reservation_status', 'reserved') // Filter based on reservation status only
             ->select(
                 'users.name as guest_name',
                 'reservation_details.reservation_check_in_date',
@@ -228,7 +226,7 @@ public function dashboard()
                 $join->whereRaw("JSON_CONTAINS(reservation_details.accomodation_id, CONCAT('\"', accomodations.accomodation_id, '\"'))");
             })
             ->whereDate('reservation_check_in_date', Carbon::today())
-            ->where('reservation_status', 'pending')
+            ->where('reservation_status', 'reserved')
             ->select(
                 'reservation_details.id',
                 'reservation_details.user_id', 
@@ -258,7 +256,7 @@ public function dashboard()
                 'users.name'
             )
             ->orderBy('reservation_check_in_date')
-            ->limit(5)
+            ->limit(3)
             ->get();
         return view('StaffSide.StaffDashboard', [
             'staffCredentials' => $staffCredentials,
@@ -315,7 +313,7 @@ public function reservations(Request $request)
 
     // Count reservations by status
     $pendingCount = DB::table('reservation_details')
-        ->where('reservation_status', 'pending')
+        ->where('reservation_status', 'cancelled')
         ->count();
     
     $OnHoldCount = DB::table('reservation_details')
@@ -386,7 +384,7 @@ public function reservations(Request $request)
         // This allows QR scanner to find reservations across all statuses
     } else {
         // Only apply status filter if no search is present
-        $status = $request->get('status', 'pending');
+        $status = $request->get('status', 'reserved');
         $query->where('reservation_details.reservation_status', $status);
     }
 
@@ -434,13 +432,13 @@ public function reservations(Request $request)
                 ->toArray();
         }
 
-        // --- Filter kung Overnight o One Day Stay ---
+        // --- Filter kung Overnight o Day Tour ---
         if (
             isset($reservation->reservation_check_in_date) &&
             isset($reservation->reservation_check_out_date)
         ) {
             if ($reservation->reservation_check_in_date == $reservation->reservation_check_out_date) {
-                $reservation->stay_type = 'One Day Stay';
+                $reservation->stay_type = 'Day Tour';
             } else {
                 $reservation->stay_type = 'Stay-in';
             }
@@ -449,7 +447,21 @@ public function reservations(Request $request)
         }
     }
 
-    $status = $request->get('status', 'pending'); // default pending
+    // Get the latest entrance fees for both sessions
+    $morningFees = DB::table('transaction')->where('session', 'Morning')->latest()->get()->keyBy('type');
+    $eveningFees = DB::table('transaction')->where('session', 'Evening')->latest()->get()->keyBy('type');
+
+    $entranceFees = [
+        'morning' => [
+            'adult' => $morningFees->get('adult')->entrance_fee ?? 0,
+            'child' => $morningFees->get('kid')->entrance_fee ?? 0,
+        ],
+        'evening' => [
+            'adult' => $eveningFees->get('adult')->entrance_fee ?? 0,
+            'child' => $eveningFees->get('kid')->entrance_fee ?? 0,
+        ],
+    ];
+    $status = $request->get('status', 'reserved'); // default reserved
     $reservationsPending = Reservation::where('reservation_status', $status)->get();
 
     // Debugging: Log the fetched details
@@ -471,7 +483,8 @@ public function reservations(Request $request)
         'reservedCount',
         'reservationsPending',
         'status',
-        'staffCredentials'
+        'staffCredentials',
+        'entranceFees'
     ));
 }
 
@@ -936,13 +949,19 @@ public function UpdateStatus(Request $request, $id)
     DB::beginTransaction();
 
     try {
-        // Update reservation/payment status
-        DB::table('reservation_details')->where('id', $id)->update([
+        $updateData = [
             'payment_status' => $request->payment_status,
             'reservation_status' => $request->reservation_status,
             'custom_message' => $request->custom_message ?? null,
             'updated_at' => now(),
-        ]);
+        ];
+
+        // If payment status is 'paid', set balance to 0
+        if ($request->payment_status === 'paid') {
+            $updateData['balance'] = 0;
+        }
+        // Update reservation/payment status
+        DB::table('reservation_details')->where('id', $id)->update($updateData);
 
         $updatedReservation = DB::table('reservation_details')->where('id', $id)->first();
 
@@ -974,11 +993,7 @@ public function UpdateStatus(Request $request, $id)
         DB::commit();
 
         // Send email to guest about the status update
-        Mail::to($updatedReservation->email)->send(new ReservationStatusUpdated(
-            $updatedReservation,
-            $request->custom_message,
-            $updatedReservation
-        ));
+        Mail::to($updatedReservation->email)->send(new ReservationStatusUpdated($updatedReservation, $request->custom_message));
 
         return redirect()->route('staff.reservation')->with('success', 'Reservation status updated successfully!');
 
@@ -1054,8 +1069,8 @@ public function UpdateStatus(Request $request, $id)
         // Guest status counts
         $totalWalkInGuests = DB::table('walkin_guests')->count();
         $totalReservedGuests = DB::table('walkin_guests')->where('reservation_status', 'reserved')->count();
-        $totalCheckedInGuests = $walkinGuest->where('reservation_status', 'checked-in')->count();
-        $totalCheckedOutGuests = $walkinGuest->where('reservation_status', 'checked-out')->count();
+    $totalCheckedInGuests = DB::table('walkin_guests')->where('reservation_status', 'checked-in')->count();
+    $totalCheckedOutGuests = DB::table('walkin_guests')->where('reservation_status', 'checked-out')->count();
 
         // Get available accommodations
         $accomodations = DB::table('accomodations')
@@ -1193,8 +1208,8 @@ public function UpdateStatus(Request $request, $id)
                 'quantity' => $validated['quantity'],
                 'total_guests' => $totalGuests,
                 'payment_status' => $validated['payment_status'],
-                'reservation_status' => $validated['reservation_status'],
-                'accomodation_id' => $validated['accomodation_id'],
+                'reservation_status' => $validated['reservation_status'], 
+                'accomodation_id' => json_encode([$validated['accomodation_id']]), // Ensure it's saved as a JSON array
                 'payment_method' => $validated['payment_method'],
                 'amount' => $validated['amount']
             ]);
@@ -1536,9 +1551,9 @@ public function UpdateStatus(Request $request, $id)
     {
         try {
             // Validate request
-            $request->validate([
+            $request->validate([ 
                 'new_checkout_date' => 'required|date',
-                'additional_payment' => 'required|numeric|min:0'
+                'additional_payment' => 'required|numeric|min:0',
             ]);
 
             // Get the reservation
@@ -1605,11 +1620,11 @@ public function checkDateAvailability(Request $request)
             'message' => $isAvailable ? 'Available' : 'Not available for selected date'
         ]);
     } catch (\Exception $e) {
-        \Log::error('Availability check error: ' . $e->getMessage());
+        \Log::error('Availability check error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
         return response()->json([
             'available' => false,
-            'message' => 'Error checking availability'
-        ]);
+            'message' => 'Server error while checking availability.'
+        ], 500); // Return a 500 Internal Server Error status
     }
 }
 private function checkAccommodationAvailability($date, $accommodationId, $requestedQuantity)
@@ -1657,5 +1672,51 @@ private function isValidDate($date)
 {
     $d = DateTime::createFromFormat('Y-m-d', $date);
     return $d && $d->format('Y-m-d') === $date;
+}
+
+public function updateGuestCount(Request $request, $id)
+{
+    // 1. Validation
+    $request->validate([
+        'additional_adults' => 'required|integer|min:0',
+        'additional_children' => 'required|integer|min:0',
+        'additional_amount' => 'required|numeric|min:0',
+        'total_guest' => 'required|integer|min:0', // This is the new total, already calculated by JS
+    ]);
+
+    // 2. Find the reservation
+    $reservation = DB::table('reservation_details')->where('id', $id)->first();
+
+    if (!$reservation) {
+        return redirect()->back()->with('error', 'Reservation not found.');
+    }
+
+    // 3. Calculate new totals
+    $newAdults = $reservation->number_of_adults + $request->input('additional_adults');
+    $newChildren = $reservation->number_of_children + $request->input('additional_children');
+    $newTotalGuests = $request->input('total_guest'); // Use the total from the form
+    $additionalAmount = $request->input('additional_amount');
+
+    // 4. Update the reservation
+    DB::table('reservation_details')
+        ->where('id', $id)
+        ->update([
+            'number_of_adults' => $newAdults,
+            'number_of_children' => $newChildren,
+            'total_guest' => $newTotalGuests,
+            'amount' => DB::raw('amount + ' . $additionalAmount),
+            'balance' => DB::raw('balance + ' . $additionalAmount),
+            'updated_at' => now(),
+        ]);
+
+    // 5. Record Activity
+    $staffId = session()->get('StaffLogin');
+    $staff = Staff::find($staffId);
+    if ($staff) {
+        $this->recordActivity($staff->username . " updated guest count for reservation #" . $reservation->reservation_id);
+    }
+
+    // 6. Redirect back with success message
+    return redirect()->back()->with('success', 'Guest count updated successfully!');
 }
 }

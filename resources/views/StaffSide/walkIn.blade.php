@@ -17,145 +17,164 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>
+        .pagination .page-link {
+            border-radius: 50% !important;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 3px;
+            border: 2px solid #0b573d;
+            color: #0b573d;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .pagination .page-link:hover {
+            background-color: #0b573d;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: #0b573d;
+            border-color: #0b573d;
+            color: white;
+        }
+
+        .pagination .page-item.disabled .page-link {
+            background-color: #e9ecef;
+            border-color: #dee2e6;
+            color: #6c757d;
+        }
+    </style>
 </head>
 <body style="margin: 0; padding: 0; height: 100vh; background-color: white; overflow-x: hidden;">
-    @include('Alert.errorLogin')
-    @include('Alert.loginSuccessUser')
+        @include('Alert.errorLogin')
+        @include('Alert.loginSuccessUser')
         <!-- NAVBAR -->
         @include('Navbar.sidenavbarStaff')
+        
         <!-- Main Content  -->
-
        <div class="row">
-        <div class="col-11 mx-auto">
-            <div class="hero-banner d-flex flex-column justify-content-center text-white p-3 p-sm-4 p-md-5"
-             style="background-image:url('{{ asset('images/staff-admin-bg.jpg') }}'); 
-                   background-size: cover; background-position: center; min-height: 450px; border-radius: 15px;">
+            <div class="col-11 mx-auto">
+                <div class="hero-banner d-flex flex-column justify-content-center text-white p-3 p-sm-4 p-md-5"
+                     style="background-color: white; min-height: 450px; border-radius: 15px;">
 
-            <div class="row g-3 g-md-4">
-                <!-- Left Side -->
-                <div class="col-12 col-md-6">
-                    <div class="d-flex flex-column gap-3">
-                        <!-- Greeting -->
-                        <div class="d-flex flex-column align-items-start text-start" 
-                            style="padding: 0 20px;">
-                            <p class="text-white" style="font-family: 'Poppins', sans-serif; font-size: clamp(2rem, 5vw, 3rem); letter-spacing: 5px;">
-                                Hello,
-                            </p>
-                            <h1 class="text-capitalize fw-bolder" 
-                                style="font-family: 'Montserrat', sans-serif; font-size: clamp(3rem, 8vw, 5rem); color:#ffffff; letter-spacing: clamp(5px, 2vw, 15px); white-space: normal; overflow-wrap: break-word; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
-                                {{$staffCredentials->username}}
-                            </h1>
-                        </div>
-                        
-                        <!-- Total Reservations -->
-                        <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" 
-                             style="background: linear-gradient(135deg, #ffffff 50%, #f8f9fa 50%);">
-                            <div class="d-flex align-items-center justify-content-between w-100">
-                                <div class="d-flex align-items-baseline gap-2">
-                                    <h1 class="fw-bold mb-0 text-success" 
-                                        style="font-size: clamp(1.5rem, 2.5vw, 3rem);">
-                                        {{ $totalWalkInGuests ?? 0 }}
-                                    </h1>
-                                    <p class="mb-0 text-uppercase fw-semibold text-success" style="font-size: clamp(0.8rem, 1.2vw, 1.2rem);">
-                                        Total Reservations
+                    <div class="row g-3 g-md-4">
+                        <!-- Left Side with background image -->
+                        <div class="col-12 col-md-6">
+                            <div class="d-flex flex-column gap-3 h-100"
+                                 style="background-image:url('{{ asset('images/staff-admin-bg.jpg') }}'); 
+                                        background-size: cover; background-position: center; 
+                                        border-radius: 15px; padding: 2rem;">
+                                <!-- Greeting -->
+                                <div class="d-flex flex-column align-items-start text-start" 
+                                     style="padding: 0 20px;">
+                                    <p class="text-white" style="font-family: 'Poppins', sans-serif; font-size: clamp(2rem, 5vw, 3rem); letter-spacing: 5px;">
+                                        Hello,
                                     </p>
+                                    <h1 class="text-capitalize fw-bolder" 
+                                        style="font-family: 'Montserrat', sans-serif; font-size: clamp(3rem, 8vw, 5rem); color:#ffffff; letter-spacing: clamp(5px, 2vw, 15px); white-space: normal; overflow-wrap: break-word; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
+                                        {{$staffCredentials->username}}
+                                    </h1>
                                 </div>
-                                <div class="d-flex align-items-center">
-                                    <i class="fas fa-calendar-check text-success" 
-                                       style="font-size: clamp(2rem, 4vw, 4rem);">
-                                    </i>
-                                </div>
-                            </div>
-                            <div class="position-absolute top-0 end-0 opacity-25 d-none d-md-block">
-                                <i class="fas fa-calendar-check text-success" 
-                                   style="font-size: 5rem; margin: -10px;">
-                                </i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Right Side -->
-                <div class="col-12 col-md-6">
-                    <div class="row row-cols-1 row-cols-sm-2 g-3 g-md-4">
-                        <!-- Walk-in Reservation -->
-                        <div class="col">
-                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg, #ffffff 50%, #f8f9fa 50%);">
-                                <div class="d-flex align-items-center justify-content-between w-100">
-                                    <div class="d-flex flex-column gap-2">
-                                        <h1 class="fw-bold mb-0 text-success" style="font-size: clamp(1.5rem, 2.5vw, 3rem);">{{ $totalWalkInGuests ?? 0 }}</h1>
-                                        <p class="mb-0 text-uppercase fw-semibold text-success" style="font-size: clamp(0.8rem, 1.2vw, 1.2rem);">Walk-In</p>
+                                
+                                <!-- Total Reservations -->
+                                <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" 
+                                     style="background: linear-gradient(135deg, #43cea2 0%, #385E3C 100%); border: 1px solid #ffffff;">
+                                    <div class="d-flex align-items-center justify-content-between w-100">
+                                        <div class="d-flex align-items-baseline gap-2">
+                                            <h1 class="fw-bold mb-0 text-white" 
+                                                style="font-size: clamp(1.5rem, 2.5vw, 3rem);">
+                                                {{ $totalCount ?? 0 }}
+                                            </h1>
+                                            <p class="mb-0 text-uppercase fw-semibold text-white" style="font-size: clamp(0.8rem, 1.2vw, 1.2rem);">
+                                                Total Reservations
+                                            </p>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-calendar-check text-white" style="font-size: clamp(2.2rem, 4.5vw, 3.5rem);"></i>
+                                        </div>
                                     </div>
-                                    <div class="d-flex align-items-center">
-                                        <i class="fas fa-user-check text-success" style="font-size: clamp(2rem, 4vw, 2.5rem);"></i>
-                                    </div>
-                                </div>
-                                <div class="position-absolute top-0 end-0 opacity-25 d-none d-md-block">
-                                    <i class="fas fa-user-check text-success" style="font-size: 4rem; margin: -10px;"></i>
                                 </div>
                             </div>
                         </div>
                         
+                        <!-- Right Side without background image -->
+                        <div class="col-12 col-md-6">
+                            <div class="row row-cols-2 g-2 g-md-3 g-lg-4 h-100">
+                                <!-- Walk-in Reservation -->
+                                <div class="col d-flex align-items-stretch">
+                                    <div class="d-flex align-items-center text-dark p-4 p-md-5 p-lg-6 rounded-4 shadow-lg w-100 position-relative overflow-hidden dashboard-card" 
+                                         style="background: linear-gradient(135deg, #43cea2 0%, #385E3C 100%); border: none;">
+                                        <div class="d-flex align-items-center justify-content-between w-100 position-relative">
+                                            <div class="d-flex flex-column gap-1">
+                                                <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.7rem, 3vw, 3.5rem); text-shadow: 0 2px 4px rgba(0,0,0,0.3);">{{ $totalWalkInGuests ?? 0 }}</h1>
+                                                <p class="mb-0 text-uppercase fw-semibold text-white" style="font-size: clamp(0.9rem, 1.4vw, 1.3rem); opacity: 0.95;">Walk-In</p>
+                                            </div>
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-user-check text-white" style="font-size: clamp(2.2rem, 4.5vw, 3.5rem);"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
 
+                                <!-- Checked-out -->
+                                <div class="col d-flex align-items-stretch">
+                                    <div class="d-flex align-items-center text-dark p-4 p-md-5 p-lg-6 rounded-4 shadow-lg w-100 position-relative overflow-hidden dashboard-card" 
+                                         style="background: linear-gradient(135deg,rgb(75, 96, 7) 0%,rgb(129, 235, 48) 100%); border: none;">
+                                        <div class="d-flex align-items-center justify-content-between w-100 position-relative">
+                                            <div class="d-flex flex-column gap-1">
+                                                <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.7rem, 3vw, 3.5rem); text-shadow: 0 2px 4px rgba(0,0,0,0.3);">{{ $totalCheckedOutGuests ?? 0 }}</h1>
+                                                <p class="mb-0 text-uppercase fw-semibold text-white" style="font-size: clamp(0.9rem, 1.4vw, 1.3rem); opacity: 0.95;">Check-out</p>
+                                            </div>
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-sign-out-alt text-white" style="font-size: clamp(2.2rem, 4.5vw, 3.5rem);"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
 
-                        <!-- Checked-out -->
-                        <div class="col">
-                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg, #ffffff 50%, #f8f9fa 50%);">
-                                <div class="d-flex align-items-center justify-content-between w-100">
-                                    <div class="d-flex flex-column gap-2">
-                                        <h1 class="fw-bold mb-0 text-success" style="font-size: clamp(1.5rem, 2.5vw, 3rem);">{{ $totalCheckedOutGuests ?? 0 }}</h1>
-                                        <p class="mb-0 text-uppercase fw-semibold text-success" style="font-size: clamp(0.8rem, 1.2vw, 1.2rem);">Check-out</p>
-                                    </div>
-                                    <div class="d-flex align-items-center">
-                                        <i class="fas fa-sign-out-alt text-success" style="font-size: clamp(2rem, 4vw, 2.5rem);"></i>
+                                <!-- Checked-in Reservations -->
+                                <div class="col d-flex align-items-stretch">
+                                    <div class="d-flex align-items-center text-dark p-4 p-md-5 p-lg-6 rounded-4 shadow-lg w-100 position-relative overflow-hidden dashboard-card" 
+                                         style="background: linear-gradient(135deg,rgb(75, 96, 7) 0%,rgb(129, 235, 48) 100%); border: none;">
+                                        <div class="d-flex align-items-center justify-content-between w-100 position-relative">
+                                            <div class="d-flex flex-column gap-1">
+                                                <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.7rem, 3vw, 3.5rem); text-shadow: 0 2px 4px rgba(0,0,0,0.3);">{{ $totalCheckedInGuests ?? 0 }}</h1>
+                                                <p class="mb-0 text-uppercase fw-semibold text-white" style="font-size: clamp(0.9rem, 1.4vw, 1.3rem); opacity: 0.95;">Checked-in</p>
+                                            </div>
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-user-check text-white" style="font-size: clamp(2.2rem, 4.5vw, 3.5rem);"></i>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="position-absolute top-0 end-0 opacity-25 d-none d-md-block">
-                                    <i class="fas fa-sign-out-alt text-success" style="font-size: 4rem; margin: -10px;"></i>
-                                </div>
-                            </div>
-                        </div>
 
-                        <!-- Checked-in Reservations -->
-                        <div class="col">
-                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg, #ffffff 50%, #f8f9fa 50%);">
-                                <div class="d-flex align-items-center justify-content-between w-100">
-                                    <div class="d-flex flex-column gap-2">
-                                        <h1 class="fw-bold mb-0 text-success" style="font-size: clamp(1.5rem, 2.5vw, 3rem);">{{ $totalCheckedInGuests ?? 0 }}</h1>
-                                        <p class="mb-0 text-uppercase fw-semibold text-success" style="font-size: clamp(0.8rem, 1.2vw, 1.2rem);">Checked-in</p>
+                                <!-- Total Walk-in -->
+                                <div class="col d-flex align-items-stretch">
+                                    <div class="d-flex align-items-center text-dark p-4 p-md-5 p-lg-6 rounded-4 shadow-lg w-100 position-relative overflow-hidden dashboard-card" 
+                                         style="background: linear-gradient(135deg, #43cea2 0%, #385E3C 100%); border: none;">
+                                        <div class="d-flex align-items-center justify-content-between w-100 position-relative">
+                                            <div class="d-flex flex-column gap-1">
+                                                <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.7rem, 3vw, 3.5rem); text-shadow: 0 2px 4px rgba(0,0,0,0.3);">{{ $totalReservedGuests ?? 0 }}</h1>
+                                                <p class="mb-0 text-uppercase fw-semibold text-white" style="font-size: clamp(0.9rem, 1.4vw, 1.3rem); opacity: 0.95;">Reserved</p>
+                                            </div>
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-user-check text-white" style="font-size: clamp(2.2rem, 4.5vw, 3.5rem);"></i>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="d-flex align-items-center">
-                                        <i class="fas fa-user-check text-success" style="font-size: clamp(2rem, 4vw, 2.5rem);"></i>
-                                    </div>
-                                </div>
-                                <div class="position-absolute top-0 end-0 opacity-25 d-none d-md-block">
-                                    <i class="fas fa-user-check text-success" style="font-size: 4rem; margin: -10px;"></i>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Total Walk-in -->
-                        <div class="col">
-                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg, #ffffff 50%, #f8f9fa 50%);">
-                                <div class="d-flex align-items-center justify-content-between w-100">
-                                    <div class="d-flex flex-column gap-2">
-                                        <h1 class="fw-bold mb-0 text-success" style="font-size: clamp(1.5rem, 2.5vw, 3rem);">{{ $totalReservedGuests ?? 0 }}</h1>
-                                        <p class="mb-0 text-uppercase fw-semibold text-success" style="font-size: clamp(0.8rem, 1.2vw, 1.2rem);">Reserved</p>
-                                    </div>
-                                    <div class="d-flex align-items-center">
-                                        <i class="fas fa-user-check text-success" style="font-size: clamp(2rem, 4vw, 2.5rem);"></i>
-                                    </div>
-                                </div>
-                                <div class="position-absolute top-0 end-0 opacity-25 d-none d-md-block">
-                                    <i class="fas fa-user-check text-success" style="font-size: 4rem; margin: -10px;"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-
-
 
             <div class="container-fluid mt-4 shadow-lg p-4 bg-white rounded">
                 <div class="container">
@@ -170,59 +189,67 @@
                         <div style="overflow-x: auto;">
                             <table class="table table-hover table-striped table-responsive table-sm">
                                 <thead  style="background-color: #0b573d; color: white;">
-                                <tr>
-                                    <th class="text-center align-middle" style="font-size: 0.85rem;">Name</th>
-                                    <th class="text-center align-middle" style="font-size: 0.85rem;">Address</th>
-                                    <th class="text-center align-middle" style="font-size: 0.85rem;">Phone Number</th>
-                                    <th class="text-center align-middle" style="font-size: 0.85rem;">Date</th>
-                                    <th class="text-center align-middle" style="font-size: 0.85rem;">Check In-Out</th>
-                                    <th class="text-center align-middle" style="font-size: 0.85rem;">Room</th>
-                                    <th class="text-center align-middle" style="font-size: 0.85rem;">Room Qty</th>
-                                    <th class="text-center align-middle" style="font-size: 0.85rem;">Total Guest</th>
-                                    <th class="text-center align-middle" style="font-size: 0.85rem;">Amount</th>
-                                    <th class="text-center align-middle" style="font-size: 0.85rem;">Payment Method</th>
-                                    <th class="text-center align-middle" style="font-size: 0.85rem;">Reservation Status</th>
-                                    <th class="text-center align-middle" style="font-size: 0.85rem;">Payment Status</th>
-                                    <th class="text-center align-middle" style="font-size: 0.85rem;">Action</th>
-                                </tr>
+                                    <tr>
+                                        <th class="text-center align-middle">Name</th>
+                                        <th class="text-center align-middle">Phone Number</th>
+                                        <th class="text-center align-middle">Room</th>
+                                        <th class="text-center align-middle">Qty</th>
+                                        <th class="text-center align-middle">Amount</th>
+                                        <th class="text-center align-middle">Check-in Date</th>
+                                        <th class="text-center align-middle">Check-out Date</th>
+                                        <th class="text-center align-middle">Reservation Status</th>
+                                        <th class="text-center align-middle">Payment Status</th>
+                                        <th class="text-center align-middle">Action</th>
+                                    </tr>
                                 </thead>
                                 <tbody>
                                 @foreach($walkinGuest as $guest)
                                     <tr class="align-middle">
-                                        <td class="text-center">{{ $guest->name }}</td>
-                                        <td class="text-center">{{ $guest->address }}</td>
-                                        <td class="text-center">{{ $guest->mobileNo }}</td>
-                                        <td class="text-center">{{ date('M d, Y', strtotime($guest->reservation_check_in_date)) }}</td>
-                                        <td class="text-center">{{ date('h:i A', strtotime($guest->check_in_time)) }} - {{ date('h:i A', strtotime($guest->check_out_time)) }}</td>
-                                        <td class="text-center">{{ $guest->accomodation_name }}</td>
-                                        <td class="text-center">{{ $guest->quantity}}</td>
-                                        <td class="text-center">{{ $guest->total_guests }}</td>
-                                        <td class="text-center">₱{{ number_format($guest->amount, 2) }}</td>
-                                        <td class="text-center">{{ $guest->payment_method }}</td>
-                                        <td class="text-center">
-                                            @if($guest->reservation_status == 'reserved')
-                                                <span class="badge bg-primary">{{ ucfirst($guest->reservation_status) }}</span>
-                                            @elseif($guest->reservation_status == 'checked-in')
-                                                <span class="badge bg-success">{{ ucfirst($guest->reservation_status) }}</span>
-                                            @elseif($guest->reservation_status == 'checked-out' || $guest->reservation_status == 'cancelled')
-                                                <span class="badge bg-danger">{{ ucfirst($guest->reservation_status) }}</span>
-                                            @else
-                                                <span class="badge bg-secondary">{{ ucfirst($guest->reservation_status) }}</span>
-                                            @endif
+                                        <td class="text-center align-middle">{{ $guest->name }}</td>
+                                        <td class="text-center align-middle">{{ $guest->mobileNo }}</td>
+                                        <td class="text-center align-middle">{{ $guest->accomodation_name }}</td>
+                                        <td class="text-center align-middle">{{ $guest->quantity}}</td>
+                                        <td class="text-center align-middle">₱{{ number_format($guest->amount, 2) }}</td>
+                                        <td class="text-center align-middle">{{ date('M d, Y', strtotime($guest->reservation_check_in_date)) }}</td>
+                                        <td class="text-center align-middle">{{ date('M d, Y', strtotime($guest->reservation_check_out_date)) }}</td>
+                                        <td class="text-center align-middle">
+                                            @php
+                                                $statusClass = match($guest->reservation_status) {
+                                                    'reserved' => 'bg-primary',
+                                                    'checked-in' => 'bg-success',
+                                                    'checked-out' => 'bg-info',
+                                                    'cancelled' => 'bg-danger',
+                                                    default => 'bg-secondary'
+                                                };
+                                                $statusIcon = match($guest->reservation_status) {
+                                                    'reserved' => 'fa-bookmark',
+                                                    'checked-in' => 'fa-user-check',
+                                                    'checked-out' => 'fa-sign-out-alt',
+                                                    'cancelled' => 'fa-times',
+                                                    default => 'fa-question'
+                                                };
+                                            @endphp
+                                            <span class="badge rounded-pill py-2 px-2 {{ $statusClass }}" style="font-size: .7rem;">
+                                                {{ ucfirst($guest->reservation_status) }}
+                                                <i class="fas {{ $statusIcon }} ms-1"></i>
+                                            </span>
                                         </td>
-                                        <td class="text-center">
-                                            @if($guest->payment_status == 'Paid')
-                                                <span class="badge bg-success ">{{ $guest->payment_status }}</span>
-                                            @elseif($guest->payment_status == 'partially-paid')
-                                                <span class="badge bg-warning">{{ $guest->payment_status }}</span>
-                                            @else
-                                                <span class="badge bg-danger">{{ $guest->payment_status }}</span>
-                                            @endif
+                                        <td class="text-center align-middle">
+                                            @php
+                                                $paymentClass = match(strtolower($guest->payment_status)) {
+                                                    'paid' => 'bg-success',
+                                                    'partially paid' => 'bg-warning',
+                                                    'unpaid' => 'bg-danger',
+                                                    default => 'bg-secondary'
+                                                };
+                                            @endphp
+                                            <span class="badge rounded-pill py-2 px-3 {{ $paymentClass }}" style="font-size: .7rem;">
+                                                {{ ucfirst($guest->payment_status) }}
+                                            </span>
                                         </td>
-                                        <td class="text-center">
-                                            <button type="button" class="btn btn-sm" style="background-color: #0b573d; color: white;"
-                                                data-bs-toggle="modal" data-bs-target="#editModal{{ $guest->id }}">
-                                                <i class="fas fa-edit"></i>
+                                        <td class="text-center align-middle">
+                                            <button type="button" class="btn" style="background-color: #0b573d; color: white; transition: all 0.3s ease; height: 38px;" onmouseover="this.style.backgroundColor='#083d2a'; this.style.transform='scale(1.05)'" onmouseout="this.style.backgroundColor='#0b573d'; this.style.transform='scale(1)'" data-bs-toggle="modal" data-bs-target="#editModal{{ $guest->id }}" title="Update Status">
+                                                <i class="fa-pencil fa-solid"></i>
                                             </button>
 
                                             <!-- Editing Status Modal -->
@@ -303,50 +330,34 @@
                     </div>
 
                 <!-- Simple Bootstrap Pagination -->
-                <nav aria-label="Walk-in Guest Pagination">
-                    <ul class="pagination pagination-sm mb-0">
-                        <!-- Previous Button -->
-                        <li class="page-item {{ $walkinGuest->onFirstPage() ? 'disabled' : '' }}">
-                            @if($walkinGuest->onFirstPage())
-                                <span class="page-link bg-light text-muted" style="width: 70px;">
-                                    <i class="fas fa-chevron-left me-1"></i>Prev
-                                </span>
-                            @else
-                                <a class="page-link text-white" style="background-color: #0b573d; width: 70px;" 
-                                href="{{ $walkinGuest->previousPageUrl() }}">
-                                    <i class="fas fa-chevron-left me-1"></i>Prev
-                                </a>
-                            @endif
-                        </li>
-
-                        <!-- Page Numbers -->
-                        @foreach ($walkinGuest->getUrlRange(1, $walkinGuest->lastPage()) as $page => $url)
-                            <li class="page-item {{ $page == $walkinGuest->currentPage() ? 'active' : '' }}">
-                                @if($page == $walkinGuest->currentPage())
-                                    <span class="page-link text-white fw-bold" style="background-color: #0b573d;">
-                                        {{ $page }}
-                                    </span>
-                                @else
-                                    <a class="page-link text-dark bg-light" href="{{ $url }}">
-                                        {{ $page }}
-                                    </a>
-                                @endif
+                <nav aria-label="Page navigation">
+                    <ul class="pagination mb-0">
+                        {{-- Previous Page Link --}}
+                        @if ($walkinGuest->onFirstPage())
+                            <li class="page-item disabled">
+                                <span class="page-link">&laquo;</span>
                             </li>
+                        @else
+                            <li class="page-item">
+                                <a class="page-link" href="{{ $walkinGuest->previousPageUrl() }}" rel="prev">&laquo;</a>
+                            </li>
+                        @endif
+
+                        {{-- Pagination Elements --}}
+                        @foreach ($walkinGuest->getUrlRange(1, $walkinGuest->lastPage()) as $page => $url)
+                            @if ($page == $walkinGuest->currentPage())
+                                <li class="page-item active" aria-current="page"><span class="page-link">{{ $page }}</span></li>
+                            @else
+                                <li class="page-item"><a class="page-link" href="{{ $url }}">{{ $page }}</a></li>
+                            @endif
                         @endforeach
 
-                        <!-- Next Button -->
-                        <li class="page-item {{ !$walkinGuest->hasMorePages() ? 'disabled' : '' }}">
-                            @if($walkinGuest->hasMorePages())
-                                <a class="page-link text-white" style="background-color: #0b573d; width: 70px;" 
-                                href="{{ $walkinGuest->nextPageUrl() }}">
-                                    Next<i class="fas fa-chevron-right ms-1"></i>
-                                </a>
-                            @else
-                                <span class="page-link bg-light text-muted" style="width: 70px;">
-                                    Next<i class="fas fa-chevron-right ms-1"></i>
-                                </span>
-                            @endif
-                        </li>
+                        {{-- Next Page Link --}}
+                        @if ($walkinGuest->hasMorePages())
+                            <li class="page-item"><a class="page-link" href="{{ $walkinGuest->nextPageUrl() }}" rel="next">&raquo;</a></li>
+                        @else
+                            <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+                        @endif
                     </ul>
                 </nav>
             </div>
@@ -452,16 +463,19 @@
                                             <label for="room_type" class="form-label fw-semibold text-dark mb-1">
                                                 <i class="fas fa-home me-2" style="color: #0b573d;"></i>Room Type
                                             </label>
-                                            <select class="form-select border-0 shadow-sm" 
-                                                    id="room_type" name="accomodation_id" required onchange="updateAmountAndTotal()" 
+                                           <select class="form-select border-0 shadow-sm" 
+                                                    id="room_type" name="accomodation_id" required 
+                                                    onchange="updateAmountAndTotal(); handleRoomSelection();" 
                                                     style="background: #f8f9fa; border-radius: 8px;">
                                                 <option value="">Select Room Type</option>
                                                 @foreach($accomodations as $accomodation)
                                                     @if($accomodation->accomodation_status === 'available'))
                                                         <option value="{{ $accomodation->accomodation_id }}" 
                                                                 data-price="{{ $accomodation->accomodation_price }}"
-                                                                data-capacity="{{ $accomodation->accomodation_capacity }}">
-                                                            {{ $accomodation->accomodation_name }} - ₱{{ number_format($accomodation->accomodation_price, 2) }}
+                                                                data-capacity="{{ $accomodation->accomodation_capacity }}"
+                                                                data-quantity="{{ $accomodation->available_quantity ?? $accomodation->quantity ?? 1 }}">
+                                                            {{ $accomodation->accomodation_name }} - ₱{{ number_format($accomodation->accomodation_price, 2) }} 
+                                                            (Available: {{ $accomodation->available_quantity ?? $accomodation->quantity ?? 1 }})
                                                         </option>
                                                     @endif
                                                 @endforeach
@@ -470,14 +484,20 @@
                                         <div class="col-6">
                                             <label for="quantity" class="form-label fw-semibold text-dark mb-1">
                                                 <i class="fas fa-hashtag me-2" style="color: #0b573d;"></i>Quantity
+                                                <span id="available_rooms" class="badge bg-success ms-1" style="display: none;"></span>
                                             </label>
                                             <input type="number" class="form-control border-0 shadow-sm" 
                                                     id="quantity" name="quantity" min="1" value="1" required 
-                                                    oninput="this.value = Math.round(this.value); validateQuantity()" step="1"
-                                                    style="background: #f8f9fa; border-radius: 8px;">
-                                            <div class="invalid-feedback mt-1" id="quantity_error">
+                                                    oninput="this.value = Math.round(this.value);" 
+                                                    style="background: #f8f9fa; border-radius: 8px;"
+                                                    placeholder="Select room first">
+                                            <div class="invalid-feedback mt-1" id="quantity_error" style="display: none;">
                                                 Quantity exceeds available rooms.
                                             </div>
+                                            <small class="text-muted mt-1 d-block" style="font-size: 12px;">
+                                                <i class="fas fa-info-circle me-1" style="color: #0b573d;"></i>
+                                                <span id="quantity_help">Select a room type first to see available quantity</span>
+                                            </small>
                                         </div>
                                     </div>
 
@@ -587,7 +607,7 @@
                                                 <i class="fas fa-clock me-2" style="color: #0b573d;"></i>Session
                                             </label>
                                             <select class="form-select border-0 shadow-sm" 
-                                                    id="session" name="session" required onchange="updateTimes()" 
+                                                    id="session" name="session" required onchange="handleSessionChange()" 
                                                     style="background: #f8f9fa; border-radius: 8px;">
                                                 <option value="">Select Session</option>
                                                 @if($morningSession = $transactions->firstWhere('session', 'Morning'))
@@ -753,6 +773,11 @@
     </div>
 </div>
  <script>
+        function handleSessionChange() {
+            updateTimes();
+            calculateTotalGuests();
+        }
+
         function openModal(id) {
             document.getElementById('id').value = id;
             var myModal = new bootstrap.Modal(document.getElementById('exampleModal'));
@@ -950,26 +975,30 @@ function validateCapacity() {
 
 function validateQuantity() {
     const roomTypeSelect = document.getElementById('room_type');
-    const quantityInput = document.getElementById('quantity');
-    const quantityError = document.getElementById('quantity_error');
+    const quantityInput = document.getElementById('quantity'); // Corrected ID
+    const quantityError = document.getElementById('quantity_error'); // Corrected ID
+
+    if (!roomTypeSelect.value) {
+        quantityInput.classList.remove('is-invalid');
+        quantityError.style.display = 'none';
+        return;
+    }
+
     const selectedOption = roomTypeSelect.options[roomTypeSelect.selectedIndex];
+    const availableQuantity = parseInt(selectedOption.getAttribute('data-quantity')) || 0;
+    let enteredQuantity = parseInt(quantityInput.value) || 0;
 
-    if (selectedOption.value) {
-        const availableCapacity = parseInt(selectedOption.getAttribute('data-capacity'));
-        const enteredQuantity = parseInt(quantityInput.value);
-
-        if (enteredQuantity > availableCapacity) {
-            quantityInput.classList.add('is-invalid');
-            quantityError.style.display = 'block';
-        } else {
-            quantityInput.classList.remove('is-invalid');
-            quantityError.style.display = 'none';
-        }
+    if (enteredQuantity > availableQuantity) {
+        quantityInput.value = availableQuantity; // Auto-correct the value
+        enteredQuantity = availableQuantity; // Update the variable for further calculations
+        quantityInput.classList.add('is-invalid');
+        quantityError.textContent = `Exceeded available rooms. Quantity auto-corrected to ${availableQuantity}.`;
+        quantityError.style.display = 'block';
     } else {
-        // If no room type is selected, hide the error
         quantityInput.classList.remove('is-invalid');
         quantityError.style.display = 'none';
     }
+
     validateCapacity();
     updateAmount();
 }
@@ -1404,6 +1433,92 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('phone_error').style.display = 'block';
                 document.getElementById('phone_error').innerHTML = '<i class="fas fa-exclamation-circle me-1" style="color: #dc3545;"></i>Phone number must be exactly 11 digits before submitting.';
                 phoneInput.focus();
+            }
+        });
+    }
+});
+</script>
+<script>
+// Function to show error when quantity is clicked without room selection
+function validateQuantityOnClick() {
+    const roomTypeSelect = document.getElementById('room_type');
+    const quantityInput = document.getElementById('quantity');
+    const quantityError = document.getElementById('quantity_error');
+    
+    if (!roomTypeSelect.value) {
+        // Show error message
+        quantityInput.classList.add('is-invalid');
+        quantityError.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i>Please select a room type first before entering quantity.';
+        quantityError.style.display = 'block';
+        
+        // Focus on room selection
+        roomTypeSelect.focus();
+        
+        return false;
+    }
+    
+    return true;
+}
+
+// Function to handle room selection change
+function handleRoomSelection() {
+    const roomTypeSelect = document.getElementById('room_type');
+    const quantityInput = document.getElementById('quantity');
+    const quantityError = document.getElementById('quantity_error');
+    
+    if (roomTypeSelect.value) {
+        // Clear error when room is selected
+        quantityInput.classList.remove('is-invalid');
+        quantityError.style.display = 'none';
+        
+        // Update available capacity information
+        const selectedOption = roomTypeSelect.options[roomTypeSelect.selectedIndex];
+        const capacity = selectedOption.getAttribute('data-capacity');
+        
+        // Update placeholder or tooltip to show available capacity
+        quantityInput.placeholder = `Max: ${capacity}`;
+        quantityInput.setAttribute('max', capacity);
+        
+        // Reset quantity to 1 when room is selected
+        quantityInput.value = 1;
+        
+        // Trigger validation and amount update
+        validateQuantity();
+        updateAmount();
+        validateCapacity();
+    }
+}
+
+// Add event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    const quantityInput = document.getElementById('quantity');
+    const roomTypeSelect = document.getElementById('room_type');
+    
+    // Add click event listener to quantity input
+    quantityInput.addEventListener('click', function(e) {
+        validateQuantityOnClick();
+    });
+    
+    // Add focus event listener as well (for accessibility)
+    quantityInput.addEventListener('focus', function(e) {
+        validateQuantityOnClick();
+    });
+    
+    // Add change event listener to room type select
+    roomTypeSelect.addEventListener('change', function() {
+        handleRoomSelection();
+    });
+    
+    // Also validate on form submission
+    const form = document.querySelector('#addWalkInModal form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            if (!roomTypeSelect.value) {
+                e.preventDefault();
+                quantityInput.classList.add('is-invalid');
+                document.getElementById('quantity_error').innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i>Please select a room type before submitting.';
+                document.getElementById('quantity_error').style.display = 'block';
+                roomTypeSelect.focus();
             }
         });
     }

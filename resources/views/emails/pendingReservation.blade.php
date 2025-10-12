@@ -112,6 +112,13 @@
             list-style-type: none;
             text-align: right;
         }
+        .custom-message-box {
+            background-color: #fffbe6;
+            border-left: 4px solid #ffc107;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 0 4px 4px 0;
+        }
         .accommodation-list li {
             background-color: #f0f8ff;
             padding: 8px 12px;
@@ -130,7 +137,7 @@
         <div class="content">
             <h1>Thank You for Choosing Lelo's Resort!</h1>
             <p>Dear {{ $reservation->name }},</p>
-            <p>Your booking has been successfully processed. Below is the complete summary of your reservation details. We look forward to welcoming you!</p>
+            <p>Your booking status has been updated. Below is the summary of your reservation details. We look forward to welcoming you!</p>
 
             <div class="reservation-details">
                 <h2>Reservation Summary</h2>
@@ -154,11 +161,19 @@
                     <tr>
                         <td class="label" style="vertical-align: top;">Accommodations:</td>
                         <td class="value">
+                            @if(!empty($accommodationDetails))
                             <ul class="accommodation-list">
                                 @foreach($accommodationDetails as $detail)
                                     <li>{{ $detail['name'] }} (x{{ $detail['quantity'] }})</li>
                                 @endforeach
                             </ul>
+                            @else
+                                @php
+                                    $accom_names = DB::table('accomodations')->whereIn('accomodation_id', json_decode($reservation->accomodation_id, true) ?? [])->pluck('accomodation_name')->implode(', ');
+                                @endphp
+                                <p class="value" style="margin:0;">{{ $accom_names ?: 'N/A' }}</p>
+                            @endif
+
                         </td>
                     </tr>
                 </table>
@@ -169,38 +184,40 @@
                 <table class="details-table">
                     <tr>
                         <td class="label">Total Amount:</td>
-                        <td class="value total">₱{{ number_format($totalPrice, 2) }}</td>
+                        <td class="value total">₱{{ number_format($reservation->amount ?? $reservation->total_amount, 2) }}</td>
                     </tr>
 
-                    @if($reservation->payment_status == 'pending')
+                    {{-- Show Downpayment only if status is partial --}}
+                    @if($reservation->payment_status == 'partial')
                         <tr>
-                            <td class="label">Required 20% Downpayment:</td>
-                            <td class="value total">₱{{ number_format($downpayment, 2) }}</td>
+                            <td class="label">Downpayment (20%):</td>
+                            <td class="value">₱{{ number_format($reservation->downpayment, 2) }}</td>
                         </tr>
                     @endif
 
+                    {{-- Show Remaining Balance only if status is partial --}}
                     @if($reservation->payment_status == 'partial')
                         <tr>
                             <td class="label">Remaining Balance:</td>
                             <td class="value total">₱{{ number_format($reservation->balance, 2) }}</td>
                         </tr>
+                    {{-- Show Balance as 0 if status is paid --}}
                     @elseif($reservation->payment_status == 'paid')
-                        <tr>
-                            <td class="label">Downpayment:</td>
-                            <td class="value total">₱0.00</td>
-                        </tr>
                         <tr>
                             <td class="label">Balance:</td>
                             <td class="value total">₱0.00</td>
                         </tr>
                     @endif
                 </table>
-                @if($reservation->payment_status == 'pending')
-                    <p style="font-size: 14px; margin-top: 15px;"><strong>Next Step:</strong> Your booking is currently <strong>pending approval</strong>. You will receive another email with a payment link once our team confirms your reservation.</p>
-                @elseif($reservation->payment_status == 'partial')
+
+                @if($reservation->payment_status == 'partial')
                     <p style="font-size: 14px; margin-top: 15px;"><strong>Next Step:</strong> Please settle the remaining balance upon your arrival at the resort. Thank you!</p>
                 @elseif($reservation->payment_status == 'paid')
                     <p style="font-size: 14px; margin-top: 15px;"><strong>All Set!</strong> Your booking is fully paid and confirmed. We are excited to see you soon!</p>
+                @endif
+
+                @if(isset($reservation->custom_message) && !empty($reservation->custom_message))
+                    <p style="font-size: 14px; margin-top: 15px; padding: 10px; background-color: #f0f0f0; border-radius: 4px;"><strong>A message from our staff:</strong><br>{{ $reservation->custom_message }}</p>
                 @endif
             </div>
         </div>

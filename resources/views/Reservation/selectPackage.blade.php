@@ -406,6 +406,17 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
+                    <!-- Enhanced No Refund Policy Banner -->
+                    <div class="p-3 mb-4 rounded-3" style="background-color: #fffbe6; border: 1px solid #ffe58f;">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-exclamation-triangle me-3 fs-4" style="color: #faad14;"></i>
+                            <div>
+                                <h6 class="fw-bold mb-1" style="color: #d46b08;">Important: No Refund Policy</h6>
+                                <p class="mb-0 small text-muted">The down payment is non-refundable. Please review your booking details carefully before confirming your reservation.</p>
+                            </div>
+                        </div>
+                    </div>
+                <div class="modal-body p-4">
                     <!-- Booking Details -->
                     <div class="row mb-4">
                         <div class="col-md-6">
@@ -501,28 +512,27 @@ function calculateTotals() {
     let totalGuests = adults + children;
 
     const guestError = document.getElementById('guestError');
-    const totalGuestsInput = document.getElementById("total_guests");
-    const isOverCapacity = totalGuests > totalCapacity && totalCapacity > 0;
-    
-    if (isOverCapacity) {
-        // Correct the input value if it exceeds capacity by typing
+    const totalGuestsInput = document.getElementById("total_guests");    
+
+    if (totalGuests > totalCapacity && totalCapacity > 0) {
+        guestError.textContent = `Exceeds capacity! Correcting to ${totalCapacity} guests.`;
+        guestError.style.display = 'block';
+
         const overBy = totalGuests - totalCapacity;
         if (document.activeElement === adultsInput) {
             adultsInput.value = adults - overBy;
         } else if (document.activeElement === childrenInput) {
             childrenInput.value = children - overBy;
         }
-        // Recalculate total guests after correction
+
         adults = parseInt(adultsInput.value) || 0;
         children = parseInt(childrenInput.value) || 0;
         totalGuests = adults + children;
-    }
-    
-    if (totalGuestsInput) {
-        // Always keep the display normal since errors are auto-corrected
+    } else {
         guestError.style.display = 'none';
-        totalGuestsInput.style.color = 'black';
-        totalGuestsInput.classList.remove('is-invalid');
+    }
+
+    if (totalGuestsInput) {
         totalGuestsInput.value = totalGuests;
     }
 
@@ -798,7 +808,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 Swal.fire({
                     icon: 'warning',
                     title: 'Invalid Number of Adults',
-                    text: 'Please enter the number of adults (must be greater than 0)',
+                    text: 'An adult must be included in every booking. Please ensure at least one adult is part of the guest count.',
                     confirmButtonColor: '#198754'
                 });
                 return;

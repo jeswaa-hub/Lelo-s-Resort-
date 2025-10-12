@@ -1,9 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Anton&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="{{ asset('images/logo new.png') }}">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Anton&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -16,199 +20,339 @@
 </head>
 <style>
     .fancy-link {
-    text-decoration: none;
-    font-weight: 600;
-    position: relative;
-    transition: color 0.3s ease;
-}
+        text-decoration: none;
+        font-weight: 600;
+        position: relative;
+        transition: color 0.3s ease;
+    }
 
-.fancy-link::after {
-    content: "";
-    position: absolute;
-    width: 0;
-    height: 2px;
-    left: 0;
-    bottom: -2px;
-    background-color: #0b573d;
-    transition: width 0.3s ease;
-}
+    .fancy-link::after {
+        content: "";
+        position: absolute;
+        width: 0;
+        height: 2px;
+        left: 0;
+        bottom: -2px;
+        background-color: #0b573d;
+        transition: width 0.3s ease;
+    }
 
-.fancy-link:hover {
-    color: #0b573d;
-}
+    .fancy-link:hover {
+        color: #0b573d;
+    }
 
-.fancy-link:hover::after {
-    width: 100%;
-}
-.fancy-link.active::after {
-    width: 100% !important;
-}
-.transition-width {
-    transition: all 0.3s ease;
-}
-#mainContent.full-width {
-    width: 100% !important;
-    flex: 0 0 100% !important;
-    max-width: 100% !important;
-}
+    .fancy-link:hover::after {
+        width: 100%;
+    }
+
+    .fancy-link.active::after {
+        width: 100% !important;
+    }
+
+    .transition-width {
+        transition: all 0.3s ease;
+    }
+
+    #mainContent.full-width {
+        width: 100% !important;
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+    }
+
+    .status-active {
+        background: linear-gradient(180deg, #226214, #43cc25);
+        color: #fff;
+        border: none !important;
+    }
+
+    .status-inactive {
+        background: linear-gradient(180deg, #963e15, #f4773e) !important;
+        color: #fff !important;
+        border: none !important;
+    }
+
+    /* Custom Table Header Style */
+    .custom-table thead th {
+        background: linear-gradient(180deg, #f8f9fa, #dcdcdc);
+        color: #0b573d;
+        font-weight: 600;
+        text-align: center;
+        padding: 12px;
+        border-radius: 6px;
+        box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.15);
+        border: none !important;
+    }
 </style>
-<body style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76)), url('{{ asset('images/DSCF2777.JPG') }}') no-repeat center center fixed; background-size: cover;">
+
+<body
+    style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76))">
     @include('Alert.loginSucess')
     @include('Navbar.sidenavbar')
     <div class="container-fluid min-vh-100 d-flex p-0">
         <div class="d-flex w-100" id="mainLayout" style="min-height: 100vh;">
-            
-                <!-- Main Content -->
-                <div id="mainContent" class="flex-grow-1 py-4 px-4 transition-width" style="transition: all 0.3s ease;">
-                    <!-- Links -->
-                    <div class="d-flex justify-content-center mb-5">
-                        <a href="{{ route('activityLogs') }}" class="text-color-2 text-decoration-none me-5 fancy-link " style="font-family: 'Anton', sans-serif; letter-spacing: 0.1em;"><h1 class="fs-1 text-uppercase">Activity Logs</h1></a>
-                        <a href="{{ route('userAccountRoles') }}" class="text-color-2 me-5 text-decoration-none fancy-link active" style="font-family: 'Anton', sans-serif; letter-spacing: 0.1em;"><h1 class="fs-1 text-uppercase">Account Creation</h1></a>
+            <!-- Main Content -->
+            <div id="mainContent" class="flex-grow-1 py-4 px-4 transition-width" style="transition: all 0.3s ease;">
+
+                <div class="container-fluid mt-4 mb-4 rounded-4 p-5" style="background: url('{{ asset('images/staff-admin-bg.jpg') }}') no-repeat center center; 
+                background-size: cover; 
+                    width: 100%;
+                    height: 100vh;
+                    border-radius: 30px;">
+
+                    <div class="mb-5 text-white" style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); margin-top: 10%;">
+                        <h2 class="mb-0 fs-1" style="font-size: 4.5rem !important;">Hello,</h2>
+                        <h1 class="display-1 fw-bold" style="font-size: 5.5rem !important;">Admin User!</h1>
+                    </div>
+                    <!-- Add User Button -->
+                    <div class="d-flex justify-content-end mb-5">
+                        <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#addUserModal"
+                            style="background-color: #ffffff; color: #333; border-radius: 4px; padding: 6px 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <i class="fas fa-plus me-2"></i>Add User
+                        </button>
                     </div>
 
-                    <!-- Table -->
-                    <div>
-                        <div class="d-flex justify-content-end mb-3">
-                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addUserModal">
-                                <i class="fas fa-plus me-2"></i>Add User
-                            </button>
+                    <!-- Filter Card -->
+                    <div class="card shadow-sm border-0 rounded-4 mb-4"
+                        style="background: linear-gradient(to right, #ffffff, #f8f9fa);">
+                        <div class="d-flex justify-content-between align-items-center px-4 pt-4">
+                            <div class="dropdown">
+                                <button
+                                    class="btn btn-lg dropdown-toggle text-color-2 text-decoration-none d-flex align-items-center gap-2"
+                                    type="button" id="activityLogsDropdown" data-bs-toggle="dropdown"
+                                    aria-expanded="false"
+                                    style="font-family: 'Anton', sans-serif; letter-spacing: 0.1em; background: none; border: none;">
+                                    <h1 class="fs-1 text-uppercase mb-0"
+                                        style="background: linear-gradient(45deg, #0b573d, #198754); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 1px 1px 2px rgba(0,0,0,0.1);">
+                                        Account Creation</h1>
+                                </button>
+                                <ul class="dropdown-menu shadow-lg border-0 animated fadeInDown"
+                                    aria-labelledby="activityLogsDropdown"
+                                    style="border-radius: 10px; overflow: hidden;">
+                                    <li>
+                                        <a class="dropdown-item d-flex align-items-center py-2"
+                                            href="{{ route('activityLogs') }}">
+                                            <i class="fas fa-list-alt text-success me-2"></i>
+                                            <span>Activity Logs</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
+                        <hr>
+                        <div class="card-body p-4">
 
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead class="table-success">
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Username</th>
-                                        <th>Password</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($staffAccounts as $user)
-                                    <tr>
-                                        <td>{{ $user->id }}</td>
-                                        <td>{{ $user->username }}</td>
-                                        <td>{{ $user->password }}</td>
-                                        <td>
-                                            <span class="badge {{ $user->status === 'active' ? 'bg-success' : ($user->status === 'inactive' ? 'bg-danger' : '') }}">
-                                                {{ ucfirst($user->status) }}
-                                            </span>
-                                        </td>
-                                        <td class="d-flex gap-2">
-                                            <button class="btn btn-sm text-color-2" data-bs-toggle="modal" data-bs-target="#editUser{{ $user->id }}" title="Edit User">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn btn-sm" data-bs-toggle="modal" data-bs-target="#deleteUser{{ $user->id }}" title="Delete User">
-                                                <i class="fas fa-trash text-danger"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-
-                                    <!-- Edit User Modal -->
-                                    <div class="modal fade" id="editUser{{ $user->id }}" tabindex="-1" aria-hidden="true">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <div class="modal-header bg-success text-white">
-                                                    <h5 class="modal-title">Edit User</h5>
-                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                </div>
-                                                <form action="{{ route('updateUser', $user->id) }}" method="POST">
-                                                    @csrf
-                                                    @method('PUT')
-                                                    <div class="modal-body">
-                                                        <div class="mb-3">
-                                                            <label class="form-label text-success fw-bold">Username</label>
-                                                            <input type="text" class="form-control border-success" name="username" value="{{ $user->username }}" required>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label class="form-label text-success fw-bold">Password</label>
-                                                            <div class="input-group">
-                                                                <input type="password" class="form-control border-success" name="password" id="password{{ $user->id }}" placeholder="Enter new password">
-                                                                <button class="btn btn-outline-success" type="button" onclick="togglePassword('password{{ $user->id }}')" style="height: 50px;">
-                                                                    <i class="fas fa-eye" id="eye{{ $user->id }}"></i>
+                            <!-- Table Container -->
+                            <div class="container-fluid px-0">
+                                <div class="card shadow-sm border-0 rounded-4">
+                                    <div class="card-body p-4">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover align-middle custom-table">
+                                                <thead class="table-light text-uppercase small text-secondary">
+                                                    <tr>
+                                                        <th class="py-3 text-secondary">
+                                                            <i class="fas fa-id-card me-2"></i>ID
+                                                        </th>
+                                                        <th class="py-3 text-secondary">
+                                                            <i class="fas fa-user me-2"></i>Username
+                                                        </th>
+                                                        <th class="py-3 text-secondary">
+                                                            <i class="fas fa-key me-2"></i>Password
+                                                        </th>
+                                                        <th class="py-3 text-secondary">
+                                                            <i class="fas fa-toggle-on me-2"></i>Status
+                                                        </th>
+                                                        <th class="py-3 text-secondary">
+                                                            <i class="fas fa-cogs me-2"></i>Actions
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="align-middle">
+                                                    @foreach($staffAccounts as $user)
+                                                        <tr class="border-bottom">
+                                                            <td class="py-3 text-center">{{ $loop->iteration }}</td>
+                                                            <td class="py-3 text-center">{{ $user->username }}</td>
+                                                            <td class="py-3 text-center">{{ $user->password }}</td>
+                                                            <td class="py-3 text-center">
+                                                                <span
+                                                                    class="badge px-3 {{ $user->status === 'active' ? 'status-active' : 'status-inactive' }}">
+                                                                    {{ ucfirst($user->status) }}
+                                                                </span>
+                                                            </td>
+                                                            <td class="py-3 text-center d-flex justify-content-center">
+                                                                <button
+                                                                    class="btn btn-sm color-background5 text-white rounded-3 shadow-sm"
+                                                                    data-bs-toggle="modal"
+                                                                    data-bs-target="#editUser{{ $user->id }}"
+                                                                    style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background-color: #0b573d;">
+                                                                    <i class="fas fa-edit"></i>
                                                                 </button>
+                                                            </td>
+                                                        </tr>
+
+                                                        <!-- Edit User Modal -->
+                                                        <div class="modal fade" id="editUser{{ $user->id }}" tabindex="-1"
+                                                            aria-hidden="true">
+                                                            <div class="modal-dialog">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header bg-success text-white">
+                                                                        <h5 class="modal-title">Edit User</h5>
+                                                                        <button type="button"
+                                                                            class="btn-close btn-close-white"
+                                                                            data-bs-dismiss="modal"
+                                                                            aria-label="Close"></button>
+                                                                    </div>
+                                                                    <form action="{{ route('updateUser', $user->id) }}"
+                                                                        method="POST">
+                                                                        @csrf
+                                                                        @method('PUT')
+                                                                        <div class="modal-body">
+                                                                            <div class="mb-3">
+                                                                                <label
+                                                                                    class="form-label text-success fw-bold">Username</label>
+                                                                                <input type="text"
+                                                                                    class="form-control border-success"
+                                                                                    name="username"
+                                                                                    value="{{ $user->username }}" required>
+                                                                            </div>
+                                                                            <div class="mb-3">
+                                                                                <label
+                                                                                    class="form-label text-success fw-bold">Password</label>
+                                                                                <div class="input-group">
+                                                                                    <input type="password"
+                                                                                        class="form-control border-success m-0"
+                                                                                        name="password"
+                                                                                        id="password{{ $user->id }}"
+                                                                                        placeholder="Enter new password">
+                                                                                    <button class="btn btn-outline-success"
+                                                                                        type="button"
+                                                                                        onclick="togglePassword('password{{ $user->id }}')"
+                                                                                        style="height: 50px;">
+                                                                                        <i class="fas fa-eye"
+                                                                                            id="eye{{ $user->id }}"></i>
+                                                                                    </button>
+                                                                                </div>
+                                                                                <small class="text-muted">Leave blank to
+                                                                                    keep current
+                                                                                    password</small>
+                                                                            </div>
+                                                                            <div class="mb-3">
+                                                                                <label
+                                                                                    class="form-label text-success fw-bold">Status</label>
+                                                                                <select class="form-select border-success"
+                                                                                    name="status" required>
+                                                                                    <option value="active" {{ $user->status === 'active' ? 'selected' : '' }}>Active</option>
+                                                                                    <option value="inactive" {{ $user->status === 'inactive' ? 'selected' : '' }}>Inactive</option>
+                                                                                </select>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="modal-footer">
+                                                                            <button type="button"
+                                                                                class="btn btn-outline-success"
+                                                                                data-bs-dismiss="modal">Cancel</button>
+                                                                            <button type="submit"
+                                                                                class="btn btn-success">Save
+                                                                                Changes</button>
+                                                                        </div>
+                                                                    </form>
+                                                                </div>
                                                             </div>
-                                                            <small class="text-muted">Leave blank to keep current password</small>
                                                         </div>
-                                                        <div class="mb-3">
-                                                            <label class="form-label text-success fw-bold">Status</label>
-                                                            <select class="form-select border-success" name="status" required>
-                                                                <option value="active" {{ $user->status === 'active' ? 'selected' : '' }}>Active</option>
-                                                                <option value="inactive" {{ $user->status === 'inactive' ? 'selected' : '' }}>Inactive</option>
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-outline-success" data-bs-dismiss="modal">Cancel</button>
-                                                        <button type="submit" class="btn btn-success">Save Changes</button>
-                                                    </div>
-                                                </form>
-                                            </div>
+
+                                                        <script>
+                                                            function togglePassword(inputId) {
+                                                                const passwordInput = document.getElementById(inputId);
+                                                                const eyeIcon = document.getElementById('eye' + inputId.replace('password', ''));
+
+                                                                if (passwordInput.type === 'password') {
+                                                                    passwordInput.type = 'text';
+                                                                    eyeIcon.classList.remove('fa-eye');
+                                                                    eyeIcon.classList.add('fa-eye-slash');
+                                                                } else {
+                                                                    passwordInput.type = 'password';
+                                                                    eyeIcon.classList.remove('fa-eye-slash');
+                                                                    eyeIcon.classList.add('fa-eye');
+                                                                }
+                                                            }
+                                                        </script>
+                                                    @endforeach
+                                                    @if($staffAccounts->isEmpty())
+                                                        <tr>
+                                                            <td colspan="5" class="text-center py-5 text-muted">
+                                                                No staff accounts found.
+                                                            </td>
+                                                        </tr>
+                                                    @endif
+                                                </tbody>
+                                            </table>
                                         </div>
-                                    </div>
-
-                                    <script>
-                                        function togglePassword(inputId) {
-                                            const passwordInput = document.getElementById(inputId);
-                                            const eyeIcon = document.getElementById('eye' + inputId.replace('password', ''));
-                                            
-                                            if (passwordInput.type === 'password') {
-                                                passwordInput.type = 'text';
-                                                eyeIcon.classList.remove('fa-eye');
-                                                eyeIcon.classList.add('fa-eye-slash');
-                                            } else {
-                                                passwordInput.type = 'password';
-                                                eyeIcon.classList.remove('fa-eye-slash');
-                                                eyeIcon.classList.add('fa-eye');
-                                            }
-                                        }
-                                    </script>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <!-- Add User Modal -->
-                        <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="addUserModalLabel">Add New User</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <form action="{{ route('addUser') }}" method="POST">
-                                            @csrf
-                                            <div class="mb-3">
-                                                <label for="username" class="form-label">Username</label>
-                                                <input type="text" class="form-control" id="username" name="username" required>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="password" class="form-label">Password</label>
-                                                <input type="password" class="form-control" id="password" name="password" required>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="email" class="form-label">Status</label>
-                                                <select class="form-select" id="status" name="status" required>
-                                                    <option value="">Select Status</option>
-                                                    <option value="active">Active</option>
-                                                    <option value="inactive">Inactive</option>
-                                                </select>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                <button type="submit" class="btn btn-success">Add User</button>
-                                            </div>
-                                        </form>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
         </div>
     </div>
+
+    <!-- Add User Modal -->
+    <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 shadow-lg border-0">
+                <div class="modal-header text-white" style="background: linear-gradient(135deg, #0b573d, #198754);">
+                    <h5 class="modal-title fw-bold" id="addUserModalLabel">
+                        <i class="fas fa-user-plus me-2"></i>Add New Staff Account
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="{{ route('addUser') }}" method="POST">
+                    @csrf
+                    <div class="modal-body p-4" style="background-color: #f8f9fa;">
+                        <div class="mb-3">
+                            <label for="username" class="form-label fw-semibold text-success">Username</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="fas fa-user text-muted"></i></span>
+                                <input type="text" class="form-control border-start-0 m-0" name="username" placeholder="e.g., staff_user" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label fw-semibold text-success">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="fas fa-lock text-muted"></i></span>
+                                <input type="password" class="form-control border-start-0 m-0" name="password" id="addPassword" placeholder="Enter a secure password" required>
+                                <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('addPassword', 'addEyeIcon')">
+                                    <i class="fas fa-eye" id="addEyeIcon"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="status" class="form-label fw-semibold text-success">Status</label>
+                            <select class="form-select" name="status" required>
+                                <option value="active" selected>Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0" style="background-color: #f1f3f5;">
+                        <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-success rounded-pill px-4">
+                            <i class="fas fa-save me-2"></i>Create Account
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function togglePasswordVisibility(fieldId, iconId) {
+            const passwordField = document.getElementById(fieldId);
+            const icon = document.getElementById(iconId);
+            passwordField.type = passwordField.type === 'password' ? 'text' : 'password';
+            icon.classList.toggle('fa-eye');
+            icon.classList.toggle('fa-eye-slash');
+        }
+    </script>
 </body>
+
 </html>

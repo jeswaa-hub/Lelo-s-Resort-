@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="{{ asset('images/logo new.png') }}">
     <link
         href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Anton&display=swap"
         rel="stylesheet">
@@ -57,7 +58,7 @@
 <body
     style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76))">
     @include('Alert.loginSuccessUser')
-    @include('Alert.errornotification')
+    @include('Alert.errorLogin')
     <!-- NAVBAR -->
     @include('Navbar.sidenavbar')
 
@@ -80,7 +81,7 @@
 
                             <div class="mb-5" style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);">
                                 <h2 class="mb-0 fs-1" style="font-size: 4.5rem !important;">Hello,</h2>
-                                <h1 class="display-1 fw-bold" style="font-size: 5.5rem !important;">Admin User!</h1>
+                                <h1 class="display-1 fw-bold text-capitalize" style="font-size: 5.5rem !important;">{{ $adminCredentials->username }}!</h1>
                             </div>
 
                             <div class="card text-dark rounded-4 shadow p-4 mt-4"
@@ -178,39 +179,37 @@
                         <table class="table table-hover table-borderless mb-0">
                             <thead class="table-light text-uppercase text-secondary small">
                                 <tr>
-                                    <th scope="col">Room ID</th>
-                                    <th scope="col">Room Image</th>
-                                    <th scope="col">Room Name</th>
-                                    <th scope="col">Room Description</th>
-                                    <th scope="col">Room Type</th>
-                                    <th scope="col">Room Qty</th>
-                                    <th scope="col">Price</th>
-                                    <th scope="col">Capacity</th>
-                                    <th scope="col">Availability</th>
-                                    <th scope="col">Actions</th>
+                                    <th scope="col" class="py-3 px-4">Room Image</th>
+                                    <th scope="col" class="py-3 px-4">Room Name</th>
+                                    <th scope="col" class="py-3 px-4">Room Description</th>
+                                    <th scope="col" class="py-3 px-4">Room Type</th>
+                                    <th scope="col" class="py-3 px-4">Room Qty</th>
+                                    <th scope="col" class="py-3 px-4">Price</th>
+                                    <th scope="col" class="py-3 px-4">Capacity</th>
+                                    <th scope="col" class="py-3 px-4">Availability</th>
+                                    <th scope="col" class="py-3 px-4">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach ($accomodations as $accomodation)
                                     <tr class="border-bottom" style="border-color: #e9e9e9 !important;">
-                                        <td>{{$accomodation->room_id}}</td>
-                                        <td>
+                                        <td class="py-3 px-4">
                                             <img src="{{ asset('storage/' . $accomodation->accomodation_image) }}"
                                                 alt="Accommodation Image" width="100" height="80" class="rounded">
                                         </td>
-                                        <td>{{ $accomodation->accomodation_name }}</td>
-                                        <td>{{ Str::limit($accomodation->accomodation_description, 100) }}</td>
-                                        <td>{{ $accomodation->accomodation_type }}</td>
-                                        <td>{{ $accomodation->quantity}}</td>
-                                        <td>₱{{ number_format($accomodation->accomodation_price, 2) }}</td>
-                                        <td>{{ $accomodation->accomodation_capacity }}</td>
-                                        <td>
+                                        <td class="py-3 px-4">{{ $accomodation->accomodation_name }}</td>
+                                        <td class="py-3 px-4">{{ Str::limit($accomodation->accomodation_description, 100) }}</td>
+                                        <td class="py-3 px-4">{{ $accomodation->accomodation_type }}</td>
+                                        <td class="py-3 px-4">{{ $accomodation->quantity}}</td>
+                                        <td class="py-3 px-4">₱{{ number_format($accomodation->accomodation_price, 2) }}</td>
+                                        <td class="py-3 px-4">{{ $accomodation->accomodation_capacity }}</td>
+                                        <td class="py-3 px-4">
                                             <span
                                                 class="badge rounded-pill {{ $accomodation->accomodation_status == 'available' ? 'bg-success' : 'bg-danger' }} px-3 py-2">
                                                 {{ $accomodation->accomodation_status == 'available' ? 'Available' : 'Not Available' }}
                                             </span>
                                         </td>
-                                        <td>
+                                        <td class="py-3 px-4">
                                             <div class="d-flex">
                                                 <a href="#" class="btn btn-sm btn-outline-success me-2"
                                                     data-bs-toggle="modal"
@@ -324,12 +323,7 @@
 
                                                             <!-- Right Column -->
                                                             <div class="col-md-5">
-                                                                <div class="d-flex flex-column h-100">
-                                                                    <div class="mb-3">
-                                                                        <label class="form-label fw-semibold"><i class="fas fa-id-card me-2 text-success"></i>Room ID</label>
-                                                                        <input type="text" class="form-control" name="room_id" required value="{{ $accomodation->room_id }}">
-                                                                    </div>
-
+                                                                <div class="d-flex flex-column h-100 mt-4">
                                                                     <div class="mb-3">
                                                                         <label class="form-label fw-semibold"><i class="fas fa-image me-2 text-success"></i>Main Image</label>
                                                                         <input type="file" class="form-control" name="accomodation_image" accept="image/*" onchange="previewImage(event, 'preview{{ $accomodation->accomodation_id }}')">
@@ -374,54 +368,14 @@
                             </tbody>
                             <tfoot>
                                 <tr>
-                                    <td colspan="11" class="pt-4">
+                                    <td colspan="9" class="pt-4">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div class="text-muted">
                                                 Showing {{ $accomodations->firstItem() }} to
                                                 {{ $accomodations->lastItem() }} of {{ $accomodations->total() }}
                                                 rooms
                                             </div>
-                                            <nav aria-label="Page navigation">
-                                                <ul class="pagination mb-0">
-                                                    {{-- Previous Page Link --}}
-                                                    @if ($accomodations->onFirstPage())
-                                                        <li class="page-item disabled">
-                                                            <span class="page-link">&laquo;</span>
-                                                        </li>
-                                                    @else
-                                                        <li class="page-item">
-                                                            <a class="page-link"
-                                                                href="{{ $accomodations->previousPageUrl() }}"
-                                                                rel="prev">&laquo;</a>
-                                                        </li>
-                                                    @endif
-
-                                                    {{-- Pagination Elements --}}
-                                                    @foreach ($accomodations->getUrlRange(1, $accomodations->lastPage()) as $page => $url)
-                                                        @if ($page == $accomodations->currentPage())
-                                                            <li class="page-item active" aria-current="page">
-                                                                <span class="page-link">{{ $page }}</span>
-                                                            </li>
-                                                        @else
-                                                            <li class="page-item">
-                                                                <a class="page-link" href="{{ $url }}">{{ $page }}</a>
-                                                            </li>
-                                                        @endif
-                                                    @endforeach
-
-                                                    {{-- Next Page Link --}}
-                                                    @if ($accomodations->hasMorePages())
-                                                        <li class="page-item">
-                                                            <a class="page-link" href="{{ $accomodations->nextPageUrl() }}"
-                                                                rel="next">&raquo;</a>
-                                                        </li>
-                                                    @else
-                                                        <li class="page-item disabled">
-                                                            <span class="page-link">&raquo;</span>
-                                                        </li>
-                                                    @endif
-                                                </ul>
-                                            </nav>
+                                            {{ $accomodations->links('pagination.custom') }}
                                         </div>
                                     </td>
                                 </tr>
@@ -453,44 +407,62 @@
                                 <div class="row g-3">
                                     <div class="col-12">
                                         <label for="addRoomName" class="form-label fw-semibold"><i class="fas fa-tag me-2 text-success"></i>Room Name</label>
-                                        <input type="text" class="form-control" id="addRoomName" name="accomodation_name" required>
+                                        <input type="text" class="form-control @error('accomodation_name') is-invalid @enderror" id="addRoomName" name="accomodation_name" value="{{ old('accomodation_name') }}" required>
+                                        @error('accomodation_name')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                     <div class="col-md-6">
                                         <label for="addRoomType" class="form-label fw-semibold"><i class="fas fa-home me-2 text-success"></i>Type</label>
-                                        <select class="form-select" id="addRoomType" name="accomodation_type" required>
+                                        <select class="form-select @error('accomodation_type') is-invalid @enderror" id="addRoomType" name="accomodation_type" required>
                                             <option value="" selected disabled>Select Type</option>
-                                            <option value="room">Room</option>
-                                            <option value="cottage">Cottage</option>
-                                            <option value="cabin">Cabin</option>
+                                            <option value="room" {{ old('accomodation_type') == 'room' ? 'selected' : '' }}>Room</option>
+                                            <option value="cottage" {{ old('accomodation_type') == 'cottage' ? 'selected' : '' }}>Cottage</option>
+                                            <option value="cabin" {{ old('accomodation_type') == 'cabin' ? 'selected' : '' }}>Cabin</option>
                                         </select>
+                                        @error('accomodation_type')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                     <div class="col-md-6">
                                         <label for="addRoomStatus" class="form-label fw-semibold"><i class="fas fa-check-circle me-2 text-success"></i>Status</label>
-                                        <select class="form-select" id="addRoomStatus" name="accomodation_status" required>
+                                        <select class="form-select @error('accomodation_status') is-invalid @enderror" id="addRoomStatus" name="accomodation_status" required>
                                             <option value="" selected disabled>Select Status</option>
-                                            <option value="available">Available</option>
-                                            <option value="unavailable">Unavailable</option>
+                                            <option value="available" {{ old('accomodation_status') == 'available' ? 'selected' : '' }}>Available</option>
+                                            <option value="unavailable" {{ old('accomodation_status') == 'unavailable' ? 'selected' : '' }}>Unavailable</option>
                                         </select>
+                                        @error('accomodation_status')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                     <div class="col-12">
                                         <label for="addRoomDescription" class="form-label fw-semibold"><i class="fas fa-align-left me-2 text-success"></i>Description</label>
-                                        <textarea class="form-control" id="addRoomDescription" name="accomodation_description" rows="3"></textarea>
+                                        <textarea class="form-control" id="addRoomDescription" name="accomodation_description" rows="3">{{ old('accomodation_description') }}</textarea>
                                     </div>
                                     <div class="col-12">
                                         <label for="addRoomAmenities" class="form-label fw-semibold"><i class="fas fa-wifi me-2 text-success"></i>Amenities</label>
-                                        <textarea class="form-control" id="addRoomAmenities" name="amenities" rows="3" placeholder="e.g., WiFi, TV, Air Conditioning"></textarea>
+                                        <textarea class="form-control" id="addRoomAmenities" name="amenities" rows="3" placeholder="e.g., WiFi, TV, Air Conditioning">{{ old('amenities') }}</textarea>
                                     </div>
                                     <div class="col-md-4">
                                         <label for="addRoomCapacity" class="form-label fw-semibold"><i class="fas fa-users me-2 text-success"></i>Capacity</label>
-                                        <input type="number" class="form-control" id="addRoomCapacity" name="accomodation_capacity" min="1" required>
+                                        <input type="number" class="form-control @error('accomodation_capacity') is-invalid @enderror" id="addRoomCapacity" name="accomodation_capacity" min="1" value="{{ old('accomodation_capacity') }}" required>
+                                        @error('accomodation_capacity')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                     <div class="col-md-4">
                                         <label for="addRoomQuantity" class="form-label fw-semibold"><i class="fas fa-hashtag me-2 text-success"></i>Quantity</label>
-                                        <input type="number" class="form-control" id="addRoomQuantity" name="quantity" min="1" value="1" required>
+                                        <input type="number" class="form-control @error('quantity') is-invalid @enderror" id="addRoomQuantity" name="quantity" min="1" value="{{ old('quantity', 1) }}" required>
+                                        @error('quantity')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                     <div class="col-md-4">
                                         <label for="addRoomPrice" class="form-label fw-semibold"><i class="fas fa-dollar-sign me-2 text-success"></i>Price</label>
-                                        <input type="number" class="form-control" id="addRoomPrice" name="accomodation_price" min="0" required>
+                                        <input type="number" class="form-control @error('accomodation_price') is-invalid @enderror" id="addRoomPrice" name="accomodation_price" min="0" value="{{ old('accomodation_price') }}" required>
+                                        @error('accomodation_price')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                 </div>
                             </div>
@@ -498,15 +470,11 @@
                             <div class="col-md-5">
                                 <div class="d-flex flex-column h-100">
                                     <div class="mb-3">
-                                        <label for="addRoomId" class="form-label fw-semibold"><i class="fas fa-id-card me-2 text-success"></i>Room ID</label>
-                                        <input type="text" class="form-control" id="addRoomId" name="room_id" required>
-                                    </div>
-                                    <div class="mb-3">
                                         <label for="addRoomImage" class="form-label fw-semibold"><i class="fas fa-image me-2 text-success"></i>Upload Image</label>
-                                        <input type="file" class="form-control" id="addRoomImage" name="accomodation_image" accept="image/*" required onchange="previewImage(event, 'addPreview')">
-                                        @if ($errors->has('accomodation_image'))
-                                            <span class="text-danger small">{{ $errors->first('accomodation_image') }}</span>
-                                        @endif
+                                        <input type="file" class="form-control @error('accomodation_image') is-invalid @enderror" id="addRoomImage" name="accomodation_image" accept="image/*" required onchange="previewImage(event, 'addPreview')">
+                                        @error('accomodation_image')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                     <div class="mt-2 text-center flex-grow-1">
                                         <img id="addPreview" src="{{ asset('images/placeholder.png') }}" alt="Image Preview" class="img-fluid rounded-3 shadow-sm" style="max-height: 250px; border: 3px solid #dee2e6; padding: 3px;">
@@ -515,7 +483,10 @@
                                         <label for="addExtraImages" class="form-label fw-semibold">
                                             <i class="fas fa-images me-2 text-success"></i>Upload Additional Images
                                         </label>
-                                        <input type="file" class="form-control" id="addExtraImages" name="extra_images[]" multiple accept="image/*">
+                                        <input type="file" class="form-control @error('extra_images.*') is-invalid @enderror" id="addExtraImages" name="extra_images[]" multiple accept="image/*">
+                                        @error('extra_images.*')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
                                         <small class="text-muted">You can select multiple images.</small>
                                     </div>
                                 </div>
@@ -557,6 +528,14 @@
         }
         setInterval(updateClock, 1000);
         updateClock();
+
+        // Automatically open the 'Add Room' modal if there are validation errors
+        @if ($errors->any())
+            document.addEventListener('DOMContentLoaded', function() {
+                var addRoomModal = new bootstrap.Modal(document.getElementById('addRoomModal'));
+                addRoomModal.show();
+            });
+        @endif
     </script>
     <script>
         const addRoomBtn = document.querySelector('.btn-primary.w-25');

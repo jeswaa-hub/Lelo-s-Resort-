@@ -23,8 +23,7 @@
             background: white;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            height: auto !important;
-            min-height: 500px;
+            height: 100%; /* Make calendar fill the column height */
         }
 
         .reservation-controls {
@@ -148,6 +147,46 @@
         background-color: #0b573d;
         border-radius: 50%;
     }
+
+    /* New styles for the enhanced "How to Reserve" guide */
+    .step-guide-container {
+        background-color: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+    }
+
+    .step-item {
+        display: flex;
+        align-items: center; /* Vertically center icon with text */
+        margin-bottom: 0.75rem; /* Reduced margin */
+        position: relative;
+    }
+
+    .step-item:not(:last-child)::after {
+        content: '';
+        position: absolute;
+        left: 15px; /* Center of the smaller icon */
+        top: 35px; /* Start below the icon */
+        bottom: -0.75rem; /* End at the next icon's top */
+        width: 2px;
+        background-color: #dee2e6;
+        z-index: 1;
+    }
+
+    .step-icon {
+        flex-shrink: 0;
+        width: 30px; /* Smaller icon */
+        height: 30px; /* Smaller icon */
+        z-index: 2;
+    }
+
+    .step-item h6 {
+        font-size: 0.9rem; /* Smaller title font */
+    }
+
+    .step-item small {
+        font-size: 0.8rem; /* Smaller description font */
+    }
     </style>
 </head>
 <body class="font-paragraph">
@@ -183,7 +222,7 @@
         <div class="d-flex justify-content-between align-items-center gap-4 flex-wrap mb-3">
             <div class="flex-grow-1">
                 <select id="stayType" class="form-select bg-white rounded shadow-sm border-success text-success fw-bold" style="width: 15vw; min-width: 150px; font-size: 1.25rem; height: 45px;">
-                    <option value="one-day">One Day Stay</option>
+                    <option value="one-day">Day Tour</option>
                     <option value="stay-in">Stay In</option>
                 </select>
             </div>
@@ -208,25 +247,77 @@
                 <div class="reservation-controls d-flex flex-column h-100">
                     <h4 class="text-success fw-bold">Your Selection</h4>
                     <hr>
+                    <!-- Step-by-step guide -->
+                    <div id="stepGuide" class="mb-4 p-3 step-guide-container">
+                        <h6 class="text-success fw-bold mb-3">How to Reserve:</h6>
+                        <div id="stepList" class="mt-3"></div>
+                    </div>
+
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const stepListContainer = document.getElementById('stepList');
+                            const stayTypeSelect = document.getElementById('stayType');
+
+                            const steps = {
+                                'one-day': [
+                                    { icon: 'fa-calendar-day', title: 'Select a Date', description: 'Click your desired date on the calendar.' },
+                                    { icon: 'fa-arrow-right', title: 'Proceed', description: 'Click the "Proceed" button to choose your rooms.' },
+                                    { icon: 'fa-credit-card', title: 'Complete Payment', description: 'Finalize your booking by completing the payment.' },
+                                    { icon: 'fa-receipt', title: 'Get Confirmation', description: 'Review your reservation summary and QR code.' }
+                                ],
+                                'stay-in': [
+                                    { icon: 'fa-calendar-day', title: 'Select Check-in', description: 'Click your desired start date.' },
+                                    { icon: 'fa-calendar-week', title: 'Select Check-out', description: 'Click your desired end date to form a range.' },
+                                    { icon: 'fa-arrow-right', title: 'Proceed', description: 'Click "Proceed" to choose your rooms.' },
+                                    { icon: 'fa-credit-card', title: 'Complete Payment', description: 'Finalize your booking by completing the payment.' }
+                                ]
+                            };
+
+                            function updateSteps() {
+                                const selectedType = stayTypeSelect.value;
+                                const stepArray = steps[selectedType];
+                                stepListContainer.innerHTML = ''; // Clear previous steps
+
+                                stepArray.forEach(step => {
+                                    const stepEl = document.createElement('div');
+                                    stepEl.className = 'step-item';
+                                    stepEl.innerHTML = `
+                                        <div class="step-icon bg-success rounded-circle d-flex align-items-center justify-content-center me-3">
+                                            <i class="fas ${step.icon} text-white fa-sm"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="fw-bold text-dark mb-0">${step.title}</h6>
+                                            <small class="text-muted">${step.description}</small>
+                                        </div>`;
+                                    stepListContainer.appendChild(stepEl);
+                                });
+                            }
+
+                            stayTypeSelect.addEventListener('change', updateSteps);
+                            updateSteps(); // Initial load
+                        });
+                    </script>
+
                     <div id="one-day-selection" style="display:none;">
                         <div class="mb-3">
-                            <label for="selectedDate" class="form-label fw-semibold">Selected Date</label>
+                            <label for="selectedDate" class="form-label text-success fw-semibold">Selected Date</label>
                             <input type="text" id="selectedDate" class="form-control" readonly placeholder="Select a date from the calendar">
                         </div>
                     </div>
                     <div id="stay-in-selection">
                         <div class="mb-3">
-                            <label for="checkInDate" class="form-label fw-semibold">Check-in Date</label>
+                            <label for="checkInDate" class="form-label text-success fw-semibold">Check-in Date</label>
                             <input type="text" id="checkInDate" class="form-control" readonly placeholder="Select a start date">
                         </div>
                         <div class="mb-3">
-                            <label for="checkOutDate" class="form-label fw-semibold">Check-out Date</label>
+                            <label for="checkOutDate" class="form-label text-success fw-semibold">Check-out Date</label>
                             <input type="text" id="checkOutDate" class="form-control" readonly placeholder="Select an end date">
                         </div>
                     </div>
-                    <div class="mt-auto">
-                        <button id="proceedBtn" class="btn btn-success w-100 fw-bold" disabled>Proceed</button>
-                    </div>
+
+                        <div class="mt-auto">
+                            <button id="proceedBtn" class="btn btn-success w-100 fw-bold" disabled>Proceed</button>
+                        </div>
                 </div>
             </div>
         </div>
@@ -353,11 +444,46 @@
             if (stayType === 'one-day') {
                 selectedDateInput.value = checkInDate ? checkInDate.toLocaleDateString() : '';
                 proceedBtn.disabled = !checkInDate;
+                if (checkInDate) {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'success',
+                        title: `Date selected: ${checkInDate.toLocaleDateString()}`,
+                        showConfirmButton: false,
+                        timer: 2500,
+                        timerProgressBar: true
+                    });
+                }
             } else {
                 checkInDateInput.value = checkInDate ? checkInDate.toLocaleDateString() : '';
                 // For display, if checkout was selected, show the actual day, not the exclusive one.
-                checkOutDateInput.value = checkOutDate ? new Date(checkOutDate.getTime() - (24 * 60 * 60 * 1000)).toLocaleDateString() : '';
+                const displayCheckOutDate = checkOutDate ? new Date(checkOutDate.getTime() - (24 * 60 * 60 * 1000)) : null;
+                checkOutDateInput.value = displayCheckOutDate ? displayCheckOutDate.toLocaleDateString() : '';
                 proceedBtn.disabled = !(checkInDate && checkOutDate);
+
+                if (checkInDate && !checkOutDate) {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'info',
+                        title: `Check-in selected: ${checkInDate.toLocaleDateString()}. Now select a check-out date.`,
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true
+                    });
+                } else if (checkInDate && checkOutDate) {
+                    const displayCheckOut = new Date(checkOutDate.getTime() - (24 * 60 * 60 * 1000));
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'success',
+                        title: `Date range selected: ${checkInDate.toLocaleDateString()} to ${displayCheckOut.toLocaleDateString()}`,
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true
+                    });
+                }
             }
         }
 
@@ -450,7 +576,7 @@
             </ul>
         `;
     } else if (stayType === "one-day") {
-        title = 'Booking a One-Day Stay';
+        title = 'Booking a Day Tour';
         htmlContent = `
             <ul style="${listStyle}">
                 <li style="${listItemStyle}"><i class="fas fa-calendar-day" style="${iconStyle}"></i><div><strong>Select Date:</strong> Click on your desired date on the calendar.</div></li>

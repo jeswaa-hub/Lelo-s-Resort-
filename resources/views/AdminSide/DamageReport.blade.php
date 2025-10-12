@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="{{ asset('images/logo new.png') }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link
         href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Anton&display=swap"
@@ -92,7 +93,7 @@
 
                     <div class="mb-5 text-white" style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); margin-top: 13%;">
                         <h2 class="mb-0 fs-1" style="font-size: 4.5rem !important;">Hello,</h2>
-                        <h1 class="display-1 fw-bold" style="font-size: 5.5rem !important;">Admin User!</h1>
+                        <h1 class="display-1 fw-bold" style="font-size: 5.5rem !important;">{{$adminCredentials->username}}</h1>
                     </div>
                     <!-- Damage Reports Table -->
 
@@ -113,10 +114,10 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($damageReports as $report)
+                                    @forelse($damageReports as $report)
                                         <tr>
                                             <!-- Room/Area -->
-                                            <td class="fw-semibold">
+                                            <td class="fw-semibold text-center">
                                                 @if($report->damage_photos)
                                                     <a href="{{ asset('storage/' . $report->damage_photos) }}" target="_blank"
                                                         class="d-block small text-decoration-underline text-muted">
@@ -129,10 +130,10 @@
                                             </td>
 
                                             <!-- Description -->
-                                            <td>{{ $report->damage_description ?? 'No description' }}</td>
+                                            <td class="text-center">{{ $report->damage_description ?? 'No description' }}</td>
 
                                             <!-- Date Reported -->
-                                            <td>
+                                            <td class="text-center">
                                                 @if($report->created_at)
                                                     {{ $report->created_at->format('M d, Y') }} <br>
                                                     <span
@@ -143,7 +144,7 @@
                                             </td>
 
                                             <!-- Status -->
-                                            <td>
+                                            <td class="text-center">
                                                 <span class="badge text-capitalize 
                                                                                             @if($report->status == 'pending') status-pending 
                                                                                             @elseif($report->status == 'in-progress') status-inprogress 
@@ -174,7 +175,11 @@
                                                 </div>
                                             </td>
                                         </tr>
-                                    @endforeach
+                                    @empty
+                                        <tr>
+                                            <td colspan="5" class="text-center py-4 text-muted">No Damage Report</td>
+                                        </tr>
+                                    @endforelse
                                 </tbody>
                             </table>
                         </div>

@@ -39,7 +39,7 @@ Route::middleware(['isAdmin', 'prevent.back'])->group(function () {
     Route::post('/store-addons', [AdminSideController::class, 'storeAddOns'])->name('storeAddOns');
     Route::put('/edit-addons/{id}', [AdminSideController::class, 'editAddOn'])->name('editAddOn');
     Route::delete('/addons/delete/{id}', [AdminSideController::class, 'deleteAddOn'])->name('deleteAddOn');
-    Route::post('add-room', [AdminSideController::class, 'addRoom'])->name('addRoom');
+    Route::post('/add-room', [AdminSideController::class, 'addRoom'])->name('addRoom');
     Route::put('/rooms/update/{id}', [AdminSideController::class, 'updateRoom'])->name('updateRoom');
     Route::delete('/rooms/delete/{id}', [AdminSideController::class, 'deleteRoom'])->name('deleteRoom');
     Route::get('/rooms-display', [AdminSideController::class, 'DisplayAccomodations'])->name('rooms');
@@ -50,6 +50,7 @@ Route::middleware(['isAdmin', 'prevent.back'])->group(function () {
     Route::get('/add-activities', [AdminSideController::class, 'Activities'])->name('addActivities');
     Route::post('/store-activities', [AdminSideController::class, 'storeActivity'])->name('storeActivity');
     Route::put('/activities/update/{id}', [AdminSideController::class, 'updateActivity'])->name('updateActivity');
+    Route::delete('/activities/delete/{id}', [AdminSideController::class, 'deleteActivity'])->name('deleteActivity');
     Route::get('/guests', [AdminSideController::class, 'guests'])->name('guests');
     Route::post('/guests/ban/{id}', [AdminSideController::class, 'banGuest'])->name('ban.guest');
     Route::get('/transactions', [AdminSideController::class, 'editPrice'])->name('transactions');
@@ -57,7 +58,9 @@ Route::middleware(['isAdmin', 'prevent.back'])->group(function () {
     Route::get('/export-pdf', [AdminSideController::class, 'exportPDF'])->name('transactions.export.pdf');
     Route::post('/transactions/add-price', [AdminSideController::class, 'addPrice'])->name('addPrice');
     Route::post('/transactions/update-entrance-fee', [AdminSideController::class, 'updatePrice'])->name('updatePrice');
+    Route::delete('/transactions/delete-price/{id}', [AdminSideController::class, 'deletePrice'])->name('deletePrice');
     Route::get('reports', [AdminSideController::class, 'reports'])->name('reports');
+    Route::get('/reports/compare', [AdminSideController::class, 'compareReports'])->name('reports.compare');
     Route::get('/export-excel-reports', [AdminSideController::class, 'exportExcelReports'])->name('export.excel');
     Route::get('/admin/reports/export-pdf', [AdminSideController::class, 'exportPDFReports'])->name('admin.reports.export-pdf');
     Route::get('/admin/reports/print', [AdminSideController::class, 'printReport'])->name('reports.print');
@@ -208,6 +211,7 @@ Route::middleware(['IsStaff' , 'prevent.back'])->group(function () {
     Route::post('/staff/damage-report', [StaffController::class, 'storeDamageReport'])->name('staff.storeDamageReport');
     Route::post('/staff/damage-report/edit/{id}', [StaffController::class, 'editDamageReport'])->name('staff.editDamageReport');
     Route::post('/staff/damage-report/delete/{id}', [StaffController::class, 'deleteDamageReport'])->name('staff.deleteDamageReport');
+    Route::post('/staff/reservations/{id}/update-guests', [StaffController::class, 'updateGuestCount'])->name('staff.reservations.updateGuests');
     Route::get('/staff/guests', [StaffController::class, 'guests'])->name('staff.guests');
     Route::get('/staff/logout', [StaffController::class, 'logout'])->name('staff.logout');
 });

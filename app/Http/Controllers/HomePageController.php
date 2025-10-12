@@ -27,13 +27,17 @@ public function profilepage()
         return redirect()->route('login')->with('error', 'User not found.');
     }
 
-    $latestReservation = DB::table('reservation_details')
-    ->where('user_id', $userId)
-    ->orderByDesc('id')
-    ->first();
+    // Fetch all reservations for the user, ordered by the most recent first.
+    $allReservations = DB::table('reservation_details')
+        ->where('user_id', $userId)
+        ->orderByDesc('id')
+        ->get();
+
+    // The first one in the collection is the latest, the rest are past.
+    $latestReservation = $allReservations->shift(); // shift() removes and returns the first item.
+    $pastReservations = $allReservations; // The remaining items are the past reservations.
 
     $activities = [];
-    $pastReservations = [];
     // --- Fetch Accommodations Safely ---
     $accommodations = [];
     if ($latestReservation && $latestReservation->accomodation_id) {
@@ -71,30 +75,22 @@ public function profilepage()
                 ->toArray();
         }
     }
-    // Fetch all past reservations except the latest one
-    if ($latestReservation) {
-        $pastReservations = DB::table('reservation_details')
-            ->where('reservation_details.user_id', $userId)
-            ->where('reservation_details.id', '!=', $latestReservation->id)
-            ->orderBy('reservation_details.reservation_check_in_date', 'desc')
-            ->get();
 
-        // Process accommodations for each past reservation
-        foreach ($pastReservations as $reservation) {
-            $accommodationIds = json_decode($reservation->accomodation_id, true);
-            $reservation->accommodations = []; // Add a new property to the object
+    // Process accommodations for each past reservation
+    foreach ($pastReservations as $reservation) {
+        $accommodationIds = json_decode($reservation->accomodation_id, true);
+        $reservation->accommodations = []; // Add a new property to the object
 
-            if (is_array($accommodationIds) && count($accommodationIds) > 0) {
-                $reservation->accommodations = DB::table('accomodations')
-                    ->whereIn('accomodation_id', $accommodationIds)
-                    ->pluck('accomodation_name')
-                    ->toArray();
-            } elseif (is_numeric($accommodationIds)) {
-                $reservation->accommodations = DB::table('accomodations')
-                    ->where('accomodation_id', $accommodationIds)
-                    ->pluck('accomodation_name')
-                    ->toArray();
-            }
+        if (is_array($accommodationIds) && count($accommodationIds) > 0) {
+            $reservation->accommodations = DB::table('accomodations')
+                ->whereIn('accomodation_id', $accommodationIds)
+                ->pluck('accomodation_name')
+                ->toArray();
+        } elseif (is_numeric($accommodationIds)) {
+            $reservation->accommodations = DB::table('accomodations')
+                ->where('accomodation_id', $accommodationIds)
+                ->pluck('accomodation_name')
+                ->toArray();
         }
     }
 
@@ -126,10 +122,10 @@ public function profilepage()
     public function updateProfile(Request $request)
     {
         $request->validate([
-            'name' => 'string|max:255',
-            'email' => 'email|max:255',
-            'mobileNo' => 'string|max:11',
-            'address' => 'string|max:255',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'mobileNo' => 'required|string|size:11',
+            'address' => 'required|string|max:255',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
         ]);
 
@@ -164,9 +160,16 @@ public function profilepage()
         // Update the user's profile
         $updated = DB::table('users')->where('id', Auth::id())->update($data);
 
-        // --- START OF FIX ---
         // After updating the main user profile, also update the latest pending/on-hold reservation details.
         if ($updated) {
+            // Prepare data for reservation update, excluding the 'image' field.
+            $reservationUpdateData = [
+                'name' => $request->input('name'),
+                'email' => $request->input('email'),
+                'mobileNo' => $request->input('mobileNo'),
+                'address' => $request->input('address'),
+            ];
+
             $latestPendingReservation = DB::table('reservation_details')
                 ->where('user_id', Auth::id())
                 ->whereIn('reservation_status', ['pending', 'on-hold'])
@@ -174,10 +177,9 @@ public function profilepage()
                 ->first();
 
             if ($latestPendingReservation) {
-                DB::table('reservation_details')->where('id', $latestPendingReservation->id)->update($data);
+                DB::table('reservation_details')->where('id', $latestPendingReservation->id)->update($reservationUpdateData);
             }
         }
-        // --- END OF FIX ---
 
         // Handle AJAX response
         if ($request->expectsJson()) {

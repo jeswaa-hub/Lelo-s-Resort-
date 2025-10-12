@@ -148,7 +148,7 @@
                     <div class="row g-4">
                         <!-- Column 1: Total Reservations -->
                         <div class="col-6">
-                            <a href="{{ route('staff.reservation', ['status' => 'pending']) }}" class="text-decoration-none ">
+                            <a href="{{ route('staff.reservation', ['status' => 'reserved']) }}" class="text-decoration-none ">
                                 <div class="flex-grow-1 p-4 rounded-4 shadow-lg position-relative overflow-hidden dashboard-card" 
                                     style="background: linear-gradient(135deg,rgb(75, 96, 7) 0%,rgb(129, 235, 48) 100%); border: none;">
                                     
@@ -164,7 +164,7 @@
                                             </h2>
                                             <p class="text-white text-uppercase mb-0 font-paragraph fw-bold position-relative" 
                                             style="font-size: 0.85rem; opacity: 0.95;">
-                                                Pending<br>Reservations
+                                                Reserved<br>Reservations
                                             </p>
                                         </div>
                                     </div>
@@ -258,7 +258,7 @@
                         style="background: linear-gradient(to top, rgb(211, 209, 209), #ffffff); min-height: 300px; height: 100%;">
                         
                         <h2 class="font-heading mb-3 text-center fw-bold fs-4 fs-md-3 fs-lg-1" style="color: #0b573d;">
-                            Pending Bookings
+                            Reserved Bookings
                         </h2>
 
                         @if($pendingReservationsList && count($pendingReservationsList) > 0)
@@ -272,12 +272,12 @@
                                                 - {{ \Carbon\Carbon::parse($reservation->reservation_check_in)->format('h:i A') }}
                                             </small>
                                         </div>
-                                        <span class="badge bg-warning text-dark mt-2 mt-sm-0">Pending</span>
+                                        <span class="badge bg-info text-white mt-2 mt-sm-0">Reserved</span>
                                     </div>
                                 @endforeach
                             </div>
                         @else
-                            <p class="text-secondary text-center font-paragraph fst-italic">No pending reservations.</p>
+                            <p class="text-secondary text-center font-paragraph fst-italic">No reserved reservations.</p>
                         @endif
                     </div>
                 </div>

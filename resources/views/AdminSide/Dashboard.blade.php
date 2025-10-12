@@ -126,7 +126,7 @@
 
                             <!-- Pending Reservations -->
                             <div class="bg-white rounded-4 shadow p-3 mb-4" style="max-width: 450px;">
-                                <h5 class="fw-bold text-success mb-3">Pending Reservations</h5>
+                                <h5 class="fw-bold text-success mb-3">Reserved Reservations</h5>
                                 <ul class="list-group list-group-flush">
                                     @if(count($latestReservations) > 0)
                                         @foreach ($latestReservations as $reservation)
@@ -140,7 +140,7 @@
                                     @else
                                         <li class="list-group-item text-center py-3">
                                             <i class="fas fa-calendar-times text-muted mb-2"></i>
-                                            <p class="m-0">No pending reservations</p>
+                                            <p class="m-0">No reserved reservations</p>
                                         </li>
                                     @endif
                                 </ul>
@@ -160,7 +160,7 @@
                                         </h2>
                                         <p class="text-white text-uppercase mb-0 font-paragraph fw-bold position-relative" 
                                            style="font-size: 0.85rem; opacity: 0.95;">
-                                            Total Guest<br>on Site
+                                            Today Guest<br>on Site
                                         </p>
                                     </div>
                                 </div>
@@ -227,7 +227,7 @@
                                                 </h2>
                                                 <p class="text-white text-uppercase mb-0 font-paragraph fw-bold position-relative" 
                                                    style="font-size: 0.85rem; opacity: 0.95;">
-                                                    Total<br>Checked-in
+                                                    Today Total<br>Checked-in
                                                 </p>
                                             </div>
                                         </div>
@@ -248,7 +248,7 @@
                                                 </h2>
                                                 <p class="text-white text-uppercase mb-0 font-paragraph fw-bold position-relative" 
                                                    style="font-size: 0.85rem; opacity: 0.95;">
-                                                    Total<br>Check-out
+                                                    Today Total<br>Check-out
                                                 </p>
                                             </div>
                                         </div>
@@ -269,7 +269,7 @@
                                                 </h2>
                                                 <p class="text-white text-uppercase mb-0 font-paragraph fw-bold position-relative" 
                                                    style="font-size: 0.85rem; opacity: 0.95;">
-                                                    Total<br>Income
+                                                    Today Total<br>Income
                                                 </p>
                                             </div>
                                         </div>
@@ -290,7 +290,7 @@
                                                 </h2>
                                                 <p class="text-white text-uppercase mb-0 font-paragraph fw-bold position-relative" 
                                                    style="font-size: 0.85rem; opacity: 0.95;">
-                                                    Cancelled<br>Reservation
+                                                    Today Cancelled<br>Reservation
                                                 </p>
                                             </div>
                                         </div>

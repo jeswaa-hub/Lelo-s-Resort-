@@ -19,6 +19,38 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <style>
+    .pagination .page-link {
+        border-radius: 50% !important;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 3px;
+        border: 2px solid #0b573d;
+        color: #0b573d;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .pagination .page-link:hover {
+        background-color: #0b573d;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: #0b573d;
+        border-color: #0b573d;
+        color: white;
+    }
+
+    .pagination .page-item.disabled .page-link {
+        background-color: #e9ecef;
+        border-color: #dee2e6;
+        color: #6c757d;
+    }
 </style>
 <body style="margin: 0; padding: 0; height: 100vh; background-color: white; overflow-x: hidden;">
     @include('Alert.errorLogin')
@@ -227,7 +259,7 @@
 
         @if($damageReports->isEmpty())
         <div class="text-center py-4">
-            <p class="mb-0">No damage reports found.</p>
+            <p class="mb-0">No Damage Reports</p>
         </div>
         @endif
 
@@ -283,7 +315,36 @@
                 Showing {{ $damageReports->firstItem() ?? 0 }} to {{ $damageReports->lastItem() ?? 0 }} of {{ $damageReports->total() }} entries
             </div>
             <div class="pagination-container">
-                {{ $damageReports->links('pagination::bootstrap-4') }}
+                <nav aria-label="Page navigation">
+                    <ul class="pagination mb-0">
+                        {{-- Previous Page Link --}}
+                        @if ($damageReports->onFirstPage())
+                            <li class="page-item disabled">
+                                <span class="page-link">&laquo;</span>
+                            </li>
+                        @else
+                            <li class="page-item">
+                                <a class="page-link" href="{{ $damageReports->previousPageUrl() }}" rel="prev">&laquo;</a>
+                            </li>
+                        @endif
+
+                        {{-- Pagination Elements --}}
+                        @foreach ($damageReports->getUrlRange(1, $damageReports->lastPage()) as $page => $url)
+                            @if ($page == $damageReports->currentPage())
+                                <li class="page-item active" aria-current="page"><span class="page-link">{{ $page }}</span></li>
+                            @else
+                                <li class="page-item"><a class="page-link" href="{{ $url }}">{{ $page }}</a></li>
+                            @endif
+                        @endforeach
+
+                        {{-- Next Page Link --}}
+                        @if ($damageReports->hasMorePages())
+                            <li class="page-item"><a class="page-link" href="{{ $damageReports->nextPageUrl() }}" rel="next">&raquo;</a></li>
+                        @else
+                            <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+                        @endif
+                    </ul>
+                </nav>
             </div>
         </div>
         @endif

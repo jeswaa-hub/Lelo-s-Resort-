@@ -32,6 +32,38 @@
     body{
         overflow-x: hidden !important;
     }
+    .pagination .page-link {
+        border-radius: 50% !important;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 3px;
+        border: 2px solid #0b573d;
+        color: #0b573d;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .pagination .page-link:hover {
+        background-color: #0b573d;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: #0b573d;
+        border-color: #0b573d;
+        color: white;
+    }
+
+    .pagination .page-item.disabled .page-link {
+        background-color: #e9ecef;
+        border-color: #dee2e6;
+        color: #6c757d;
+    }
     
 </style>
 
@@ -117,13 +149,15 @@
 <div class="row">
     <div class="col-11 mx-auto">
         <div class="hero-banner d-flex flex-column justify-content-center text-white p-3 p-sm-4 p-md-5"
-            style="background-image:url('{{ asset('images/staff-admin-bg.jpg') }}'); 
-                   background-size: cover; background-position: center; min-height: 450px; border-radius: 15px;">
+            style="background-color: white; min-height: 450px; border-radius: 15px;">
 
             <div class="row g-3 g-md-4">
-                <!-- Left Side -->
+                <!-- Left Side with background image -->
                 <div class="col-12 col-md-6">
-                    <div class="d-flex flex-column gap-3">
+                    <div class="d-flex flex-column gap-3 h-100"
+                         style="background-image:url('{{ asset('images/staff-admin-bg.jpg') }}'); 
+                                background-size: cover; background-position: center; 
+                                border-radius: 15px; padding: 2rem;">
                         <!-- Greeting -->
                         <div class="d-flex flex-column align-items-start text-start" 
                             style="padding: 0 20px;">
@@ -138,110 +172,100 @@
                         
                         <!-- Total Reservations -->
                         <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" 
-                             style="background: linear-gradient(135deg, #ffffff 50%, #f8f9fa 50%);">
+                             style="background: linear-gradient(135deg, #43cea2 0%, #385E3C 100%); border: 1px solid #ffffff;">
                             <div class="d-flex align-items-center justify-content-between w-100">
-                                <div class="d-flex align-items-baseline gap-2">
-                                    <h1 class="fw-bold mb-0 text-success" 
-                                        style="font-size: clamp(1.5rem, 2.5vw, 3rem);">
+                                <div class="d-flex flex-column gap-1">
+                                    <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.3rem, 2vw, 2.5rem); text-shadow: 0 1px 2px rgba(0,0,0,0.3);">
                                         {{ $totalCount ?? 0 }}
                                     </h1>
-                                    <p class="mb-0 text-uppercase fw-semibold text-success" style="font-size: clamp(0.8rem, 1.2vw, 1.2rem);">
+                                    <p class="mb-0 text-uppercase fw-semibold text-white" style="font-size: clamp(0.75rem, 1.1vw, 1rem); opacity: 0.95;">
                                         Total Reservations
                                     </p>
                                 </div>
                                 <div class="d-flex align-items-center">
-                                    <i class="fas fa-calendar-check text-success" 
-                                       style="font-size: clamp(2rem, 4vw, 4rem);">
-                                    </i>
+                                    <i class="fas fa-calendar-check text-white" style="font-size: clamp(2.2rem, 4.5vw, 3.5rem);"></i>
                                 </div>
-                            </div>
-                            <div class="position-absolute top-0 end-0 opacity-25 d-none d-md-block">
-                                <i class="fas fa-calendar-check text-success" 
-                                   style="font-size: 5rem; margin: -10px;">
-                                </i>
                             </div>
                         </div>
                     </div>
                 </div>
                 
-
-                <!-- Right Side -->
+                <!-- Right Side without background image -->
                 <div class="col-12 col-md-6">
-                    <div class="row row-cols-1 row-cols-sm-2 g-3 g-md-4">
+                    <div class="row row-cols-2 g-2 g-md-3 g-lg-4 h-100">
                         <!-- Checked-in -->
-                        <div class="col">
-                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg, #ffffff 50%, #f8f9fa 50%);">
-                                <div class="d-flex align-items-center justify-content-between w-100">
-                                    <div class="d-flex flex-column gap-2">
-                                        <h1 class="fw-bold mb-0 text-success" style="font-size: clamp(1.5rem, 2.5vw, 3rem);">{{ $checkedInCount ?? 0 }}</h1>
-                                        <p class="mb-0 text-uppercase fw-semibold text-success" style="font-size: clamp(0.8rem, 1.2vw, 1.2rem);">Check-in</p>
-                                    </div>
-                                    <div class="d-flex align-items-center">
-                                        <i class="fas fa-user-check text-success" style="font-size: clamp(2rem, 4vw, 2.5rem);"></i>
+                        <div class="col d-flex align-items-stretch">
+                            <a href="{{ route('staff.reservation', ['status' => 'checked-in']) }}" class="text-decoration-none w-100">
+                                <div class="d-flex align-items-center text-dark p-4 p-md-5 p-lg-6 rounded-4 shadow-lg w-100 position-relative overflow-hidden dashboard-card" 
+                                     style="background: linear-gradient(135deg, #43cea2 0%, #385E3C 100%); border: none;">
+                                    <div class="d-flex align-items-center justify-content-between w-100 position-relative">
+                                        <div class="d-flex flex-column gap-1">
+                                            <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.7rem, 3vw, 3.5rem); text-shadow: 0 2px 4px rgba(0,0,0,0.3);">{{ $checkedInCount ?? 0 }}</h1>
+                                            <p class="mb-0 text-uppercase fw-semibold text-white" style="font-size: clamp(0.9rem, 1.4vw, 1.3rem); opacity: 0.95;">Check-in</p>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-user-check text-white" style="font-size: clamp(2.2rem, 4.5vw, 3.5rem);"></i>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="position-absolute top-0 end-0 opacity-25 d-none d-md-block">
-                                    <i class="fas fa-user-check text-success" style="font-size: 4rem; margin: -10px;"></i>
-                                </div>
-                            </div>
+                            </a>
                         </div>
 
                         <!-- Checked-out -->
-                        <div class="col">
-                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg, #ffffff 50%, #f8f9fa 50%);">
-                                <div class="d-flex align-items-center justify-content-between w-100">
-                                    <div class="d-flex flex-column gap-2">
-                                        <h1 class="fw-bold mb-0 text-success" style="font-size: clamp(1.5rem, 2.5vw, 3rem);">{{ $checkedOutCount ?? 0 }}</h1>
-                                        <p class="mb-0 text-uppercase fw-semibold text-success" style="font-size: clamp(0.8rem, 1.2vw, 1.2rem);">Check-out</p>
-                                    </div>
-                                    <div class="d-flex align-items-center">
-                                        <i class="fas fa-sign-out-alt text-success" style="font-size: clamp(2rem, 4vw, 5rem);"></i>
+                        <div class="col d-flex align-items-stretch">
+                            <a href="{{ route('staff.reservation', ['status' => 'checked-out']) }}" class="text-decoration-none w-100">
+                                <div class="d-flex align-items-center text-dark p-4 p-md-5 p-lg-6 rounded-4 shadow-lg w-100 position-relative overflow-hidden dashboard-card" 
+                                     style="background: linear-gradient(135deg,rgb(75, 96, 7) 0%,rgb(129, 235, 48) 100%); border: none;">
+                                    <div class="d-flex align-items-center justify-content-between w-100 position-relative">
+                                        <div class="d-flex flex-column gap-1">
+                                            <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.7rem, 3vw, 3.5rem); text-shadow: 0 2px 4px rgba(0,0,0,0.3);">{{ $checkedOutCount ?? 0 }}</h1>
+                                            <p class="mb-0 text-uppercase fw-semibold text-white" style="font-size: clamp(0.9rem, 1.4vw, 1.3rem); opacity: 0.95;">Check-out</p>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-sign-out-alt text-white" style="font-size: clamp(2.2rem, 4.5vw, 3.5rem);"></i>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="position-absolute top-0 end-0 opacity-25 d-none d-md-block">
-                                    <i class="fas fa-sign-out-alt text-success" style="font-size: 4rem; margin: -10px;"></i>
-                                </div>
-                            </div>
+                            </a>
                         </div>
+
                         <!-- Pending -->
-                        <div class="col">
-                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg, #ffffff 50%, #f8f9fa 50%);">
-                                <div class="d-flex align-items-center justify-content-between w-100">
-                                    <div class="d-flex flex-column gap-2">
-                                        <h1 class="fw-bold mb-0 text-success" style="font-size: clamp(1.5rem, 2.5vw, 3rem);">{{ $pendingCount ?? 0 }}</h1>
-                                        <p class="mb-0 text-uppercase fw-semibold text-success" style="font-size: clamp(0.8rem, 1.2vw, 1.2rem);">Pending</p>
-                                    </div>
-                                    <div class="d-flex align-items-center">
-                                        <i class="fas fa-clock text-success" style="font-size: clamp(2rem, 4vw, 2.5rem);"></i>
+                        <div class="col d-flex align-items-stretch">
+                            <a href="{{ route('staff.reservation', ['status' => 'pending']) }}" class="text-decoration-none w-100">
+                                <div class="d-flex align-items-center text-dark p-4 p-md-5 p-lg-6 rounded-4 shadow-lg w-100 position-relative overflow-hidden dashboard-card" 
+                                     style="background: linear-gradient(135deg,rgb(75, 96, 7) 0%,rgb(129, 235, 48) 100%); border: none;">
+                                    <div class="d-flex align-items-center justify-content-between w-100 position-relative">
+                                        <div class="d-flex flex-column gap-1">
+                                            <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.7rem, 3vw, 3.5rem); text-shadow: 0 2px 4px rgba(0,0,0,0.3);">{{ $pendingCount ?? 0 }}</h1>
+                                            <p class="mb-0 text-uppercase fw-semibold text-white" style="font-size: clamp(0.9rem, 1.4vw, 1.3rem); opacity: 0.95;">Cancelled</p>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-clock text-white" style="font-size: clamp(2.2rem, 4.5vw, 3.5rem);"></i>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="position-absolute top-0 end-0 opacity-25 d-none d-md-block">
-                                    <i class="fas fa-clock text-success" style="font-size: 4rem; margin: -10px;"></i>
-                                </div>
-                            </div>
+                            </a>
                         </div>
 
                         <!-- Reserved -->
-                        <div class="col">
-                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg, #ffffff 50%, #f8f9fa 50%);">
-                                <div class="d-flex align-items-center justify-content-between w-100">
-                                    <div class="d-flex flex-column gap-2">
-                                        <h1 class="fw-bold mb-0 text-success" style="font-size: clamp(1.5rem, 2.5vw, 3rem);">{{ $reservedCount ?? 0 }}</h1>
-                                        <p class="mb-0 text-uppercase fw-semibold text-success" style="font-size: clamp(0.8rem, 1.2vw, 1.2rem);">Reserved</p>
-                                    </div>
-                                    <div class="d-flex align-items-center">
-                                        <i class="fas fa-bookmark text-success" style="font-size: clamp(2rem, 4vw, 2.5rem);"></i>
+                        <div class="col d-flex align-items-stretch">
+                            <a href="{{ route('staff.reservation', ['status' => 'reserved']) }}" class="text-decoration-none w-100">
+                                <div class="d-flex align-items-center text-dark p-4 p-md-5 p-lg-6 rounded-4 shadow-lg w-100 position-relative overflow-hidden dashboard-card" 
+                                     style="background: linear-gradient(135deg, #43cea2 0%, #385E3C 100%); border: none;">
+                                    <div class="d-flex align-items-center justify-content-between w-100 position-relative">
+                                        <div class="d-flex flex-column gap-1">
+                                            <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.7rem, 3vw, 3.5rem); text-shadow: 0 2px 4px rgba(0,0,0,0.3);">{{ $reservedCount ?? 0 }}</h1>
+                                            <p class="mb-0 text-uppercase fw-semibold text-white" style="font-size: clamp(0.9rem, 1.4vw, 1.3rem); opacity: 0.95;">Reserved</p>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-bookmark text-white" style="font-size: clamp(2.2rem, 4.5vw, 3.5rem);"></i>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="position-absolute top-0 end-0 opacity-25 d-none d-md-block">
-                                    <i class="fas fa-bookmark text-success" style="font-size: 4rem; margin: -10px;"></i>
-                                </div>
-                            </div>
+                            </a>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
 
         <!-- Additional Hero Banner -->
         <div class="container-fluid mt-4 shadow-lg p-4 bg-white rounded" style="max-width: 100%; margin: 0 auto;">
@@ -265,7 +289,6 @@
                                 <select class="form-select {{ request('status', 'pending') == 'pending' ? 'status-filter-active' : '' }}" 
                                         name="status" onchange="this.form.submit()" 
                                         style="border-color: #0b573d; font-weight: 500; min-width: 200px;">
-                                    <option value="pending" {{ (!request('status') || request('status') == 'pending') ? 'selected' : '' }}>📋 Pending ({{ $pendingCount ?? 0 }})</option>
                                     <option value="reserved" {{ request('status') == 'reserved' ? 'selected' : '' }}>📅 Reserved ({{ $reservedCount ?? 0 }})</option>
                                     <option value="checked-in" {{ request('status') == 'checked-in' ? 'selected' : '' }}>🏨 Checked-in ({{ $checkedInCount ?? 0 }})</option>
                                     <option value="checked-out" {{ request('status') == 'checked-out' ? 'selected' : '' }}>✅ Checked-out ({{ $checkedOutCount ?? 0 }})</option>
@@ -439,14 +462,12 @@
                                         <th class="text-center align-middle">Name</th>
                                         <th class="text-center align-middle">Phone Number</th>
                                         <th class="text-center align-middle">Room</th>
-                                        <th class="text-center align-middle">Room Qty</th>
-                                        <th class="text-center align-middle">Ref Num</th>
+                                        <th class="text-center align-middle">Qty</th>
                                         <th class="text-center align-middle">Amount</th>
                                         <th class="text-center align-middle">Balance</th>
                                         <th class="text-center align-middle">Stay Type</th>
                                         <th class="text-center align-middle">Reservation Status</th>
                                         <th class="text-center align-middle">Payment Status</th>
-                                        <th class="text-center align-middle">Proof of Payment</th>
                                         <th class="text-center align-middle">Action</th>
                                     </tr>
                                 </thead>
@@ -465,7 +486,6 @@
                                             {{ implode(', ', $accommodationNames) }}
                                             </td>
                                             <td class="text-center align-middle">{{$reservation->quantity}}</td>
-                                            <td class="text-center align-middle">{{ $reservation->reference_num }}</td>
                                             <td class="text-center align-middle">₱{{ number_format($reservation->amount ?? 0, 2)  }}</td>
                                             <td class="text-center align-middle">₱{{ number_format($reservation->balance ?? 0, 2)  }}</td>
                                             <td class="text-center align-middle">
@@ -529,15 +549,6 @@
                                                     {{ ucfirst($reservation->payment_status) }}
                                                 </span>
                                             </td>
-                                            <td class="text-center align-middle">
-                                                @if ($reservation->upload_payment && file_exists(public_path('storage/payments/' . basename($reservation->upload_payment))))
-                                                    <a href="#" data-bs-toggle="modal" data-bs-target="#paymentProofModal{{ $reservation->id }}">
-                                                        <img src="{{ asset('storage/payments/' . basename($reservation->upload_payment)) }}" alt="Proof of Payment" class="img-thumbnail" style="width: 60px; height: 60px; object-fit: cover; cursor: pointer;">
-                                                    </a>
-                                                @else
-                                                    <span class="text-muted small">No proof uploaded</span>
-                                                @endif
-                                            </td>
                                             <td class="d-flex align-items-center gap-2" style="height: 100px;">
                                                 <button type="button" 
                                                     class="btn" 
@@ -551,13 +562,21 @@
                                                 </button>
                                                 <button type="button" 
                                                         class="btn btn-info"
+                                                        data-bs-toggle="modal" 
+                                                        data-bs-target="#viewDetailsModal{{ $reservation->id }}"
+                                                        style="background-color: #0b573d; color: white; border: none; height: 38px;"
+                                                        title="View Full Details">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button type="button" 
+                                                        class="btn btn-info"
                                                         onmouseover="this.style.backgroundColor='#083d2a'; this.style.transform='scale(1.05)'" 
                                                         onmouseout="this.style.backgroundColor='#0b573d'; this.style.transform='scale(1)'"
                                                         data-bs-toggle="modal" 
-                                                        data-bs-target="#viewReservationModal{{ $reservation->id }}"
+                                                        data-bs-target="#extendReservationModal{{ $reservation->id }}"
                                                         style="background-color: #0b573d; color: white; border: none; height: 38px;"
-                                                        title="View Details">
-                                                    <i class="fas fa-eye"></i>
+                                                        title="Extend Stay">
+                                                    <i class="fas fa-calendar-plus"></i>
                                                 </button>
                                             </td>
                                         </tr>
@@ -582,7 +601,7 @@
                                         @endif
                                         <!-- Update Reservation and Payment Status Modal -->
                                         <div class="modal fade" id="updateReservationStatusModal{{ $reservation->id }}" tabindex="-1" aria-labelledby="updateReservationStatusModalLabel" aria-hidden="true">
-                                            <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-dialog modal-dialog-centered modal-md">
                                                 <div class="modal-content border-0 shadow">
                                                     <div class="modal-header bg-success text-white" style="background-color: #0b573d !important;">
                                                         <h5 class="modal-title fw-bold" id="updateReservationStatusModalLabel">
@@ -636,8 +655,8 @@
                                             </div>
                                         </div>
 
-                                        <!-- View Reservation Details Modal -->
-                                        <div class="modal fade" id="viewReservationModal{{ $reservation->id }}" tabindex="-1" aria-hidden="true">
+                                        <!-- Extend Reservation Modal -->
+                                        <div class="modal fade" id="extendReservationModal{{ $reservation->id }}" tabindex="-1" aria-hidden="true">
                                             <div class="modal-dialog modal-lg modal-dialog-centered">
                                                 <div class="modal-content border-0">
                                                     <div class="modal-header" style="background-color: #0b573d; color: white;">
@@ -647,81 +666,211 @@
                                                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                                                     </div>
                                                     <form action="{{ route('staff.extendReservation', $reservation->id) }}" method="POST">
-                                                        @if($reservation->reservation_status == 'checked-in')
                                                         @csrf
-                                                        <div class="modal-body p-4" style="background-color: #f8f9fa;">
-                                                            <input type="hidden" name="additional_payment" id="additional_payment" value="0">
-                                                            <div class="row g-3">
-                                                                <!-- Current Reservation Details -->
-                                                                <div class="col-md-6">
-                                                                    <div class="card h-100 shadow-sm border-0">
-                                                                        <div class="card-header" style="background-color: #0b573d; color: white;">
-                                                                            <h6 class="fw-bold mb-0"><i class="fas fa-info-circle me-2"></i>Current Reservation</h6>
-                                                                        </div>
-                                                                        <div class="card-body">
-                                                                            <p class="mb-2"><strong>Guest Name:</strong> {{ $reservation->name }}</p>
-                                                                            <p class="mb-2"><strong>Email:</strong> {{ $reservation->email }}</p>
-                                                                            <p class="mb-2"><strong>Room Name:</strong> {{ $reservation->accomodation_name }}</p>
-                                                                            <p class="mb-2"><strong>Current Check-in:</strong> {{ \Carbon\Carbon::parse($reservation->reservation_check_in_date)->format('F j, Y') }}</p>
-                                                                            <p class="mb-2"><strong>Current Check-out:</strong> {{ \Carbon\Carbon::parse($reservation->reservation_check_out_date)->format('F j, Y') }}</p>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-
-                                                                <!-- Extension Form -->
-                                                                <div class="col-md-6">
-                                                                    <div class="card h-100 shadow-sm border-0">
-                                                                        <div class="card-header" style="background-color: #0b573d; color: white;">
-                                                                            <h6 class="fw-bold mb-0"><i class="fas fa-calendar-plus me-2"></i>Extend Stay</h6>
-                                                                        </div>
-                                                                        <div class="card-body">
-                                                                            <div class="form-group mb-3">
-                                                                                <label class="form-label">New Check-out Date</label>
-                                                                                <input type="date" class="form-control new-checkout-date" name="new_checkout_date" 
-                                                                                    min="{{ \Carbon\Carbon::parse($reservation->reservation_check_out_date)->addDay()->format('Y-m-d') }}"
-                                                                                    required>
+                                                        @if($reservation->reservation_status == 'checked-in')
+                                                            <div class="modal-body p-4" style="background-color: #f8f9fa;">
+                                                                <input type="hidden" name="additional_payment" class="additional_payment" value="0">
+                                                                <div class="row g-3"> 
+                                                                    <!-- Extension Form -->
+                                                                    <div class="col-12">
+                                                                        <div class="card h-100 shadow-sm border-0">
+                                                                            <div class="card-header" style="background-color: #0b573d; color: white;">
+                                                                                <h6 class="fw-bold mb-0"><i class="fas fa-calendar-plus me-2"></i>Extend Stay</h6>
+                                                                            </div>
+                                                                            <div class="card-body">
+                                                                                <p class="mb-2"><strong>Current Check-out:</strong> {{ \Carbon\Carbon::parse($reservation->reservation_check_out_date)->format('F j, Y') }}</p>
+                                                                                <div class="form-group mb-3">
+                                                                                    <label class="form-label fw-bold">New Check-out Date</label>
+                                                                                    <input type="date" class="form-control new-checkout-date" name="new_checkout_date"
+                                                                                        min="{{ \Carbon\Carbon::parse($reservation->reservation_check_out_date)->addDay()->format('Y-m-d') }}"
+                                                                                        data-quantity="{{ $reservation->reservation_quantity ?? 1 }}"
+                                                                                        required>
+                                                                                </div>
                                                                             </div>
                                                                         </div>
                                                                     </div>
-                                                                </div>
 
-                                                                <!-- Additional Charges Card -->
-                                                                <div class="col-12">
-                                                                    <div class="card shadow-sm border-0">
-                                                                        <div class="card-header" style="background-color: #0b573d; color: white;">
-                                                                            <h6 class="fw-bold mb-0"><i class="fas fa-money-bill me-2"></i>Extension Charges</h6>
-                                                                        </div>
-                                                                        <div class="card-body">
-                                                                            <div class="row">
-                                                                                <div class="col-md-6">
-                                                                                    <p class="mb-2"><strong>Current Total:</strong> ₱{{ number_format($reservation->amount, 2) }}</p>                                                                                    <p class="mb-2"><strong>Extension Fee (per night):</strong> ₱<span class="extension-fee">{{ number_format($reservation->accomodation_price, 2) ?? '0.00' }}</span></p>
-                                                                                </div>
-                                                                                <div class="col-md-6">
-                                                                                    <p class="mb-2"><strong>Additional Nights:</strong> <span class="additional-nights">0</span></p>
-                                                                                    <p class="mb-2"><strong>Total Extension Cost:</strong> ₱<span class="total-extension-cost">0.00</span></p>
+                                                                    <!-- Additional Charges Card -->
+                                                                    <div class="col-12 mt-3">
+                                                                        <div class="card shadow-sm border-0">
+                                                                            <div class="card-header" style="background-color: #0b573d; color: white;">
+                                                                                <h6 class="fw-bold mb-0"><i class="fas fa-money-bill me-2"></i>Extension Charges</h6>
+                                                                            </div>
+                                                                            @php
+                                                                                $accommodationIds = json_decode($reservation->accomodation_id, true) ?? [];
+                                                                                $roomPrice = 0;
+                                                                                
+                                                                                // Calculate the room price per night
+                                                                                if (!empty($accommodationIds)) {
+                                                                                    // Get the price of the first accommodation (or sum if multiple)
+                                                                                    $accommodation = DB::table('accomodations')
+                                                                                        ->whereIn('accomodation_id', $accommodationIds)
+                                                                                        ->first();
+                                                                                    $roomPrice = $accommodation ? $accommodation->accomodation_price : 0;
+                                                                                }
+                                                                            @endphp
+                                                                            <div class="card-body">
+                                                                                <div class="row">
+                                                                                    <div class="col-md-6">
+                                                                                        <p class="mb-2"><strong>Current Total:</strong> ₱{{ number_format($reservation->amount ?? 0, 2) }}</p>                                                                                        
+                                                                                        <p class="mb-2"><strong>Extension Fee (per night):</strong> ₱<span class="extension-fee" data-room-price="{{ $roomPrice }}">{{ number_format($roomPrice, 2) }}</span></p>
+                                                                                        <p class="mb-2"><strong>Number of Rooms:</strong> {{ $reservation->reservation_quantity ?? 1 }}</p>
+                                                                                    </div>
+                                                                                    <div class="col-md-6">
+                                                                                        <p class="mb-2"><strong>Additional Nights:</strong> <span class="additional-nights">0</span></p>
+                                                                                        <p class="mb-2"><strong>Total Extension Cost:</strong> ₱<span class="total-extension-cost">0.00</span></p>
+                                                                                    </div>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
+                                                            <div class="modal-footer" style="background-color: #f8f9fa;">
+                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                                <button type="submit" class="btn text-white" style="background-color: #0b573d;">
+                                                                    <i class="fas fa-check me-2"></i>Confirm Extension
+                                                                </button>
+                                                            </div>
+                                                        @else
+                                                            <div class="modal-body p-4 text-center">
+                                                                <div class="alert alert-info">
+                                                                    <i class="fas fa-info-circle me-2"></i>
+                                                                    Reservation can only be extended if the status is 'Checked-in'.
+                                                                </div>
+                                                                <p><strong>Current Status:</strong> <span class="badge bg-secondary">{{ ucfirst($reservation->reservation_status) }}</span></p>
+                                                            </div>
+                                                        @endif
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- View Full Details Modal -->
+                                        <div class="modal fade" id="viewDetailsModal{{ $reservation->id }}" tabindex="-1" aria-hidden="true">
+                                            <div class="modal-dialog modal-lg modal-dialog-centered">
+                                                <div class="modal-content border-0 shadow-lg rounded-4">
+                                                    <div class="modal-header text-white border-0" style="background: linear-gradient(135deg, #0b573d, #198754);">
+                                                        <h5 class="modal-title fw-bold"><i class="fas fa-receipt me-2"></i>Reservation Details - {{ $reservation->reservation_id }}</h5>
+                                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body p-4" style="background-color: #f8f9fa;">
+                                                        <!-- Guest Information -->
+                                                        <div class="card mb-4 border-0 shadow-sm">
+                                                            <div class="card-header bg-light border-0">
+                                                                <h6 class="fw-bold text-success mb-0"><i class="fas fa-user-circle me-2"></i>Guest Information</h6>
+                                                            </div>
+                                                            <div class="card-body">
+                                                                <div class="d-flex justify-content-between mb-2"><span><i class="fas fa-user me-2 text-muted"></i>Name:</span> <strong class="text-end">{{ $reservation->name }}</strong></div>
+                                                                <div class="d-flex justify-content-between mb-2"><span><i class="fas fa-envelope me-2 text-muted"></i>Email:</span> <strong class="text-end">{{ $reservation->email }}</strong></div>
+                                                                <div class="d-flex justify-content-between"><span><i class="fas fa-phone me-2 text-muted"></i>Phone:</span> <strong class="text-end">{{ $reservation->mobileNo }}</strong></div>
+                                                            </div>
                                                         </div>
 
-                                                        <div class="modal-footer" style="background-color: #f8f9fa;">
-                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                            <button type="submit" class="btn text-white" style="background-color: #0b573d;">
-                                                                <i class="fas fa-check me-2"></i>Confirm Extension
+                                                        <!-- Booking Details -->
+                                                        <div class="card mb-4 border-0 shadow-sm">
+                                                            <div class="card-header bg-light border-0 d-flex justify-content-between align-items-center">
+                                                                <h6 class="fw-bold text-success mb-0"><i class="fas fa-calendar-alt me-2"></i>Booking Details</h6>
+                                                                <button type="button" class="btn btn-sm btn-outline-success border-0"
+                                                                        data-bs-toggle="modal" data-bs-target="#updateGuestCountModal{{ $reservation->id }}"
+                                                                        title="Update Guest Count">
+                                                                    <i class="fas fa-edit"></i>
+                                                                </button>
+                                                            </div>
+                                                            <div class="card-body">
+                                                                <div class="d-flex justify-content-between mb-2"><span><i class="fas fa-door-open me-2 text-muted"></i>Room(s):</span> <strong class="text-end">{{ implode(', ', (array)$reservation->accommodations) }} (x{{$reservation->quantity}})</strong></div>
+                                                                <div class="d-flex justify-content-between mb-2"><span><i class="fas fa-users me-2 text-muted"></i>Total Guests:</span> <strong class="text-end">{{ $reservation->total_guest }}</strong></div>
+                                                                <div class="d-flex justify-content-between mb-2"><span><i class="fas fa-user me-2 text-muted"></i>Adults:</span> <strong class="text-end">{{ $reservation->number_of_adults }}</strong></div>
+                                                                <div class="d-flex justify-content-between mb-2"><span><i class="fas fa-child me-2 text-muted"></i>Children:</span> <strong class="text-end">{{ $reservation->number_of_children }}</strong></div>
+                                                                <div class="d-flex justify-content-between mb-2"><span><i class="fas fa-calendar-check me-2 text-muted"></i>Check-in:</span> <strong class="text-end">{{ \Carbon\Carbon::parse($reservation->reservation_check_in_date)->format('F j, Y') }}</strong></div>
+                                                                <div class="d-flex justify-content-between"><span><i class="fas fa-calendar-times me-2 text-muted"></i>Check-out:</span> <strong class="text-end">{{ \Carbon\Carbon::parse($reservation->reservation_check_out_date)->format('F j, Y') }}</strong></div>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Payment Summary -->
+                                                        <div class="card border-0 shadow-sm">
+                                                            <div class="card-header bg-light border-0">
+                                                                <h6 class="fw-bold text-success mb-0"><i class="fas fa-file-invoice-dollar me-2"></i>Payment Summary</h6>
+                                                            </div>
+                                                            <div class="card-body">
+                                                                <div class="d-flex justify-content-between mb-2">
+                                                                    <span><i class="fas fa-money-bill-wave me-2 text-muted"></i>Total Amount:</span> 
+                                                                    <strong class="text-end">₱{{ number_format($reservation->amount, 2) }}</strong>
+                                                                </div>
+                                                                <div class="d-flex justify-content-between">
+                                                                    <span><i class="fas fa-wallet me-2 text-muted"></i>Balance:</span> 
+                                                                    <strong class="text-end text-danger">₱{{ number_format($reservation->balance, 2) }}</strong>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer border-0" style="background-color: #f1f3f5;">
+                                                        <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">
+                                                            <i class="fas fa-times me-2"></i>Close
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Update Guest Count Modal -->
+                                        <div class="modal fade" id="updateGuestCountModal{{ $reservation->id }}" tabindex="-1" aria-labelledby="updateGuestCountModalLabel{{ $reservation->id }}" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered">
+                                                <div class="modal-content border-0 shadow-lg rounded-4">
+                                                    <div class="modal-header text-white border-0" style="background: linear-gradient(135deg, #0b573d, #198754);">
+                                                        <h5 class="modal-title fw-bold" id="updateGuestCountModalLabel{{ $reservation->id }}"><i class="fas fa-users-cog me-2"></i>Update Guest Count</h5>
+                                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <form action="{{ route('staff.reservations.updateGuests', $reservation->id) }}" method="POST">
+                                                        @csrf
+                                                        <div class="modal-body p-4">
+                                                            @php
+                                                                $adultFee = 0;
+                                                                $childFee = 0;
+                                                                if ($stayType === 'one_day') {
+                                                                    $session = strtolower($reservation->session ?? 'morning');
+                                                                    $adultFee = $entranceFees[$session]['adult'] ?? 0;
+                                                                    $childFee = $entranceFees[$session]['child'] ?? 0;
+                                                                } elseif ($stayType === 'stay-in' || $stayType === 'overnight') {
+                                                                    $adultFee = 100;
+                                                                    $childFee = 70;
+                                                                }
+                                                            @endphp
+                                                            <div class="mb-3 position-relative">
+                                                                <label for="additional_adults_{{ $reservation->id }}" class="form-label fw-semibold"><i class="fas fa-user-plus me-2 text-muted"></i>Additional Adults</label>
+                                                                <input type="number" class="form-control guest-count-input" id="additional_adults_{{ $reservation->id }}" name="additional_adults" value="0" min="0"
+                                                                    data-modal-id="{{ $reservation->id }}" 
+                                                                    data-original-adults="{{ $reservation->number_of_adults }}" 
+                                                                    data-original-children="{{ $reservation->number_of_children }}"
+                                                                    data-adult-fee="{{ $adultFee }}">
+                                                                <small class="text-muted">Entrance Fee: ₱{{ number_format($adultFee, 2) }}</small>
+                                                            </div>
+                                                            <div class="mb-3 position-relative">
+                                                                <label for="additional_children_{{ $reservation->id }}" class="form-label fw-semibold"><i class="fas fa-child me-2 text-muted"></i>Additional Children</label>
+                                                                <input type="number" class="form-control guest-count-input" id="additional_children_{{ $reservation->id }}" name="additional_children" value="0" min="0"
+                                                                    data-modal-id="{{ $reservation->id }}" 
+                                                                    data-child-fee="{{ $childFee }}">
+                                                                <small class="text-muted">Entrance Fee: ₱{{ number_format($childFee, 2) }}</small>
+                                                            </div>
+                                                            <hr>
+                                                            <div class="mb-3">
+                                                                <label for="total_guest_{{ $reservation->id }}" class="form-label fw-bold text-success"><i class="fas fa-users me-2"></i>New Total Guests</label>
+                                                                <input type="text" class="form-control total-guest-output" id="total_guest_{{ $reservation->id }}" name="total_guest" value="{{ $reservation->total_guest }}" readonly style="background-color: #e9ecef;">
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label for="additional_amount_display_{{ $reservation->id }}" class="form-label fw-bold text-primary"><i class="fas fa-money-bill-wave me-2"></i>Additional Amount</label>
+                                                                <input type="text" class="form-control" id="additional_amount_display_{{ $reservation->id }}" value="₱0.00" readonly style="background-color: #e9ecef;">
+                                                                <input type="hidden" name="additional_amount" id="additional_amount_{{ $reservation->id }}" value="0">
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer border-0 bg-light">
+                                                            <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">
+                                                                <i class="fas fa-times me-2"></i>Cancel
+                                                            </button>
+                                                            <button type="submit" class="btn btn-success rounded-pill px-4">
+                                                                <i class="fas fa-save me-2"></i>Save Changes
                                                             </button>
                                                         </div>
-                                                        @else
-                                                        <div class="modal-body p-4 text-center">
-                                                            <div class="alert alert-info">
-                                                                <i class="fas fa-info-circle me-2"></i>
-                                                                Reservation can only be extended if the status is 'Checked-in'.
-                                                            </div>
-                                                            <p><strong>Current Status:</strong> <span class="badge bg-secondary">{{ ucfirst($reservation->reservation_status) }}</span></p>
-                                                        </div>
-                                                        @endif
                                                     </form>
                                                 </div>
                                             </div>
@@ -741,41 +890,78 @@
                         </table>
                     </div>
                     
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const guestCountInputs = document.querySelectorAll('.guest-count-input');
+                    
+                            function calculateTotal(modalId) {
+                                const additionalAdultsInput = document.getElementById(`additional_adults_${modalId}`);
+                                const additionalChildrenInput = document.getElementById(`additional_children_${modalId}`);
+                                const additionalAmountInput = document.getElementById(`additional_amount_${modalId}`);
+                                const additionalAmountDisplay = document.getElementById(`additional_amount_display_${modalId}`);
+                                const totalOutput = document.getElementById(`total_guest_${modalId}`);
+                    
+                                const originalAdults = parseInt(additionalAdultsInput.dataset.originalAdults) || 0;
+                                const originalChildren = parseInt(additionalChildrenInput.dataset.originalChildren) || 0;
+                    
+                                const additionalAdults = parseInt(additionalAdultsInput.value) || 0;
+                                const additionalChildren = parseInt(additionalChildrenInput.value) || 0;
+                    
+                                const adultFee = parseFloat(additionalAdultsInput.dataset.adultFee) || 0;
+                                const childFee = parseFloat(additionalChildrenInput.dataset.childFee) || 0;
+
+                                const additionalCost = (additionalAdults * adultFee) + (additionalChildren * childFee);
+
+                                totalOutput.value = originalAdults + originalChildren + additionalAdults + additionalChildren;
+                                additionalAmountInput.value = additionalCost.toFixed(2);
+                                additionalAmountDisplay.value = '₱' + additionalCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                            }
+                    
+                            guestCountInputs.forEach(input => {
+                                input.addEventListener('input', function() {
+                                    const modalId = this.dataset.modalId;
+                                    calculateTotal(modalId);
+                                });
+                            });
+                        });
+                    </script>
+                    
                     <!-- Pagination -->
                     <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-4 px-3">
                         <!-- Pagination Info -->
                         <div class="text-muted small mb-2 mb-md-0">
                             @if($reservations->total() > 0)
-                                Showing <strong>{{ $reservations->firstItem() }}</strong> to <strong>{{ $reservations->lastItem() }}</strong> of <strong>{{ $reservations->total() }}</strong> entries
+                            Showing {{ $reservations->firstItem() }} to {{ $reservations->lastItem() }} of {{ $reservations->total() }} entries
                             @else
                                 No entries found
                             @endif
                         </div>
 
-                        <!-- Custom Pagination -->
+                    <!-- Pagination -->
                         @if ($reservations->hasPages())
                             <nav>
-                                <ul class="pagination pagination-sm mb-0">
+                            <ul class="pagination mb-0">
                                     {{-- Previous Page Link --}}
-                                    <li class="page-item {{ $reservations->onFirstPage() ? 'disabled' : '' }}">
-                                        <a class="page-link" href="{{ $reservations->appends(request()->query())->previousPageUrl() }}" aria-label="Previous" style="color: #0b573d;">
-                                            <span aria-hidden="true">&laquo;</span>
-                                        </a>
+                                @if ($reservations->onFirstPage())
+                                    <li class="page-item disabled">
+                                        <span class="page-link">&laquo;</span>
                                     </li>
+                                @else
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ $reservations->previousPageUrl() }}" rel="prev">&laquo;</a>
+                                    </li>
+                                @endif
 
                                     {{-- Pagination Elements --}}
-                                    @foreach ($reservations->links()->elements as $element)
-                                        @if (is_string($element))
-                                            <li class="page-item disabled"><span class="page-link">{{ $element }}</span></li>
-                                        @endif
-                                        @if (is_array($element))
-                                            @foreach ($element as $page => $url)
-                                                @if ($page == $reservations->currentPage())
-                                                    <li class="page-item active"><span class="page-link" style="background-color: #0b573d; border-color: #0b573d;">{{ $page }}</span></li>
-                                                @else
-                                                    <li class="page-item"><a class="page-link" href="{{ $reservations->appends(request()->query())->url($page) }}" style="color: #0b573d;">{{ $page }}</a></li>
-                                                @endif
-                                            @endforeach
+                                @foreach ($reservations->getUrlRange(1, $reservations->lastPage()) as $page => $url)
+                                    @if ($page == $reservations->currentPage())
+                                        <li class="page-item active" aria-current="page">
+                                            <span class="page-link">{{ $page }}</span>
+                                        </li>
+                                    @else
+                                        <li class="page-item">
+                                            <a class="page-link" href="{{ $url }}">{{ $page }}</a>
+                                        </li>
                                         @endif
                                     @endforeach
 
@@ -1323,30 +1509,37 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Function to handle the calculation for extending a reservation
-        function calculateExtension(modal) {
+        function calculateExtension(modal, reservationId) {
             const newCheckoutDateInput = modal.querySelector('.new-checkout-date');
             const additionalNightsSpan = modal.querySelector('.additional-nights');
             const totalExtensionCostSpan = modal.querySelector('.total-extension-cost');
-            const additionalPaymentInput = modal.querySelector('input[name="additional_payment"]');
+            const additionalPaymentInput = modal.querySelector('.additional_payment');
             const extensionFeeSpan = modal.querySelector('.extension-fee');
+            const reservationQuantity = parseInt(newCheckoutDateInput.dataset.quantity, 10) || 1; // Get quantity
 
             if (!newCheckoutDateInput || !additionalNightsSpan || !totalExtensionCostSpan || !additionalPaymentInput || !extensionFeeSpan) {
                 console.error('One or more elements for calculation are missing in the modal.');
                 return;
             }
 
-            const currentCheckoutDate = new Date(newCheckoutDateInput.min).getTime() - (24 * 60 * 60 * 1000); // Get original checkout date
-            const newCheckoutDate = new Date(newCheckoutDateInput.value).getTime();
-            const roomPriceText = extensionFeeSpan.textContent.replace(/,/g, '');
-            const roomPrice = parseFloat(roomPriceText) || 0;
+            // Get the room price from the data attribute instead of parsing text
+            const roomPrice = parseFloat(extensionFeeSpan.dataset.roomPrice) || 0;
+            
+            // The min attribute is the day *after* the current checkout. So we subtract a day to get the actual current checkout date.
+            const originalCheckoutDate = new Date(newCheckoutDateInput.min);
+            originalCheckoutDate.setDate(originalCheckoutDate.getDate() - 1);
 
-            if (newCheckoutDate > currentCheckoutDate) {
-                const timeDiff = newCheckoutDate - currentCheckoutDate;
+            const newCheckoutDate = new Date(newCheckoutDateInput.value);
+
+            if (newCheckoutDate > originalCheckoutDate) {
+                const timeDiff = newCheckoutDate.getTime() - originalCheckoutDate.getTime();
                 const additionalNights = Math.ceil(timeDiff / (1000 * 3600 * 24));
-                const extensionCost = additionalNights * roomPrice;
+                
+                // Multiply by the number of rooms (quantity)
+                const extensionCost = additionalNights * roomPrice * reservationQuantity;
 
                 additionalNightsSpan.textContent = additionalNights;
-                totalExtensionCostSpan.textContent = extensionCost.toFixed(2);
+                totalExtensionCostSpan.textContent = extensionCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                 additionalPaymentInput.value = extensionCost.toFixed(2);
             } else {
                 additionalNightsSpan.textContent = '0';
@@ -1356,15 +1549,76 @@
         }
 
         // Add event listeners to all "Extend Reservation" modals
-        const extendModals = document.querySelectorAll('[id^="viewReservationModal"]');
+        const extendModals = document.querySelectorAll('[id^="extendReservationModal"]');
         extendModals.forEach(modal => {
+            const reservationId = modal.id.replace('extendReservationModal', '');
             const newCheckoutDateInput = modal.querySelector('.new-checkout-date');
             if (newCheckoutDateInput) {
-                newCheckoutDateInput.addEventListener('change', () => calculateExtension(modal));
+                newCheckoutDateInput.addEventListener('change', () => calculateExtension(modal, reservationId));
             }
         });
     });
-</script>
 
+    // Script to calculate total guests in the new modal
+    document.addEventListener('DOMContentLoaded', function() {
+        const guestCountInputs = document.querySelectorAll('.guest-count-input');
+
+        function calculateTotal(modalId) {
+            const adultsInput = document.getElementById(`number_of_adults_${modalId}`);
+            const childrenInput = document.getElementById(`number_of_children_${modalId}`);
+            const totalOutput = document.getElementById(`total_guest_${modalId}`);
+
+            const adults = parseInt(adultsInput.value) || 0;
+            const children = parseInt(childrenInput.value) || 0;
+
+            totalOutput.value = adults + children;
+        }
+
+        guestCountInputs.forEach(input => {
+            input.addEventListener('input', function() {
+                const modalId = this.dataset.modalId;
+                calculateTotal(modalId);
+            });
+        });
+    });
+
+    // Script to re-open the details modal after closing the guest count modal
+    document.addEventListener('DOMContentLoaded', function () {
+        const updateGuestModals = document.querySelectorAll('[id^="updateGuestCountModal"]');
+
+        updateGuestModals.forEach(modal => {
+            modal.addEventListener('hidden.bs.modal', function (event) {
+                // Prevent re-opening if the form was submitted (which causes a page reload)
+                if (event.target.dataset.submitted) return;
+
+                const reservationId = this.id.replace('updateGuestCountModal', '');
+                const viewDetailsModalEl = document.getElementById('viewDetailsModal' + reservationId);
+                
+                if (viewDetailsModalEl) {
+                    const viewDetailsModal = new bootstrap.Modal(viewDetailsModalEl);
+                    viewDetailsModal.show();
+                }
+            });
+        });
+    });
+
+    // Fix for lingering modal backdrop after closing re-opened modal
+    document.addEventListener('DOMContentLoaded', function () {
+        const viewDetailsModals = document.querySelectorAll('[id^="viewDetailsModal"]');
+
+        viewDetailsModals.forEach(modal => {
+            modal.addEventListener('hidden.bs.modal', function (event) {
+                // If no other modals are open, force cleanup
+                if (document.querySelectorAll('.modal.show').length === 0) {
+                    const backdrops = document.querySelectorAll('.modal-backdrop');
+                    backdrops.forEach(backdrop => backdrop.remove());
+                    document.body.classList.remove('modal-open');
+                    document.body.style.overflow = '';
+                    document.body.style.paddingRight = '';
+                }
+            });
+        });
+    });
+</script>
 </body>
 </html>

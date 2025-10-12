@@ -73,7 +73,7 @@ class ReservationController extends Controller
         return response()->json(['error' => 'Server error'], 500);
     }
 }
-// One Day Stay
+// Day Tour
 public function fetchAccomodationData()
     {
         // Get the authenticated user
@@ -308,12 +308,14 @@ public function OnedayStay(Request $request)
         'number_of_adults' => $numAdults,
         'number_of_children' => $numChildren,
         'amount' => $totalPrice,
-        'payment_status' => 'pending',
+        'payment_status' => $request->input('payment_Status'),
         'downpayment' => $downpayment,
         'balance' => $totalPrice - $downpayment,
         'reservation_status' => 'pending',
         'created_at' => now('Asia/Manila'),
         'updated_at' => now('Asia/Manila'),
+        'paymongo_checkout_id' => null, // Add this line
+        'paymongo_checkout_id' => null, // Add this line
     ];
 
     // Insert reservation into database
@@ -338,10 +340,9 @@ public function OnedayStay(Request $request)
     // Retrieve admin email and send notification
     $adminEmail = DB::table('settings')->where('key', 'admin_email')->value('value');
     Mail::to($adminEmail)->send(new NewReservationNotification($reservation));
-    Mail::to($user->email)->send(new PendingReservation($reservation, $accommodationDetailsForEmail, $totalPrice, $downpayment));
 
-    // Log reservation creation
-    Log::info('One Day Stay Reservation Created Successfully', [
+    // Log reservation creation for Day Tour
+    Log::info('Day Tour Reservation Created Successfully', [
         'reservation_id' => $reservationId,
         'user_id' => Auth::id(),
         'user_info' => [
@@ -555,7 +556,7 @@ public function StayInPackages(Request $request)
         'number_of_adults' => $numAdults,
         'number_of_children' => $numChildren,
         'amount' => $totalPrice,
-        'payment_status' => 'pending',
+        'payment_status' => $request->input('payment_Status'),
         'downpayment' => $downpayment,
         'balance' => $totalPrice - $downpayment,
         'reservation_status' => 'pending',
@@ -586,9 +587,7 @@ public function StayInPackages(Request $request)
     // Retrieve admin email and send notification
     $adminEmail = DB::table('settings')->where('key', 'admin_email')->value('value');
     Mail::to($adminEmail)->send(new NewReservationNotification($reservation));
-    Mail::to($user->email)->send(new PendingReservation($reservation, $accommodationDetailsForEmail, $totalPrice, $downpayment));
-
-    // Log reservation creation
+        // Log reservation creation
     Log::info('Stay In Packages Reservation Created Successfully', [
         'reservation_id' => $reservationId,
         'user_id' => Auth::id(),
@@ -1253,11 +1252,10 @@ public function showReservationsInCalendar()
     public function homepageReservation(Request $request)
     {
         // Validate ang request
-        $validated = $request->validate([
+        $request->validate([
             'accomodation_id' => 'required|exists:accomodations,accomodation_id',
             'number_of_adults' => 'required|integer|min:1',
             'number_of_children' => 'required|integer|min:0', // Changed min to 0 as children can be 0
-            'total_guest' =>'required|integer|min:1',
             'reservation_check_in_date' => 'required|date',
             'reservation_check_in' => 'required',
             'reservation_check_out' => 'required',
@@ -1265,24 +1263,33 @@ public function showReservationsInCalendar()
             'activity_id' => 'nullable|array', // Changed to nullable array
             'quantity' => 'required|integer|min:1' // Added validation for quantity
         ]);
-    
+
         try {
+            $user = Auth::user();
             // Kunin ang accommodation details
             $accommodation = Accomodation::findOrFail($request->accomodation_id);
-    
+
             // Calculate total price (assuming price is per unit of quantity)
             $totalPrice = $accommodation->accomodation_price * $request->quantity;
-    
+
             // Calculate total guests
             $totalGuests = $request->number_of_adults + $request->number_of_children;
-    
+
             // Handle activity selection (store as JSON if multiple)
             $activityIds = $request->input('activity_id', []);
             $selectedActivityId = count($activityIds) > 1 ? json_encode($activityIds) : (count($activityIds) === 1 ? $activityIds[0] : null);
-    
-            // I-prepare ang reservation details para sa session
+
+            // Generate a reservation ID
+            $reservationId = $this->generateReservationId();
+
+            // I-prepare ang reservation details para sa database
             $reservationDetails = [
                 'user_id' => Auth::id(),
+                'reservation_id' => $reservationId,
+                'name' => $user->name,
+                'email' => $user->email,
+                'mobileNo' => $user->mobileNo,
+                'address' => $user->address,
                 'accomodation_id' => json_encode([$request->accomodation_id]),
                 'activity_id' => $selectedActivityId, // Add activity_id to reservation details
                 'number_of_adults' => $request->number_of_adults,
@@ -1293,13 +1300,17 @@ public function showReservationsInCalendar()
                 'reservation_check_out' => $request->reservation_check_out,
                 'reservation_check_out_date' => $request->reservation_check_out_date,
                 'quantity' => $request->quantity, // Added quantity to session details
-                'amount' => $totalPrice
+                'amount' => $totalPrice,
+                'reservation_status' => 'pending', // Set initial status to pending
+                'created_at' => now('Asia/Manila'),
+                'updated_at' => now('Asia/Manila'),
             ];
-    
-            // I-save sa session ang reservation details
-            session(['reservation_details' => $reservationDetails]);
-    
-            return redirect()->route('paymentProcess')->with('success', 'Reservation saved.Wait for the staff to process your reservation.Thank you!');
+
+            // I-save sa database ang reservation details
+            DB::table('reservation_details')->insert($reservationDetails);
+
+            // Redirect to payment process with the new reservation ID
+            return redirect()->route('paymentProcess', ['reservationId' => $reservationId])->with('success', 'Reservation saved. Please proceed with the payment.');
 
         } catch (\Exception $e) {
             Log::error('Reservation save error: ' . $e->getMessage());

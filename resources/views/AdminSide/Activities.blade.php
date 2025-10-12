@@ -81,7 +81,7 @@
 
                             <div class="mb-5" style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);">
                                 <h2 class="mb-0 fs-1" style="font-size: 4.5rem !important;">Hello,</h2>
-                                <h1 class="display-1 fw-bold" style="font-size: 5.5rem !important;">Admin User!</h1>
+                                <h1 class="display-1 fw-bold" style="font-size: 5.5rem !important;">{{$adminCredentials->username}}</h1>
                             </div>
 
                             <div class="card text-dark rounded-4 shadow p-4 mt-4"
@@ -146,43 +146,49 @@
 
                     <!-- Add Activity Modal -->
                     <div class="modal fade" id="addActivityModal" tabindex="-1" aria-labelledby="addActivityModalLabel"
-                        aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content border-0">
-                                <div class="modal-header border-0" style="background-color: #0b573d;">
-                                    <h5 class="modal-title text-white fw-bold" id="addActivityModalLabel"
-                                        style="font-family: 'Poppins', sans-serif;">Add New Activity</h5>
-                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                                        aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body p-4">
-                                    <form action="{{ route('storeActivity') }}" method="POST"
-                                        enctype="multipart/form-data">
+                         aria-hidden="true">
+                         <div class="modal-dialog modal-lg modal-dialog-centered">
+                             <div class="modal-content rounded-4 shadow-lg border-0">
+                                 <div class="modal-header text-white border-0" style="background: linear-gradient(135deg, #0b573d, #198754);">
+                                     <h5 class="modal-title fw-bold" id="addActivityModalLabel">
+                                         <i class="fas fa-plus-circle me-2"></i>Add New Activity
+                                     </h5>
+                                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                 </div>
+                                 <div class="modal-body p-4" style="background-color: #f8f9fa;">
+                                     <form action="{{ route('storeActivity') }}" method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
                                         @csrf
-                                        <div class="form-group mb-3">
-                                            <label for="activity_name" class="form-label fw-semibold"
-                                                style="font-family: 'Poppins', sans-serif;">Activity Name</label>
-                                            <input type="text" class="form-control border-2" id="activity_name"
-                                                name="activity_name" required>
-                                        </div>
-                                        <div class="form-group mb-3">
-                                            <label for="activity_image" class="form-label fw-semibold"
-                                                style="font-family: 'Poppins', sans-serif;">Activity Image</label>
-                                            <input type="file" class="form-control border-2" id="activity_image"
-                                                name="activity_image" required>
-                                        </div>
-                                        <div class="form-group mb-4">
-                                            <label for="activity_status" class="form-label fw-semibold"
-                                                style="font-family: 'Poppins', sans-serif;">Activity Status</label>
-                                            <select class="form-select border-2" id="activity_status"
-                                                name="activity_status" required>
-                                                <option value="Available">Available</option>
-                                                <option value="Unavailable">Unavailable</option>
-                                            </select>
-                                        </div>
-                                        <div class="text-end">
-                                            <button type="submit" class="btn text-white px-4 py-2"
-                                                style="background-color: #0b573d;">Add Activity</button>
+                                         <div class="row g-4">
+                                             <div class="col-md-6">
+                                                 <div class="mb-3">
+                                                     <label for="activity_name" class="form-label fw-semibold"><i class="fas fa-swimmer me-2 text-success"></i>Activity Name</label>
+                                                     <input type="text" class="form-control" id="activity_name" name="activity_name" required>
+                                                 </div>
+                                                 <div class="mb-3">
+                                                     <label for="activity_status" class="form-label fw-semibold"><i class="fas fa-check-circle me-2 text-success"></i>Activity Status</label>
+                                                     <select class="form-select" id="activity_status" name="activity_status" required>
+                                                         <option value="Available">Available</option>
+                                                         <option value="Unavailable">Unavailable</option>
+                                                     </select>
+                                                 </div>
+                                                 <div class="mb-3">
+                                                     <label for="activity_image" class="form-label fw-semibold"><i class="fas fa-image me-2 text-success"></i>Activity Image</label>
+                                                     <input type="file" class="form-control" id="activity_image" name="activity_image" onchange="previewImage(event, 'addActivityPreview')" required>
+                                                 </div>
+                                                 <div class="mb-3">
+                                                     <label for="activity_description" class="form-label fw-semibold"><i class="fas fa-align-left me-2 text-success"></i>Description</label>
+                                                     <textarea class="form-control" id="activity_description" name="activity_description" rows="3"></textarea>
+                                                 </div>
+                                             </div>
+                                             <div class="col-md-6 d-flex align-items-center justify-content-center">
+                                                 <img id="addActivityPreview" src="{{ asset('images/placeholder.png') }}" alt="Image Preview" class="img-fluid rounded-3 shadow-sm" style="max-height: 250px; border: 3px solid #dee2e6; padding: 3px;">
+                                             </div>
+                                         </div>
+                                         <div class="modal-footer border-0 pt-4 pb-0">
+                                             <button type="button" class="btn btn-light border shadow-sm rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                                             <button type="submit" class="btn text-white rounded-pill px-4 shadow-sm" style="background-color: #0b573d;">
+                                                 <i class="fas fa-plus me-2"></i>Add Activity
+                                             </button>
                                         </div>
                                     </form>
                                 </div>
@@ -197,12 +203,6 @@
                                     style="font-family: 'Anton', sans-serif; letter-spacing: 0.1em;">
                                     ACTIVITY OVERVIEW
                                 </h1>
-                                <select class="form-select w-auto" id="roomTypeFilter" style="width: 150px !important;">
-                                    <option value="all">All Rooms</option>
-                                    <option value="room">Room</option>
-                                    <option value="cottage">Cottage</option>
-                                    <option value="cabin">Cabin</option>
-                                </select>
                                 <div
                                     class="d-flex align-items-center gap-2 px-3 py-2 border-0 rounded text-white fw-bold ms-auto">
                                     <button type="button"
@@ -220,13 +220,9 @@
                                     <tr>
                                         <th scope="col">Activity Image</th>
                                         <th scope="col">Activity Name</th>
-                                        <th scope="col">Activity Description</th>
-                                        <th scope="col">Activity Type</th>
-                                        <th scope="col">Activity Qty</th>
-                                        <th scope="col">Price</th>
-                                        <th scope="col">Capacity</th>
+                                        <th scope="col">Description</th>
                                         <th scope="col">Availability</th>
-                                        <th scope="col" class="text-center">Actions</th>
+                                        <th scope="col" class="text-end">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -237,21 +233,16 @@
                                                     alt="Activity Image" width="100" height="80" class="rounded">
                                             </td>
                                             <td>{{ $activity->activity_name }}</td>
-                                            <td>Add description</td>
-                                            <td>Physical Activity</td>
-                                            <td>5</td>
-                                            <td>₱3,000.00</td>
-                                            <td>5</td>
+                                            <td>{{$activity->activity_description}}</td>
                                             <td>
                                                 <span
                                                     class="badge rounded-pill {{ $activity->activity_status == 'Available' ? 'bg-success' : 'bg-danger' }} px-3 py-2">
                                                     {{ $activity->activity_status == 'Available' ? 'Available' : 'Unavailable' }}
                                                 </span>
                                             </td>
-                                            <td class="text-center">
-                                                <div class="d-flex justify-content-center">
-                                                    <a href="#editActivityModal{{ $activity->id }}"
-                                                        class="btn btn-sm btn-outline-success me-2" data-bs-toggle="modal">
+                                            <td>
+                                                <div class="d-flex justify-content-end">
+                                                    <a href="#" class="btn btn-sm btn-outline-success me-2" data-bs-toggle="modal" data-bs-target="#editActivityModal{{ $activity->id }}">
                                                         <i class="fa-solid fa-pen-to-square"></i>
                                                     </a>
                                                     <a href="#" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal"
@@ -264,44 +255,77 @@
 
                                         <!-- Edit Activity Modal -->
                                         <div class="modal fade" id="editActivityModal{{ $activity->id }}" tabindex="-1"
-                                            aria-labelledby="editActivityModalLabel" aria-hidden="true">
-                                            <div class="modal-dialog">
-                                                <div class="modal-content rounded-4 shadow">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="editActivityModalLabel">Edit Activity
-                                                        </h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                            aria-label="Close"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <form action="{{ route('updateActivity', $activity->id) }}"
-                                                            method="POST" enctype="multipart/form-data">
+                                             aria-labelledby="editActivityModalLabel{{ $activity->id }}" aria-hidden="true">
+                                             <div class="modal-dialog modal-lg modal-dialog-centered">
+                                                 <div class="modal-content rounded-4 shadow-lg border-0">
+                                                     <div class="modal-header text-white border-0" style="background: linear-gradient(135deg, #0b573d, #198754);">
+                                                         <h5 class="modal-title fw-bold" id="editActivityModalLabel{{ $activity->id }}">
+                                                             <i class="fas fa-edit me-2"></i>Edit Activity
+                                                         </h5>
+                                                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                     </div>
+                                                     <div class="modal-body p-4" style="background-color: #f8f9fa;">
+                                                         <form action="{{ route('updateActivity', $activity->id) }}" method="POST" enctype="multipart/form-data">
                                                             @csrf
                                                             @method('PUT')
-                                                            <div class="form-group">
-                                                                <label for="activity_name">Activity Name</label>
-                                                                <input type="text" class="form-control rounded-3"
-                                                                    id="activity_name" name="activity_name"
-                                                                    value="{{ $activity->activity_name }}">
-                                                            </div>
-                                                            <div class="form-group mt-3">
-                                                                <label for="activity_image">Activity Image</label>
-                                                                <input type="file" class="form-control rounded-3"
-                                                                    id="activity_image" name="activity_image">
-                                                            </div>
-                                                            <div class="form-group mt-3">
-                                                                <label for="activity_status">Activity Status</label>
-                                                                <select class="form-select rounded-3" id="activity_status"
-                                                                    name="activity_status">
-                                                                    <option value="Available" @if ($activity->activity_status == 'Available') selected
-                                                                    @endif>Available</option>
-                                                                    <option value="Unavailable" @if ($activity->activity_status == 'Unavailable') selected
-                                                                    @endif>Unavailable</option>
-                                                                </select>
-                                                            </div>
-                                                            <button type="submit"
-                                                                class="btn btn-primary mt-3 rounded-3">Update</button>
+                                                             <div class="row g-4">
+                                                                 <div class="col-md-6">
+                                                                     <div class="mb-3">
+                                                                         <label for="activity_name" class="form-label fw-semibold"><i class="fas fa-swimmer me-2 text-success"></i>Activity Name</label>
+                                                                         <input type="text" class="form-control" name="activity_name" value="{{ $activity->activity_name }}" required>
+                                                                     </div>
+                                                                     <div class="mb-3">
+                                                                         <label for="activity_status" class="form-label fw-semibold"><i class="fas fa-check-circle me-2 text-success"></i>Activity Status</label>
+                                                                         <select class="form-select" name="activity_status" required>
+                                                                             <option value="Available" @if ($activity->activity_status == 'Available') selected @endif>Available</option>
+                                                                             <option value="Unavailable" @if ($activity->activity_status == 'Unavailable') selected @endif>Unavailable</option>
+                                                                         </select>
+                                                                     </div>
+                                                                     <div class="mb-3">
+                                                                         <label for="activity_image" class="form-label fw-semibold"><i class="fas fa-image me-2 text-success"></i>Change Image</label>
+                                                                         <input type="file" class="form-control" name="activity_image" onchange="previewImage(event, 'editActivityPreview{{ $activity->id }}')">
+                                                                     </div>
+                                                                     <div class="mb-3">
+                                                                         <label for="activity_description" class="form-label fw-semibold"><i class="fas fa-align-left me-2 text-success"></i>Description</label>
+                                                                         <textarea class="form-control" name="activity_description" rows="3">{{ $activity->activity_description }}</textarea>
+                                                                     </div>
+                                                                 </div>
+                                                                 <div class="col-md-6 d-flex align-items-center justify-content-center">
+                                                                     <img id="editActivityPreview{{ $activity->id }}" src="{{ asset('storage/' . $activity->activity_image) }}" alt="Image Preview" class="img-fluid rounded-3 shadow-sm" style="max-height: 250px; border: 3px solid #dee2e6; padding: 3px;">
+                                                                 </div>
+                                                             </div>
+                                                             <div class="modal-footer border-0 pt-4 pb-0">
+                                                                 <button type="button" class="btn btn-light border shadow-sm rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                                                                 <button type="submit" class="btn text-white rounded-pill px-4 shadow-sm" style="background-color: #0b573d;">
+                                                                     <i class="fas fa-save me-2"></i>Save Changes
+                                                                 </button>
+                                                             </div>
                                                         </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Delete Confirmation Modal -->
+                                        <div class="modal fade" id="deleteActivityModal{{ $activity->id }}" tabindex="-1" aria-labelledby="deleteActivityModalLabel{{ $activity->id }}" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered" style="max-width: 400px;">
+                                                <div class="modal-content rounded-4 shadow-lg border-0">
+                                                    <div class="modal-body p-4 text-center">
+                                                        <div class="mb-3">
+                                                            <i class="fas fa-exclamation-triangle fa-4x text-warning"></i>
+                                                        </div>
+                                                        <h4 class="fw-bold mb-2">Confirm Deletion</h4>
+                                                        <p class="text-muted mb-4">
+                                                            Are you sure you want to delete the activity <strong class="text-dark">{{ $activity->activity_name }}</strong>? This action cannot be undone.
+                                                        </p>
+                                                        <div class="d-flex justify-content-center gap-3">
+                                                            <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                                                            <form action="{{ route('deleteActivity', $activity->id) }}" method="POST">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="btn btn-danger rounded-pill px-4">Delete</button>
+                                                            </form>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -320,6 +344,18 @@
 
 </html>
 
+<script>
+    function previewImage(event, previewId) {
+        const reader = new FileReader();
+        reader.onload = function() {
+            const output = document.getElementById(previewId);
+            output.src = reader.result;
+        };
+        if (event.target.files[0]) {
+            reader.readAsDataURL(event.target.files[0]);
+        }
+    }
+</script>
 <script>
     // Live Clock & Date
     function updateClock() {

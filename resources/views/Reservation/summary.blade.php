@@ -218,14 +218,6 @@
                         <div class="col-8 text-break">₱{{ number_format($reservationDetails->amount, 2) }}</div>
                     </div>
                     @endif-->
-
-                    @if(isset($reservationDetails->balance))
-                    <div class="row mb-2">
-                        <div class="col-4 fw-bold text-success text-break">Balance:</div>
-                        <div class="col-8 text-break">₱{{ number_format($reservationDetails->balance, 2) }}</div>
-                    </div>
-                    @endif
-
                     @if(!empty($reservationDetails->reference_num))
                     <div class="row mb-2">
                         <div class="col-4 fw-bold text-success text-break">Reference No:</div>

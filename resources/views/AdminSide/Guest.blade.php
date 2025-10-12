@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="{{ asset('images/logo new.png') }}">
     <link
         href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Anton&display=swap"
         rel="stylesheet">
@@ -50,6 +51,40 @@
         width: 100% !important;
         flex: 0 0 100% !important;
         max-width: 100% !important;
+    }
+
+    /* Custom Pagination Styles */
+    .pagination .page-link {
+        border-radius: 50% !important;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 3px;
+        border: 2px solid #0b573d;
+        color: #0b573d;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .pagination .page-link:hover {
+        background-color: #0b573d;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: #0b573d;
+        border-color: #0b573d;
+        color: white;
+    }
+
+    .pagination .page-item.disabled .page-link {
+        background-color: #e9ecef;
+        border-color: #dee2e6;
+        color: #6c757d;
     }
 </style>
 
@@ -138,8 +173,10 @@
 
                     <!-- Guest Feedback & Complaints Card -->
                     <div class="col-md-4">
-                        <div class="card border-0 rounded-4 shadow"
-                            style="background: linear-gradient(180deg, #3e786d, #9bd7e7);">
+                        <a href="#" data-bs-toggle="modal" data-bs-target="#feedbackModal"
+                           class="text-decoration-none">
+                            <div class="card border-0 rounded-4 shadow h-100"
+                                 style="background: linear-gradient(180deg, #3e786d, #9bd7e7); transition: transform 0.2s ease-in-out;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
                             <div class="card-body text-white p-5">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
@@ -150,6 +187,7 @@
                                 </div>
                             </div>
                         </div>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -179,26 +217,26 @@
                     <table class="table table-borderless mb-0">
                         <thead>
                             <tr>
-                                <th scope="col">Guest Name</th>
-                                <th scope="col">Email</th>
-                                <th scope="col">Phone Number</th>
-                                <th scope="col">No. of Visits</th>
-                                <th scope="col">Last Visit</th>
-                                <th scope="col">Status</th>
-                                <th scope="col">Action</th>
+                                <th scope="col" class="py-3 px-4">Guest Name</th>
+                                <th scope="col" class="py-3 px-4">Email</th>
+                                <th scope="col" class="py-3 px-4">Phone Number</th>
+                                <th scope="col" class="py-3 px-4">No. of Visits</th>
+                                <th scope="col" class="py-3 px-4">Last Visit</th>
+                                <th scope="col" class="py-3 px-4">Status</th>
+                                <th scope="col" class="py-3 px-4">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($reservations as $reservation)
                                 <tr>
-                                    <td>{{ $reservation->name }}</td>
-                                    <td>{{ $reservation->email }}</td>
-                                    <td>{{ $reservation->mobileNo }}</td>
-                                    <td>{{ $reservation->visit_count ?? '-' }}</td>
-                                    <td>{{ $reservation->last_visit ? date('M d, Y', strtotime($reservation->last_visit)) : '-' }}
+                                    <td class="py-3 px-4">{{ $reservation->name }}</td>
+                                    <td class="py-3 px-4">{{ $reservation->email }}</td>
+                                    <td class="py-3 px-4 text-center">{{ $reservation->mobileNo }}</td>
+                                    <td class="py-3 px-4 text-center">{{ $reservation->visit_count ?? '-' }}</td>
+                                    <td class="py-3 px-4 text-center">{{ $reservation->last_visit ? date('M d, Y', strtotime($reservation->last_visit)) : '-' }}
                                     </td>
-                                    <td>{{ $reservation->status }}</td>
-                                    <td>
+                                    <td class="py-3 px-4 text-center">{{ $reservation->status }}</td>
+                                    <td class="py-3 px-4 text-center">
                                         <div class="d-flex gap-2">
                                             <button class="btn btn-sm text-white" style="background-color: #0b573d;"
                                                 data-bs-toggle="modal"
@@ -216,21 +254,19 @@
                         </tbody>
                         <tfoot>
                             <tr>
-                                <td colspan="7" class="pt-3">
+                                <td colspan="7" class="pt-4">
                                     <div class="d-flex justify-content-between align-items-center">
-                                        <div>
+                                        <div class="text-muted small">
                                             @if($reservations->count() > 0)
                                                 Showing {{ $reservations->firstItem() }}
                                                 to
-                                                {{ min($reservations->currentPage() * $reservations->perPage(), $reservations->total()) }}
-                                                of {{ $reservations->total() }} Guest
+                                                {{ $reservations->lastItem() }}
+                                                of {{ $reservations->total() }} guests
                                             @else
                                                 Showing 0 to 0 of 0 entries
                                             @endif
-                                        </div>
-                                        <div>
-                                            {{ $reservations->links('pagination::bootstrap-5') }}
-                                        </div>
+                                        </div> 
+                                        {{ $reservations->links('pagination.custom') }}
                                     </div>
                                 </td>
                             </tr>
@@ -392,22 +428,22 @@
                                     </thead>
                                     <tbody>
                                         @php
-                                            $userReservations = DB::table('reservation_details')
-                                                ->where('user_id', $reservation->id)
-                                                ->get()
-                                                ->map(function ($res) {
-                                                    // Decode the JSON string to array
-                                                    $accomodationIds = json_decode($res->accomodation_id);
+                                        // Fetch paginated reservations for the user
+                                        $userReservations = DB::table('reservation_details')
+                                            ->where('user_id', $reservation->id)
+                                            ->orderBy('reservation_check_in_date', 'desc')
+                                            ->paginate(3, ['*'], 'reservationsPage' . $reservation->id); // Use a unique page name
 
-                                                    // Get accommodation names
-                                                    $accomodationNames = DB::table('accomodations')
-                                                        ->whereIn('accomodation_id', $accomodationIds)
-                                                        ->pluck('accomodation_name')
-                                                        ->join(', ');
-
-                                                    $res->accomodation_name = $accomodationNames;
-                                                    return $res;
-                                                });
+                                        // Get accommodation names for the current page of reservations
+                                        foreach ($userReservations as $res) {
+                                            $accomodationIds = json_decode($res->accomodation_id, true) ?: [];
+                                            if (!is_array($accomodationIds)) {
+                                                $accomodationIds = explode(',', $res->accomodation_id);
+                                            }
+                                            $res->accomodation_name = DB::table('accomodations')
+                                                ->whereIn('accomodation_id', $accomodationIds)
+                                                ->pluck('accomodation_name')->join(', ');
+                                        }
                                         @endphp
 
                                         @forelse($userReservations as $res)
@@ -432,6 +468,10 @@
                                         @endforelse
                                     </tbody>
                                 </table>
+                            </div>
+                            <!-- Pagination for Reservation History -->
+                            <div class="d-flex justify-content-end mt-3">
+                                {{ $userReservations->links('pagination::bootstrap-5') }}
                             </div>
                         </div>
                     </div>
@@ -463,6 +503,57 @@
             </div>
         </div>
     @endforeach
+
+    <!-- Feedback Modal -->
+    <div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header text-white border-0" style="background: linear-gradient(135deg, #3e786d, #5ca9bf);">
+                    <h5 class="modal-title fw-bold" id="feedbackModalLabel">
+                        <i class="fas fa-comments me-2"></i>All Guest Feedback & Complaints
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4" style="background-color: #f8f9fa;">
+                    @if($allFeedback->isEmpty())
+                        <div class="text-center py-5">
+                            <i class="fas fa-comment-slash fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No Feedback Yet</h5>
+                            <p class="text-secondary">There are currently no feedback entries from guests.</p>
+                        </div>
+                    @else
+                        @foreach($allFeedback as $feedback)
+                            <div class="card mb-3 border-0 shadow-sm">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-start">
+                                        <img src="{{ $feedback->user_image ? asset('storage/' . $feedback->user_image) : asset('images/default-profile.jpg') }}" 
+                                             alt="User" class="rounded-circle me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                                        <div class="w-100">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <h6 class="fw-bold mb-0">{{ $feedback->user_name }}</h6>
+                                                <small class="text-muted">{{ \Carbon\Carbon::parse($feedback->created_at)->diffForHumans() }}</small>
+                                            </div>
+                                            <div class="d-flex align-items-center my-1">
+                                                @for ($i = 1; $i <= 5; $i++)
+                                                    <i class="fas fa-star {{ $i <= $feedback->rating ? 'text-warning' : 'text-secondary' }}"></i>
+                                                @endfor
+                                                <span class="ms-2 text-muted">({{ $feedback->rating }}/5)</span>
+                                            </div>
+                                            <p class="mb-0 text-secondary">{{ $feedback->comment }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    @endif
+                </div>
+                <div class="modal-footer border-0" style="background-color: #f1f3f5;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
 </body>
 

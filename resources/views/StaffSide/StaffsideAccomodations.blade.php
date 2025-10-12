@@ -74,104 +74,122 @@
     body {
         overflow-x: hidden !important;
     }
+    .pagination .page-link {
+        border-radius: 50% !important;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 3px;
+        border: 2px solid #0b573d;
+        color: #0b573d;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .pagination .page-link:hover {
+        background-color: #0b573d;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: #0b573d;
+        border-color: #0b573d;
+        color: white;
+    }
+
+    .pagination .page-item.disabled .page-link {
+        background-color: #e9ecef;
+        border-color: #dee2e6;
+        color: #6c757d;
+    }
 </style>
 <body style="margin: 0; padding: 0; height: 100vh; background-color: white; overflow-x: hidden;">
     @include('Alert.loginSucess')
         <!-- NAVBAR -->
         @include('Navbar.sidenavbarStaff')
 
-         <div class="row">
-        <div class="col-11 mx-auto">
-            <div class="hero-banner d-flex flex-column justify-content-center text-white p-3 p-sm-4 p-md-5"
-             style="background-image:url('{{ asset('images/staff-admin-bg.jpg') }}'); 
-                   background-size: cover; background-position: center; min-height: 450px; border-radius: 15px;">
+        <div class="row">
+            <div class="col-11 mx-auto">
+                <div class="hero-banner d-flex flex-column justify-content-center text-white p-3 p-sm-4 p-md-5"
+                     style="background-color: white; min-height: 450px; border-radius: 15px;">
 
-            <div class="row g-3 g-md-4">
-                <!-- Left Side -->
-                <div class="col-12 col-md-6">
-                    <div class="d-flex flex-column gap-3">
-                        <!-- Greeting -->
-                        <div class="d-flex flex-column align-items-start text-start" 
-                            style="padding: 0 20px;">
-                            <p class="text-white" style="font-family: 'Poppins', sans-serif; font-size: clamp(2rem, 5vw, 3rem); letter-spacing: 5px;">
-                                Hello,
-                            </p>
-                            <h1 class="text-capitalize fw-bolder" 
-                                style="font-family: 'Montserrat', sans-serif; font-size: clamp(3rem, 8vw, 5rem); color:#ffffff; letter-spacing: clamp(5px, 2vw, 15px); white-space: normal; overflow-wrap: break-word; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
-                                {{$staffCredentials->username}}
-                            </h1>
+                    <div class="row g-3 g-md-4">
+                        <!-- Left Side with background image -->
+                        <div class="col-12 col-md-6">
+                            <div class="d-flex flex-column gap-3 h-100"
+                                 style="background-image:url('{{ asset('images/staff-admin-bg.jpg') }}'); 
+                                        background-size: cover; background-position: center; 
+                                        border-radius: 15px; padding: 2rem;">
+                                <!-- Greeting -->
+                                <div class="d-flex flex-column align-items-start text-start" 
+                                     style="padding: 0 20px;">
+                                    <p class="text-white" style="font-family: 'Poppins', sans-serif; font-size: clamp(2rem, 5vw, 3rem); letter-spacing: 5px;">
+                                        Hello,
+                                    </p>
+                                    <h1 class="text-capitalize fw-bolder" 
+                                        style="font-family: 'Montserrat', sans-serif; font-size: clamp(3rem, 8vw, 5rem); color:#ffffff; letter-spacing: clamp(5px, 2vw, 15px); white-space: normal; overflow-wrap: break-word; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
+                                        {{$staffCredentials->username}}
+                                    </h1>
+                                </div>
+                                
+                                <!-- Total Rooms -->
+                                <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" 
+                                     style="background: linear-gradient(135deg, #43cea2 0%, #385E3C 100%); border: 1px solid #ffffff;">
+                                    <div class="d-flex align-items-center justify-content-between w-100">
+                                        <div class="d-flex align-items-baseline gap-2">
+                                            <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.5rem, 2.5vw, 3rem);">{{ $totalRooms ?? 0 }}</h1>
+                                            <p class="mb-0 text-uppercase fw-semibold text-white" style="font-size: clamp(0.8rem, 1.2vw, 1.2rem);">Total Rooms</p>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-bed text-white" style="font-size: clamp(2.2rem, 4.5vw, 3.5rem);"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         
-                        <!-- Total Reservations -->
-                        <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" 
-                             style="background: linear-gradient(135deg, #ffffff 50%, #f8f9fa 50%);">
-                            <div class="d-flex align-items-center justify-content-between w-100">
-                                <div class="d-flex align-items-baseline gap-2">
-                                    <h1 class="fw-bold mb-0 text-success" 
-                                        style="font-size: clamp(1.5rem, 2.5vw, 3rem);">
-                                        {{ $totalRooms ?? 0 }}
-                                    </h1>
-                                    <p class="mb-0 text-uppercase fw-semibold text-success" 
-                                       style="font-size: clamp(0.8rem, 1.2vw, 1.2rem);">
-                                        Total Rooms
-                                    </p>
+                        <!-- Right Side without background image -->
+                        <div class="col-12 col-md-6">
+                            <div class="row g-2 g-md-3 g-lg-4 h-100">
+                                <!-- Vacant Rooms -->
+                                <div class="col-6 d-flex align-items-stretch">
+                                    <a href="{{ route('staff.reservation', ['status' => 'vacant']) }}" class="text-decoration-none w-100">
+                                        <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-4 shadow-lg w-100 position-relative overflow-hidden dashboard-card h-100" 
+                                             style="background: linear-gradient(135deg, #43cea2 0%, #385E3C 100%); border: none;">
+                                            <div class="d-flex align-items-center justify-content-between w-100 position-relative">
+                                                <div class="d-flex flex-column gap-2">
+                                                    <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.5rem, 2.5vw, 3rem); text-shadow: 0 2px 4px rgba(0,0,0,0.3);">{{ $vacantRooms ?? 0 }}</h1>
+                                                    <p class="mb-0 text-uppercase fw-semibold text-white" style="font-size: clamp(0.8rem, 1.2vw, 1rem); opacity: 0.95;">Vacant Rooms</p>
+                                                </div>
+                                                <div class="d-flex align-items-center">
+                                                    <i class="fas fa-door-open text-white" style="font-size: clamp(2rem, 4vw, 3rem);"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
                                 </div>
-                                <div class="d-flex align-items-center">
-                                    <i class="fas fa-bed text-success" 
-                                       style="font-size: clamp(2rem, 4vw, 4rem);">
-                                    </i>
-                                </div>
-                            </div>
-                            <div class="position-absolute top-0 end-0 opacity-25 d-none d-md-block">
-                                <i class="fas fa-bed text-success" 
-                                   style="font-size: 5rem; margin: -10px;">
-                                </i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Right Side -->
-                <div class="col-12 col-md-6">
-                    <div class="row row-cols-1 g-3 g-md-4">
-                        <!-- Walk-in Reservation -->
-                        <div class="col">
-                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg, #ffffff 50%, #f8f9fa 50%);">
-                                <div class="d-flex align-items-center justify-content-between w-100">
-                                    <div class="d-flex flex-column gap-2">
-                                        <h1 class="fw-bold mb-0 text-success" style="font-size: clamp(1.5rem, 2.5vw, 3rem);">{{ $vacantRooms ?? 0 }}</h1>
-                                        <p class="mb-0 text-uppercase fw-semibold text-success" style="font-size: clamp(0.8rem, 1.2vw, 1.2rem);">Vacant Rooms</p>
-                                    </div>
-                                    <div class="d-flex align-items-center">
-                                        <i class="fas fa-door-open text-success" style="font-size: clamp(2rem, 4vw, 2.5rem);"></i>
-                                    </div>
+                                <!-- Reserved Rooms -->
+                                <div class="col-6 d-flex align-items-stretch">
+                                    <a href="{{ route('staff.reservation', ['status' => 'reserved']) }}" class="text-decoration-none w-100">
+                                        <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-4 shadow-lg w-100 position-relative overflow-hidden dashboard-card h-100" 
+                                             style="background: linear-gradient(135deg, rgb(75, 96, 7) 0%, rgb(129, 235, 48) 100%); border: none;">
+                                            <div class="d-flex align-items-center justify-content-between w-100 position-relative">
+                                                <div class="d-flex flex-column gap-2">
+                                                    <h1 class="fw-bold mb-0 text-white" style="font-size: clamp(1.5rem, 2.5vw, 3rem); text-shadow: 0 2px 4px rgba(0,0,0,0.3);">{{ $reservedRooms ?? 0 }}</h1>
+                                                    <p class="mb-0 text-uppercase fw-semibold text-white" style="font-size: clamp(0.8rem, 1.2vw, 1rem); opacity: 0.95;">Reserved Rooms</p>
+                                                </div>
+                                                <div class="d-flex align-items-center">
+                                                    <i class="fas fa-door-closed text-white" style="font-size: clamp(2rem, 4vw, 3rem);"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
                                 </div>
-                                <div class="position-absolute top-0 end-0 opacity-25 d-none d-md-block">
-                                    <i class="fas fa-door-open text-success" style="font-size: 4rem; margin: -10px;"></i>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Checked-out -->
-                        <div class="col">
-                            <div class="d-flex align-items-center text-dark p-3 p-md-4 p-lg-5 rounded-3 shadow-sm h-100 position-relative overflow-hidden" style="background: linear-gradient(135deg, #ffffff 50%, #f8f9fa 50%);">
-                                <div class="d-flex align-items-center justify-content-between w-100">
-                                    <div class="d-flex flex-column gap-2">
-                                        <h1 class="fw-bold mb-0 text-success" style="font-size: clamp(1.5rem, 2.5vw, 3rem);">{{ $reservedRooms ?? 0 }}</h1>
-                                        <p class="mb-0 text-uppercase fw-semibold text-success" style="font-size: clamp(0.8rem, 1.2vw, 1.2rem);">Reserved Rooms</p>
-                                    </div>
-                                    <div class="d-flex align-items-center">
-                                        <i class="fas fa-door-closed text-success" style="font-size: clamp(2rem, 4vw, 2.5rem);"></i>
-                                    </div>
-                                </div>
-                                <div class="position-absolute top-0 end-0 opacity-25 d-none d-md-block">
-                                    <i class="fas fa-door-closed text-success" style="font-size: 4rem; margin: -10px;"></i>
-                                </div>
-                            </div>
-                        </div>
-
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -397,33 +415,35 @@
                             <div>
                                 @if ($accomodations->hasPages())
                                     <nav>
-                                        <ul class="pagination mb-0">
+                                        <ul class="pagination mb-0"> 
                                             {{-- Previous Page Link --}}
                                             @if ($accomodations->onFirstPage())
                                                 <li class="page-item disabled">
-                                                    <span class="page-link"><i class="fas fa-chevron-left"></i></span>
+                                                    <span class="page-link">&laquo;</span>
                                                 </li>
                                             @else
                                                 <li class="page-item">
-                                                    <a class="page-link" href="{{ $accomodations->previousPageUrl() }}" rel="prev"><i class="fas fa-chevron-left"></i>  </a>
+                                                    <a class="page-link" href="{{ $accomodations->previousPageUrl() }}" rel="prev">&laquo;</a>
                                                 </li>
                                             @endif
 
                                             {{-- Pagination Elements --}}
                                             @foreach ($accomodations->getUrlRange(1, $accomodations->lastPage()) as $page => $url)
-                                                <li class="page-item {{ $page == $accomodations->currentPage() ? 'active' : '' }}">
-                                                    <a class="page-link" href="{{ $url }}">{{ $page }}</a>
-                                                </li>
+                                                @if ($page == $accomodations->currentPage())
+                                                    <li class="page-item active" aria-current="page"><span class="page-link">{{ $page }}</span></li>
+                                                @else
+                                                    <li class="page-item"><a class="page-link" href="{{ $url }}">{{ $page }}</a></li>
+                                                @endif
                                             @endforeach
 
                                             {{-- Next Page Link --}}
                                             @if ($accomodations->hasMorePages())
                                                 <li class="page-item">
-                                                    <a class="page-link" href="{{ $accomodations->nextPageUrl() }}" rel="next"><i class="fas fa-chevron-right"></i></a>
+                                                    <a class="page-link" href="{{ $accomodations->nextPageUrl() }}" rel="next">&raquo;</a>
                                                 </li>
                                             @else
                                                 <li class="page-item disabled">
-                                                    <span class="page-link"><i class="fas fa-chevron-right"></i></span>
+                                                    <span class="page-link">&raquo;</span>
                                                 </li>
                                             @endif
                                         </ul>

@@ -617,7 +617,10 @@
                         <div class="row g-4 mb-4">
                             @foreach($chunk as $activity)
                                 <div class="col-md-4">
-                                    <div class="card h-100 shadow-sm border-0" style="border-radius: 20px; overflow: hidden;">
+                                    <div class="card h-100 shadow-sm border-0" style="border-radius: 20px; overflow: hidden; cursor: pointer;"
+                                         data-bs-toggle="modal" data-bs-target="#activityModal"
+                                         data-activity="{{ $activity->activity_name }}" data-description="{{ $activity->activity_description ?? 'No description available.' }}"
+                                         data-image="{{ asset('storage/' . $activity->activity_image) }}">
                                         <div class="position-relative">
                                             <img src="{{ asset('storage/' . $activity->activity_image) }}" class="card-img-top"
                                                 alt="{{ $activity->activity_name }}"
@@ -635,6 +638,44 @@
                     @endforeach
                 </div>
             </div>
+
+            <!-- Activity Details Modal -->
+            <div class="modal fade" id="activityModal" tabindex="-1" aria-labelledby="activityModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content" style="border-radius: 15px; overflow: hidden;">
+                        <div class="modal-header text-white border-0" style="background: linear-gradient(135deg, #0b573d, #198754);">
+                            <h5 class="modal-title fw-bold" id="activityModalLabel">
+                                <i class="bi bi-activity me-2"></i>Activity Details
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body p-4" style="background-color: #f8f9fa;">
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <img id="modalActivityImage" src="" class="img-fluid rounded shadow-sm" alt="Activity Image" style="height: 100%; max-height: 300px; width: 100%; object-fit: cover;">
+                                </div>
+                                <div class="col-md-6 d-flex flex-column">
+                                    <h3 id="modalActivityName" class="fw-bold mb-3" style="color: #0b573d;"></h3>
+                                    <p id="modalActivityDescription" class="text-muted mb-4 flex-grow-1"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    const activityModal = document.getElementById('activityModal');
+                    activityModal.addEventListener('show.bs.modal', function (event) {
+                        const button = event.relatedTarget;
+                        document.getElementById('modalActivityName').textContent = button.getAttribute('data-activity');
+                        document.getElementById('modalActivityImage').src = button.getAttribute('data-image');
+                        document.getElementById('modalActivityDescription').textContent = button.getAttribute('data-description');
+                    });
+                });
+            </script>
     </section>
     <!-- Third Page -->
     <section id="about">
@@ -770,13 +811,12 @@
     </section>
 
     <!-- footer section -->
-    <!-- footer section -->
     <footer style="background-color: #0b573d; color: white;font-size: 10px;">
         <div class="container">
             <div class="row align-items-center">
                 <!-- Left: Logo -->
                 <div class="col-md-4 mb-2 text-md-start text-center">
-                    <img src="{{ asset('images/logo new.png') }}" alt="Lelo's Resort Logo" class="img-fluid"
+                    <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" class="img-fluid"
                         style="max-width: 110px;">
                 </div>
                 <!-- Center: Contact Info -->
@@ -784,7 +824,8 @@
                     <div class="d-flex flex-column gap-2 justify-content-center h-100">
                         <div>
                             <i class="bi bi-telephone-fill me-2"></i>
-                            <span style="font-size: 14px; letter-spacing: 1px;">+123 456 7890</span>
+                            <span style="font-size: 14px; letter-spacing: 1px;">0917-100-4555
+                            </span>
                         </div>
                         <div>
                             <i class="bi bi-envelope-fill me-2"></i>
@@ -818,78 +859,79 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Terms and Conditions Modal -->
+                    
+                    <!-- TERMS AND CONDITIONS MODAL -->
                     <div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel"
                         aria-hidden="true">
                         <div class="modal-dialog modal-dialog-scrollable modal-lg">
                             <div class="modal-content">
-                                <div class="modal-header bg-success text-white">
-                                    <h5 class="modal-title" id="termsModalLabel"
-                                        style="font-family: 'Anton', sans-serif;">TERMS AND CONDITIONS</h5>
+
+                                <!-- Header -->
+                                <div class="modal-header bg-success text-white py-2">
+                                    <h5 class="modal-title fw-bold" id="termsModalLabel" style="font-size: 1.2rem;">
+                                        Terms and Conditions
+                                    </h5>
                                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                                         aria-label="Close"></button>
                                 </div>
-                                <div class="modal-body d-flex flex-column px-4 py-3"
-                                    style="max-height: 70vh; overflow-y: auto;">
-                                    <div class="text-start" style="font-family: 'Montserrat', sans-serif;">
-                                        <div class="mb-4">
-                                            <p class="fw-bold mb-2 text-success">Reservation Agreement</p>
-                                            <p>By confirming a reservation, guests acknowledge and agree to all terms
-                                                and conditions set by Lelo's Resort management.</p>
-                                        </div>
 
-                                        <div class="mb-4">
-                                            <p class="fw-bold mb-2 text-success">Payment Policy</p>
-                                            <ul class="list-unstyled ps-3">
-                                                <li class="text-black">• Full payment is required in advance to secure
-                                                    the reservation.</li>
-                                                <li class="text-black">• All payments are strictly non-refundable,
-                                                    regardless of:</li>
-                                                <ul class="ps-4">
-                                                    <li class="text-black">- Cancellations</li>
-                                                    <li class="text-black">- Date changes</li>
-                                                    <li class="text-black">- Late arrivals</li>
-                                                    <li class="text-black">- Early departures</li>
-                                                    <li class="text-black">- No-shows</li>
-                                                    <li class="text-black">- Weather disturbances</li>
-                                                </ul>
-                                            </ul>
-                                        </div>
+                                <!-- Body -->
+                                <div class="modal-body px-4 py-3"
+                                    style="font-family: 'Montserrat', sans-serif; font-size: 0.95rem; color: #333;">
 
-                                        <div class="mb-4">
-                                            <p class="fw-bold mb-2 text-success">Security Deposit</p>
-                                            <ul class="list-unstyled ps-3">
-                                                <li class="text-black">• A security deposit of 50% of the total booking
-                                                    amount is required at check-in</li>
-                                                <li class="text-black">• The deposit covers potential damages, losses,
-                                                    and rule violations</li>
-                                                <li class="text-black">• Fully refundable upon inspection at check-out
-                                                    if no issues found</li>
-                                            </ul>
-                                        </div>
+                                    <!-- Section Title -->
+                                    <p class="fw-bold text-success mb-1" style="font-size: 1rem;">Reservation Agreement
+                                    </p>
+                                    <p class="mb-4">
+                                        By confirming a reservation, guests acknowledge and agree to all terms and
+                                        conditions set by Lelo's Resort management.
+                                    </p>
 
-                                        <div class="mb-4">
-                                            <p class="fw-bold mb-2 text-success">Check-in/Check-out Policy</p>
-                                            <ul class="list-unstyled ps-3">
-                                                <li class="text-black">• Check-in: 2:00 PM</li>
-                                                <li class="text-black">• Check-out: 12:00 PM</li>
-                                                <li class="text-black">• Early check-in/late check-out subject to
-                                                    availability and fees</li>
-                                            </ul>
-                                        </div>
+                                    <!-- Payment Policy -->
+                                    <p class="fw-bold text-success mb-1" style="font-size: 1rem;">Payment Policy</p>
+                                    <ul class="ps-4 mb-4">
+                                        <li>Full payment is required in advance to secure the reservation.</li>
+                                        <li>All payments are strictly non-refundable, regardless of:</li>
+                                        <ul class="ps-4">
+                                            <li>Cancellations</li>
+                                            <li>Date changes</li>
+                                            <li>Late arrivals</li>
+                                            <li>Early departures</li>
+                                            <li>No-shows</li>
+                                            <li>Weather disturbances</li>
+                                        </ul>
+                                    </ul>
 
-                                        <div class="mb-4">
-                                            <p class="fw-bold mb-2 text-success">Resort Rules</p>
-                                            <ul class="list-unstyled ps-3">
-                                                <li class="text-black">• Quiet hours: 10:00 PM - 6:00 AM</li>
-                                                <li class="text-black">• No smoking in rooms</li>
-                                                <li class="text-black">• No pets allowed</li>
-                                                <li class="text-black">• Guests liable for damages</li>
-                                            </ul>
-                                        </div>
-                                    </div>
+                                    <!-- Security Deposit -->
+                                    <p class="fw-bold text-success mb-1" style="font-size: 1rem;">Security Deposit</p>
+                                    <ul class="ps-4 mb-4">
+                                        <li>A security deposit of 50% of the total booking amount is required at
+                                            check-in.</li>
+                                        <li>The deposit covers potential damages, losses, and rule violations.</li>
+                                        <li>Fully refundable upon inspection at check-out if no issues are found.</li>
+                                    </ul>
+
+                                    <!-- Check-in/Check-out -->
+                                    <p class="fw-bold text-success mb-1" style="font-size: 1rem;">Check-in / Check-out
+                                        Policy</p>
+                                    <ul class="ps-4 mb-4">
+                                        <li>Check-in: 2:00 PM</li>
+                                        <li>Check-out: 12:00 PM</li>
+                                        <li>Early check-in/late check-out subject to availability and fees.</li>
+                                    </ul>
+
+                                    <!-- Resort Rules -->
+                                    <p class="fw-bold text-success mb-1" style="font-size: 1rem;">Resort Rules</p>
+                                    <ul class="ps-4">
+                                        <li>Quiet hours: 10:00 PM - 6:00 AM</li>
+                                        <li>No smoking in rooms</li>
+                                        <li>No pets allowed</li>
+                                        <li>Guests liable for damages</li>
+                                    </ul>
+
                                 </div>
+
+                                <!-- Footer -->
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-success" data-bs-dismiss="modal">Close</button>
                                 </div>
@@ -902,60 +944,68 @@
                         aria-hidden="true">
                         <div class="modal-dialog modal-dialog-scrollable modal-lg">
                             <div class="modal-content">
-                                <div class="modal-header bg-success text-white">
-                                    <h5 class="modal-title" id="privacyModalLabel"
-                                        style="font-family: 'Anton', sans-serif;">DATA PRIVACY NOTICE</h5>
+
+                                <!-- Header -->
+                                <div class="modal-header bg-success text-white py-2">
+                                    <h5 class="modal-title fw-bold" id="privacyModalLabel" style="font-size: 1.2rem;">
+                                        Data Privacy Notice
+                                    </h5>
                                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                                         aria-label="Close"></button>
                                 </div>
-                                <div class="modal-body d-flex flex-column px-4 py-3"
-                                    style="max-height: 70vh; overflow-y: auto;">
-                                    <div class="text-start" style="font-family: 'Montserrat', sans-serif;">
-                                        <div class="mb-4">
-                                            <p class="fw-bold mb-2 text-success">Data Privacy Act Compliance</p>
-                                            <p>In accordance with Republic Act 10173 (Data Privacy Act of 2012), Lelo's
-                                                Resort is committed to protecting your personal information. By using
-                                                our services:</p>
-                                            <ul class="list-unstyled ps-3">
-                                                <li class="text-black">• You consent to the collection and processing of
-                                                    your personal data</li>
-                                                <li class="text-black">• Your information will be:</li>
-                                                <ul class="ps-4">
-                                                    <li class="text-black">- Securely stored and protected</li>
-                                                    <li class="text-black">- Used only for legitimate business purposes
-                                                    </li>
-                                                    <li class="text-black">- Retained only for the duration required by
-                                                        law</li>
-                                                    <li class="text-black">- Never shared with third parties without
-                                                        consent</li>
-                                                </ul>
-                                            </ul>
-                                        </div>
 
-                                        <div class="mb-4">
-                                            <p class="fw-bold mb-2 text-success">Your Rights</p>
-                                            <ul class="list-unstyled ps-3">
-                                                <li class="text-black">• Access your personal data</li>
-                                                <li class="text-black">• Request corrections or deletions</li>
-                                                <li class="text-black">• Object to processing</li>
-                                                <li class="text-black">• File a complaint</li>
-                                            </ul>
-                                        </div>
+                                <!-- Body -->
+                                <div class="modal-body px-4 py-3"
+                                    style="font-family: 'Montserrat', sans-serif; font-size: 0.95rem; color: #333;">
 
-                                        <div class="text-center mt-4">
-                                            <p class="text-black">For privacy concerns, contact us at:</p>
-                                            <p><a href="mailto:lelosresort@gmail.com"
-                                                    class="text-decoration-none fw-bold text-success">lelosresort@gmail.com</a>
-                                            </p>
-                                        </div>
+                                    <!-- Data Privacy Act Compliance -->
+                                    <p class="fw-bold text-success mb-1" style="font-size: 1rem;">Data Privacy Act
+                                        Compliance</p>
+                                    <p>
+                                        In accordance with Republic Act 10173 (Data Privacy Act of 2012), Lelo's Resort
+                                        is committed
+                                        to protecting your personal information. By using our services:
+                                    </p>
+                                    <ul class="ps-4 mb-4">
+                                        <li>You consent to the collection and processing of your personal data</li>
+                                        <li>Your information will be:</li>
+                                        <ul class="ps-4">
+                                            <li>Securely stored and protected</li>
+                                            <li>Used only for legitimate business purposes</li>
+                                            <li>Retained only for the duration required by law</li>
+                                            <li>Never shared with third parties without consent</li>
+                                        </ul>
+                                    </ul>
+
+                                    <!-- Your Rights -->
+                                    <p class="fw-bold text-success mb-1" style="font-size: 1rem;">Your Rights</p>
+                                    <ul class="ps-4 mb-4">
+                                        <li>Access your personal data</li>
+                                        <li>Request corrections or deletions</li>
+                                        <li>Object to processing</li>
+                                        <li>File a complaint</li>
+                                    </ul>
+
+                                    <!-- Contact -->
+                                    <div class="text-center mt-4">
+                                        <p>For privacy concerns, contact us at:</p>
+                                        <p>
+                                            <a href="mailto:lelosresort@gmail.com"
+                                                class="text-decoration-none fw-bold text-success">
+                                                lelosresort@gmail.com
+                                            </a>
+                                        </p>
                                     </div>
                                 </div>
+
+                                <!-- Footer -->
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-success" data-bs-dismiss="modal">Close</button>
                                 </div>
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>

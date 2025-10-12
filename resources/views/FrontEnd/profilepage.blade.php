@@ -306,6 +306,7 @@
                                 <div class="position-relative">
                                     <img src="{{ $user->image ? asset('storage/' . $user->image) : asset('images/default-profile.jpg') }}"
                                         alt="Profile Image"
+                                        id="profileImagePreview"
                                         class="rounded-circle shadow border border-3 border-white"
                                         style="width: 120px; height: 120px; object-fit: cover;">
                                     <label for="image"
@@ -318,40 +319,47 @@
                                     accept="image/*">
                             </div>
                         </div>
-
-                        <!-- Name -->
-                        <div class="mb-3">
-                            <label for="name" class="form-label fw-semibold small text-uppercase"
-                                style="color: #0b573d;">Full Name</label>
-                            <input type="text" class="form-control rounded-3 shadow-sm p-3" id="name" name="name"
-                                value="{{ $user->name }}" required>
-                        </div>
-
-                        <!-- Email -->
-                        <div class="mb-3">
-                            <label for="email" class="form-label fw-semibold small text-uppercase"
-                                style="color: #0b573d;">Email Address</label>
-                            <input type="email" class="form-control rounded-3 shadow-sm p-3" id="email" name="email"
-                                value="{{ $user->email }}" required>
-                        </div>
-
-                        <!-- Mobile Number -->
-                        <div class="mb-3">
-                            <label for="mobileNo" class="form-label fw-semibold small text-uppercase"
-                                style="color: #0b573d;">Mobile Number</label>
-                            <input type="text" class="form-control rounded-3 shadow-sm p-3" id="mobileNo" name="mobileNo"
-                                value="{{ substr($user->mobileNo, 0, 11) }}" required maxlength="11"
-                                onkeypress="return (event.charCode >= 48 && event.charCode <= 57) && event.charCode != 45;"
-                                oninput="this.value = this.value.replace(/[^0-9]/g, '').substring(0, 11);"
-                                pattern="[0-9]{11}" title="Please enter a valid 11-digit mobile number (numbers only)">
-                        </div>
-
-                        <!-- Address -->
-                        <div class="mb-4">
-                            <label for="address" class="form-label fw-semibold small text-uppercase"
-                                style="color: #0b573d;">Address</label>
-                            <input type="text" class="form-control rounded-3 shadow-sm p-3" id="address" name="address"
-                                value="{{ $user->address }}" required>
+                        
+                        <div class="row g-3">
+                            <!-- Left Column -->
+                            <div class="col-md-6">
+                                <!-- Name -->
+                                <div class="mb-3">
+                                    <label for="name" class="form-label fw-semibold small text-uppercase"
+                                        style="color: #0b573d;">Full Name</label>
+                                    <input type="text" class="form-control rounded-3 shadow-sm p-3" id="name" name="name"
+                                        value="{{ $user->name }}" required>
+                                </div>
+        
+                                <!-- Email -->
+                                <div class="mb-3">
+                                    <label for="email" class="form-label fw-semibold small text-uppercase"
+                                        style="color: #0b573d;">Email Address</label>
+                                    <input type="email" class="form-control rounded-3 shadow-sm p-3" id="email" name="email"
+                                        value="{{ $user->email }}" required>
+                                </div>
+                            </div>
+                            <!-- Right Column -->
+                            <div class="col-md-6">
+                                <!-- Mobile Number -->
+                                <div class="mb-3">
+                                    <label for="mobileNo" class="form-label fw-semibold small text-uppercase"
+                                        style="color: #0b573d;">Mobile Number</label>
+                                    <input type="text" class="form-control rounded-3 shadow-sm p-3" id="mobileNo" name="mobileNo"
+                                        value="{{ substr($user->mobileNo, 0, 11) }}" required maxlength="11"
+                                        onkeypress="return (event.charCode >= 48 && event.charCode <= 57) && event.charCode != 45;"
+                                        oninput="this.value = this.value.replace(/[^0-9]/g, '').substring(0, 11);"
+                                        pattern="[0-9]{11}" title="Please enter a valid 11-digit mobile number (numbers only)">
+                                </div>
+        
+                                <!-- Address -->
+                                <div class="mb-3">
+                                    <label for="address" class="form-label fw-semibold small text-uppercase"
+                                        style="color: #0b573d;">Address</label>
+                                    <input type="text" class="form-control rounded-3 shadow-sm p-3" id="address" name="address"
+                                        value="{{ $user->address }}" required>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Submit Button -->
@@ -797,114 +805,63 @@
 
     <!-- Past Reservations Modal -->
     <div class="modal fade" id="viewPastReservationModal" tabindex="-1" aria-labelledby="viewPastReservationModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-            <div class="modal-content border-0 shadow-lg" style="background-color: #f8f9fa;">
-                <div class="modal-header border-0" style="background: linear-gradient(135deg, #6c757d 0%, #343a40 100%); color: white;">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content border-0 shadow-lg" style="background-color: #fdfbf7;">
+                <div class="modal-header border-0" style="background-color: #7d6e60; color: #fdfbf7;">
                     <h5 class="modal-title fw-bold" id="viewPastReservationModalLabel">
                         <i class="fas fa-history me-2"></i>
                         Reservation History
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body p-4">
+                <div class="modal-body p-4" style="filter: sepia(20%);">
                 @if(isset($pastReservations) && count($pastReservations) > 0)
-                        <div class="row g-4">
-                            @foreach($pastReservations as $reservation)
-                                <div class="col-lg-6">
-                                    <div class="card h-100 shadow-sm border-0" style="border-radius: 15px; overflow: hidden;">
-                                        <div class="card-header d-flex justify-content-between align-items-center text-white" style="background-color: #0b573d;">
-                                            <h6 class="mb-0 fw-bold">Reservation #{{ $reservation->reservation_id }}</h6>
-                                            <span class="badge bg-light text-dark">{{ ucfirst($reservation->reservation_status) }}</span>
-                                        </div>
-                                        <div class="card-body p-4">
-                                            <div class="row">
-                                                <div class="col-6">
-                                                    <p class="mb-1 small text-muted">Check-in</p>
-                                                    <p class="fw-semibold">{{ \Carbon\Carbon::parse($reservation->reservation_check_in_date)->format('M d, Y') }}</p>
-                                                </div>
-                                                <div class="col-6">
-                                                    <p class="mb-1 small text-muted">Check-out</p>
-                                                    <p class="fw-semibold">{{ \Carbon\Carbon::parse($reservation->reservation_check_out_date)->format('M d, Y') }}</p>
-                                                </div>
-                                            </div>
-                                            <hr class="my-3">
-                                            <p class="mb-1 small text-muted">Accommodation</p>
-                                            <p class="fw-semibold">
-                                                @if(!empty($reservation->accommodations))
-                                                    {{ implode(', ', $reservation->accommodations) }}
-                                                @else
-                                                    N/A
-                                                @endif
-                                                (x{{ $reservation->quantity }})
-                                            </p>
-                                            <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
-                                                <p class="mb-0 small text-muted">Total Amount</p>
-                                                <p class="mb-0 fw-bold fs-5" style="color: #0b573d;">₱{{ number_format($reservation->amount, 2) }}</p>
-                                            </div>
-                                        </div>
-<div class="modal fade" id="viewPastReservationModal" tabindex="-1" aria-labelledby="viewPastReservationModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content border-0 shadow-lg" style="background-color: #f8f9fa;">
-            <div class="modal-header border-0" style="background: linear-gradient(135deg, #6c757d 0%, #343a40 100%); color: white;">
-                <h5 class="modal-title fw-bold" id="viewPastReservationModalLabel">
-                    <i class="fas fa-history me-2"></i>
-                    Reservation History
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-4">
-            @if(isset($pastReservations) && count($pastReservations) > 0)
                     <div class="list-group">
                         @foreach($pastReservations as $reservation)
                             @php
-                                $statusColor = 'secondary';
-                                $statusIcon = 'fa-clock';
-                                if ($reservation->reservation_status == 'checked-out') {
-                                    $statusColor = 'success';
-                                    $statusIcon = 'fa-check-circle';
+                                $statusClass = 'border-secondary';
+                                $statusText = 'text-secondary';
+                                if (in_array($reservation->reservation_status, ['checked-out', 'early-checked-out'])) {
+                                    $statusClass = 'border-success';
+                                    $statusText = 'text-success';
                                 } elseif ($reservation->reservation_status == 'cancelled') {
-                                    $statusColor = 'danger';
-                                    $statusIcon = 'fa-times-circle';
+                                    $statusClass = 'border-danger';
+                                    $statusText = 'text-danger';
                                 }
                             @endphp
-                            <div class="list-group-item list-group-item-action flex-column align-items-start mb-3 border-start-4 border-{{ $statusColor }} shadow-sm rounded-3">
+                            <div class="list-group-item list-group-item-action flex-column align-items-start mb-3 shadow-sm rounded-3 border-0 {{ $statusClass }}" style="border-left-width: 5px !important; background-color: #fffefc;">
                                 <div class="d-flex w-100 justify-content-between">
-                                    <h5 class="mb-1 fw-bold" style="color: #0b573d;">Reservation #{{ $reservation->reservation_id }}</h5>
-                                    <small class="text-muted">{{ \Carbon\Carbon::parse($reservation->reservation_check_in_date)->diffForHumans() }}</small>
+                                    <h6 class="mb-1 fw-bold" style="color: #5c4d3e;">Reservation #{{ $reservation->reservation_id }}</h6>
+                                    <small class="text-muted">{{ \Carbon\Carbon::parse($reservation->created_at)->diffForHumans() }}</small>
                                 </div>
                                 <div class="row g-3 mt-2">
                                     <div class="col-md-4">
                                         <p class="mb-1 small text-muted">Stay</p>
                                         <p class="fw-semibold mb-0">
-                                            {{ \Carbon\Carbon::parse($reservation->reservation_check_in_date)->format('M d, Y') }}
-                                            <i class="fas fa-arrow-right mx-1"></i>
-                                            {{ \Carbon\Carbon::parse($reservation->reservation_check_out_date)->format('M d, Y') }}
+                                            {{ \Carbon\Carbon::parse($reservation->reservation_check_in_date)->format('M d, Y') }} - {{ \Carbon\Carbon::parse($reservation->reservation_check_out_date)->format('M d, Y') }}
                                         </p>
                                     </div>
                                     <div class="col-md-4">
                                         <p class="mb-1 small text-muted">Accommodation</p>
                                         <p class="fw-semibold mb-0">
                                             @if(!empty($reservation->accommodations))
-                                                {{ implode(', ', $reservation->accommodations) }} (x{{ $reservation->quantity }})
+                                                {{ implode(', ', $reservation->accommodations) }}
                                             @else
                                                 N/A
                                             @endif
                                         </p>
                                     </div>
-                                    <div class="col-md-2">
-                                        <p class="mb-1 small text-muted">Total</p>
-                                        <p class="fw-bold mb-0" style="color: #0b573d;">₱{{ number_format($reservation->amount, 2) }}</p>
-                                    </div>
-                                    <div class="col-md-2 text-end">
-                                        <span class="badge bg-{{ $statusColor }} px-3 py-2 rounded-pill">
-                                            <i class="fas {{ $statusIcon }} me-1"></i>
-                                            {{ ucfirst($reservation->reservation_status) }}
-                                        </span>
+                                    <div class="col-md-4 text-md-end">
+                                        <p class="mb-1 small text-muted">Status</p>
+                                        <p class="fw-bold mb-0 {{ $statusText }}">
+                                            {{ str_replace('-', ' ', ucwords($reservation->reservation_status, '-')) }}
+                                        </p>
                                     </div>
                                 </div>
-                            @endforeach
-                        </div>
-                    @else
+                            </div>
+                        @endforeach
+                    </div>
+                @else
                         <div class="text-center py-5">
                             <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
                             <h5 class="text-muted">No Past Reservations Found</h5>
@@ -913,21 +870,8 @@
                     @endif
                 </div>
                 <div class="modal-footer border-0">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn" data-bs-dismiss="modal" style="background-color: #7d6e60; color: white;">Close</button>
                 </div>
-                            </div>
-                        @endforeach
-                    </div>
-                @else
-                    <div class="text-center py-5">
-                        <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
-                        <h5 class="text-muted">No Past Reservations Found</h5>
-                        <p class="text-muted">Your reservation history is empty.</p>
-                    </div>
-                @endif
-            </div>
-            <div class="modal-footer border-0">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
@@ -1075,6 +1019,23 @@
         link.download = "reservation_qr.png";
         link.click();
     }
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const imageInput = document.getElementById('image');
+        const imagePreview = document.getElementById('profileImagePreview');
+
+        if (imageInput && imagePreview) {
+            imageInput.addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    // Create a temporary URL for the selected file and update the image source
+                    imagePreview.src = URL.createObjectURL(file);
+                }
+            });
+        }
+    });
 </script>
 
 </body>

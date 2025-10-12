@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class PaymentController extends Controller
 {
@@ -19,7 +19,7 @@ class PaymentController extends Controller
         ]);
 
         // Fetch the reservation.
-        $reservation = DB::table('reservation_details')->find($request->reservation_id);
+        $reservation = \Illuminate\Support\Facades\DB::table('reservation_details')->find($request->reservation_id);
 
         if (!$reservation) {
             return back()->with('error', 'Reservation not found.');
@@ -82,7 +82,7 @@ class PaymentController extends Controller
         // Check for successful checkout URL creation
         if (isset($checkout['data']['attributes']['checkout_url'])) {
             // Store the checkout_session_id in your database to link it to the reservation
-            DB::table('reservation_details')
+            \Illuminate\Support\Facades\DB::table('reservation_details')
                 ->where('id', $request->reservation_id)
                 ->update(['paymongo_checkout_id' => $checkout['data']['id']]);
 
@@ -214,7 +214,7 @@ private function handlePaymentPaid($payload)
 
     Log::info("Looking for reservation with ID: {$reservationId}");
 
-    $reservation = DB::table('reservation_details')->where('id', $reservationId)->first();
+    $reservation = \Illuminate\Support\Facades\DB::table('reservation_details')->where('id', $reservationId)->first();
 
     if ($reservation) {
         Log::info("Reservation found", [
@@ -232,7 +232,7 @@ private function handlePaymentPaid($payload)
             'updated_at' => now()
         ];
 
-        $result = DB::table('reservation_details')
+        $result = \Illuminate\Support\Facades\DB::table('reservation_details')
             ->where('id', $reservation->id)
             ->update($updateData);
 
@@ -240,11 +240,35 @@ private function handlePaymentPaid($payload)
             Log::info("✅ Reservation ID {$reservation->id} successfully updated. Payment status: {$paymentType}");
             
             // Verify the update
-            $updatedReservation = DB::table('reservation_details')->where('id', $reservation->id)->first();
+            $updatedReservation = \Illuminate\Support\Facades\DB::table('reservation_details')->where('id', $reservation->id)->first();
             Log::info("✅ Update verified", [
                 'new_payment_status' => $updatedReservation->payment_status,
                 'new_reservation_status' => $updatedReservation->reservation_status
             ]);
+
+            // Send email notification upon successful payment
+            try {
+                $accommodationIds = json_decode($updatedReservation->accomodation_id, true) ?? [];
+                $roomQuantities = json_decode($updatedReservation->room_quantities, true) ?? [];
+
+                $accommodationDetails = [];
+                if (!empty($accommodationIds)) {
+                    $accommodations = \Illuminate\Support\Facades\DB::table('accomodations')->whereIn('accomodation_id', $accommodationIds)->get()->keyBy('accomodation_id');
+                    foreach ($roomQuantities as $id => $qty) {
+                        if (isset($accommodations[$id])) {
+                            $accommodationDetails[] = [
+                                'name' => $accommodations[$id]->accomodation_name,
+                                'quantity' => $qty,
+                            ];
+                        }
+                    }
+                }
+
+                Mail::to($updatedReservation->email)->send(new \App\Mail\PendingReservation($updatedReservation, $accommodationDetails, $updatedReservation->amount, $updatedReservation->downpayment));
+                Log::info("✅ Reservation confirmation email sent to {$updatedReservation->email} for reservation ID {$updatedReservation->id}");
+            } catch (\Exception $e) {
+                Log::error("❌ Failed to send reservation email for ID: {$updatedReservation->id}", ['error' => $e->getMessage()]);
+            }
         } else {
             Log::error("❌ Database update failed for reservation ID: {$reservation->id}");
         }
@@ -253,7 +277,7 @@ private function handlePaymentPaid($payload)
         Log::error("❌ Reservation not found for checkout ID: {$checkoutSessionId}");
         
         // Debug: log available reservations
-        $reservations = DB::table('reservation_details')
+        $reservations = \Illuminate\Support\Facades\DB::table('reservation_details')
             ->select('id', 'paymongo_checkout_id', 'payment_status')
             ->whereNotNull('paymongo_checkout_id')
             ->get();
@@ -325,12 +349,12 @@ $checkoutSessionId = data_get($payload, 'data.attributes.checkout_id');
 
     Log::info("Source chargeable for checkout ID: {$checkoutSessionId}");
 
-    $reservation = DB::table('reservation_details')->where('paymongo_checkout_id', $checkoutSessionId)->first();
+    $reservation = \Illuminate\Support\Facades\DB::table('reservation_details')->where('paymongo_checkout_id', $checkoutSessionId)->first();
     
     if ($reservation) {
         Log::info("Marking reservation as processing for checkout ID: {$checkoutSessionId}");
         
-        DB::table('reservation_details')
+        \Illuminate\Support\Facades\DB::table('reservation_details')
             ->where('id', $reservation->id)
             ->update([
                 'payment_status' => 'processing',

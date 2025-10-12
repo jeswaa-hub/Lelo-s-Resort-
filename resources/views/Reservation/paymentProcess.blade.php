@@ -192,359 +192,399 @@
     }
     
     .duration-display {
-        background-color: #f8f9fa;
+        background-color:rgb(165, 168, 171);
         padding: 10px;
         border-radius: 5px;
         margin: 10px 0;
         font-weight: bold;
         text-align: center;
         font-size: 1.1rem;
+        color: #0B5D3B;
     }
     
     .room-quantity-badge {
         background-color: #0B5D3B;
         color: white;
-        border-radius: 10px;
+        border-radius: 5px;
         padding: 2px 8px;
         font-size: 0.8rem;
         margin-left: 5px;
     }
+
+
+
+
+    .ticket-container {
+    background: linear-gradient(180deg, #f2f4f7 0%, #e2e6ea 100%);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 350px;
+    position: relative;
+    font-family: Arial, sans-serif;
+}
+
+/* Semi-circle ticket cutouts */
+.ticket-container::before,
+.ticket-container::after {
+    content: "";
+    position: absolute;
+    width: 25px;
+    height: 25px;
+    background-color: #fff;
+    border-radius: 50%;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.ticket-container::before {
+    left: -12px;
+}
+
+.ticket-container::after {
+    right: -12px;
+}
+
+/* Header Section */
+.ticket-header {
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 12px;
+    text-align: left;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+/* Body Section */
+.ticket-body {
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px dashed #ccc;
+    font-size: 14px;
+}
+
+/* Footer Section */
+.ticket-footer {
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px dashed #ccc;
+    text-align: left;
+}
+
 </style>
 
 <body class="bg-light font-paragraph">
     <x-loading-screen />
-    <div class="container mt-5 px-3">
-        <div class="d-flex justify-content-between align-items-center">
-            <h1 class="text-center fw-bold" style="color: #e9ffcc; font-size: 2.5rem; margin: 0 auto;">RESERVATION PAYMENT</h1>
-        </div>
-
-        <div class="bg-white p-3 shadow rounded-1 mx-auto d-flex flex-column flex-md-row g-0 mt-4" style="width: 90%;">
-            <div class="w-100 w-md-50 bg-white p-3 rounded text-dark border">
-                <h5 class="text-center text-md-center fw-bold text-success">Payment Details</h5>
-                <hr class="border-success my-2">
-                    <div class="d-flex flex-column gap-2">
-                        <div class="duration-display">
-                            <p id="duration-text">Stay Duration</p>
-                        </div>
-
-                        @php
-                            // Calculate stay duration from check-in and check-out dates
-                            $checkInDate = new DateTime($reservationDetails['reservation_check_in_date'] ?? '');
-                            $checkOutDate = new DateTime($reservationDetails['reservation_check_out_date'] ?? '');
-                            $stayDuration = $checkInDate && $checkOutDate ? $checkOutDate->diff($checkInDate)->days : 1;
-                            if ($stayDuration < 1) $stayDuration = 1;
-                            
-                            // Check if it's a one-day stay (same check-in and check-out date)
-                            $isOneDayStay = $reservationDetails['reservation_check_in_date'] === $reservationDetails['reservation_check_out_date'];
-                            
-                            // Get individual room quantities
-                            $rawRoomQuantities = $reservationDetails['room_quantities'] ?? $reservationDetails['quantity'] ?? '{}';
-                            $individualQuantities = [];
-                            
-                            if (is_string($rawRoomQuantities) && is_array(json_decode($rawRoomQuantities, true))) {
-                                $individualQuantities = json_decode($rawRoomQuantities, true);
-                            } else {
-                                // Fallback for old format - distribute total quantity among accommodations
-                                $totalQuantity = (int) $rawRoomQuantities > 0 ? (int) $rawRoomQuantities : 1;
-                                $accommodationIds = json_decode($reservationDetails['accomodation_id'] ?? '[]', true);
-                                if (!empty($accommodationIds)) {
-                                    $quantityPerRoom = floor($totalQuantity / count($accommodationIds));
-                                    $remainder = $totalQuantity % count($accommodationIds);
-                                    foreach ($accommodationIds as $index => $accomId) {
-                                        $individualQuantities[$accomId] = $quantityPerRoom + ($index < $remainder ? 1 : 0);
-                                    }
-                                }
-                            }
-                        @endphp
-
-                        <div class="d-flex justify-content-between">
-                            <span class="fst-italic">Room</span>
-                            <div class="text-end" id="accommodation-list">
-                                @foreach ($accomodations as $accomodation)
-                                    @php
-                                        $quantity = $individualQuantities[$accomodation->accomodation_id] ?? 1;
-                                        $pricePerRoom = floatval($accomodation->accomodation_price) ?? 0;
-                                        $roomTotalPrice = $pricePerRoom * $quantity * $stayDuration;
-                                    @endphp
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <span>
-                                            {{ $accomodation->accomodation_name }}
-                                            <span class="room-quantity-badge">{{ $quantity }}x</span>
-                                        </span>
-                                        <span class="fw-bold">₱{{ number_format($roomTotalPrice, 2) }}</span>
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
-                        
-                        {{-- Only show entrance fee for one-day stays --}}
-                        @if($isOneDayStay && $totalEntranceFee > 0)
-                        <div class="d-flex justify-content-between">
-                            <span class="fst-italic">Entrance Fee</span>
-                            <input type="text" class="form-control text-end bg-secondary-subtle border-0 w-75" value="₱{{ number_format($totalEntranceFee, 2) }}" readonly>
-                        </div>
-                        @endif
-
-                        @if (isset($reservationDetails->package_id))
-                            @php
-                                $selectedPackage = $packages->where('id', $reservationDetails->package_id)->first();
-                                $packagePrice = $selectedPackage->package_price ?? 0;
-                                $packageEntranceFee = ($selectedPackage->package_max_guests ?? 0) * 100;
-                                $totalPackageCost = ($packagePrice * 1) + $packageEntranceFee;
-                            @endphp
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="fst-italic">Package Price (1 day)</span>
-                                <input type="text" class="form-control text-end bg-secondary-subtle border-0" 
-                                       value="₱ {{ number_format($packagePrice, 2) }}" readonly>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="fst-italic">Package Entrance Fee</span>
-                                <input type="text" class="form-control text-end bg-secondary-subtle border-0" value="₱ {{ number_format($packageEntranceFee, 2) }}" readonly>
-                            </div>
-                        @endif
-
-                        <hr class="border-success my-2">
-                        
-                        @php
-                            // Calculate total room price with correct duration and individual quantities
-                            $totalPrice = 0;
-                            foreach ($accomodations as $accomodation) {
-                                $quantity = $individualQuantities[$accomodation->accomodation_id] ?? 1;
-                                $pricePerRoom = floatval($accomodation->accomodation_price);
-                                $totalPrice += $pricePerRoom * $quantity * $stayDuration;
-                            }
-                            
-                            // Only add entrance fee for one-day stays
-                            $entranceFeeToAdd = $isOneDayStay ? ($totalEntranceFee ?? 0) : 0;
-                            
-                            // Calculate final amount
-                            $amount = $totalPrice + $entranceFeeToAdd;
-                            
-                            // Calculate downpayment (50% of total amount)
-                            $downpayment = $amount * 0.20;
-                            
-                            // Calculate total quantity (sum of all individual quantities)
-                            $totalQuantity = array_sum($individualQuantities);
-                        @endphp
-
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="fst-italic">Total Rooms: {{ $totalQuantity }}</span>
-                            <span class="fw-bold text-success">{{ $totalQuantity }} room(s)</span>
-                        </div>
-
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="fst-italic">Required 20% Downpayment</span>
-                            <input type="text" id="downpayment-display" class="form-control text-end bg-secondary-subtle border-0" 
-                                   style="max-width: 150px;" value="₱{{ number_format($downpayment, 2) }}" readonly>
-                        </div>
-
-                        <div class="d-flex justify-content-between align-items-center">
-                            <h5 class="fw-bold text-success">Total Amount</h5>
-                            <input type="text" class="form-control text-center bg-secondary-subtle border-0 fw-bold fs-5" 
-                                   id="amount-display" style="max-width: 150px;" 
-                                   value="₱{{ number_format($amount, 2) }}" 
-                                   readonly>
-                        </div>
-
-                        <!-- PayMongo Form -->
-                        <form action="{{ route('paymongo.checkout') }}" method="POST" class="mt-3">
-                            @csrf
-                            <h6 class="fw-bold text-success">Choose Payment Option:</h6>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="payment_option" id="downpayment_option" value="{{ $downpayment }}" checked>
-                                <label class="form-check-label" for="downpayment_option">
-                                    Pay 20% Downpayment: <strong>₱{{ number_format($downpayment, 2) }}</strong>
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="payment_option" id="fullpayment_option" value="{{ $amount }}">
-                                <label class="form-check-label" for="fullpayment_option">
-                                    Pay Full Amount: <strong>₱{{ number_format($amount, 2) }}</strong>
-                                </label>
-                            </div>
-
-                            <!-- This hidden input will hold the amount to be sent to PayMongo -->
-                            <input type="hidden" name="amount" id="paymongo_amount" value="{{ $downpayment }}">
-                            <input type="hidden" name="payment_status" id="payment_status" value="partial">
-                            <input type="hidden" name="reservation_id" value="{{ $reservationDetails['id'] }}">
-
-                            <div class="d-grid gap-2 mt-4">
-                                <button type="submit" class="btn btn-primary fw-bold">
-                                    <i class="fas fa-credit-card me-2"></i>
-                                    Proceed to Pay with PayMongo
-                                </button>
-                            </div>
-                        </form>
-                        <!-- End PayMongo Form -->
-
-                    </div>
-            </div>
-            <div class="w-100 w-md-50 bg-light p-3 text-white">
-                <h5 class="text-center text-md-center text-success">GCash QR Codes</h5>
-                    <hr class="bg-light my-2">
-                    
-                    <!-- Payment Method Tabs -->
-                    <ul class="nav nav-tabs justify-content-center mb-3" id="paymentTabs" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="gcash1-tab" data-bs-toggle="tab" data-bs-target="#gcash1-content" type="button" role="tab" aria-controls="gcash1-content" aria-selected="true" style="color: #0B5D3B; transition: all 0.3s ease;">
-                                GCash 1
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="gcash2-tab" data-bs-toggle="tab" data-bs-target="#gcash2-content" type="button" role="tab" aria-controls="gcash2-content" aria-selected="false" style="color: #0B5D3B; transition: all 0.3s ease;">
-                                GCash 2
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="gcash3-tab" data-bs-toggle="tab" data-bs-target="#gcash3-content" type="button" role="tab" aria-controls="gcash3-content" aria-selected="false" style="color: #0B5D3B; transition: all 0.3s ease;">
-                                GCash 3
-                            </button>
-                        </li>
-                    </ul>
-
-                    <!-- Tab Content -->
-                    <div class="tab-content" id="paymentTabContent">
-                        <!-- GCash 1 Content -->
-                        <div class="tab-pane fade show active" id="gcash1-content" role="tabpanel" aria-labelledby="gcash1-tab">
-                            <div class="d-flex flex-column align-items-center">
-                                <input class="form-check-input d-none" type="radio" name="payment_method" id="gcash1" value="gcash" checked>
-                                <div class="bg-secondary p-1 d-flex align-items-center justify-content-center rounded-2" style="width: 100%; max-width: 300px; height: auto; aspect-ratio: 1/1; background-image: url('{{ asset('images/logosheesh.png') }}'); background-size: cover; background-position: center;">
-                                    <img src="{{ asset('images/qrcode.JPG') }}" alt="GCash QR Code 1" style="width: 80%; height: auto;">
-                                </div>
-                                <div class="text-center mt-3">
-                                    <p class="fw-bold text-success mb-0">GCash Number:</p>
-                                    <p class="text-dark">0912-345-6789</p>
-                                    <p class="text-dark">Lelo's R. (AR***E M** A.)</p>
-
-                                </div>
-                                <div class="alert mt-3 p-2" role="alert" style="background-color: #0B5D3B; color: white; font-size: 0.9rem;">
-                                    <h6 class="fw-bold">Important Payment Instructions:</h6>
-                                    <ul class="mb-0 ps-3">
-                                        <li>Please ensure to scan the correct QR code for payment</li>
-                                        <li>Double check the amount before confirming the transaction</li>
-                                        <li>Save your reference number and screenshot of payment</li>
-                                        <li>Payment confirmation may take up to 24 hours</li>
-                                        <li>No Refund Policy</li>
-                                        <li>Required security deposit. "Follow up will be done after done the reservation"</li>
-                                        <li>For assistance, contact our support team</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- GCash 2 Content -->
-                        <div class="tab-pane fade" id="gcash2-content" role="tabpanel" aria-labelledby="gcash2-tab">
-                            <div class="d-flex flex-column align-items-center">
-                                <input class="form-check-input d-none" type="radio" name="payment_method" id="gcash" value="gcash">
-                                <div class="bg-secondary p-1 d-flex align-items-center justify-content-center rounded-2" style="width: 100%; max-width: 300px; height: auto; aspect-ratio: 1/1; background-image: url('{{ asset('images/logosheesh.png') }}'); background-size: cover; background-position: center;">
-                                    <img src="{{ asset('images/qrcode.JPG') }}" alt="GCash QR Code 2" style="width: 80%; height: auto;">
-                                </div>
-                                <div class="text-center mt-3">
-                                    <p class="fw-bold text-success mb-0">GCash Number:</p>
-                                    <p class="text-dark">0923-456-7890</p>
-                                    <p class="text-dark">Lelo's R. (AR***E M** A.)</p>
-                                </div>
-                                <div class="alert mt-3 p-2" role="alert" style="background-color: #0B5D3B; color: white; font-size: 0.9rem;">
-                                    <h6 class="fw-bold">Important Payment Instructions:</h6>
-                                    <ul class="mb-0 ps-3">
-                                        <li>Please ensure to scan the correct QR code for payment</li>
-                                        <li>Double check the amount before confirming the transaction</li>
-                                        <li>Save your reference number and screenshot of payment</li>
-                                        <li>Payment confirmation may take up to 24 hours</li>
-                                        <li>No Refund Policy</li>
-                                        <li>Required security deposit. "Follow up will be done after done the reservation"</li>
-                                        <li>For assistance, contact our support team</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- GCash 3 Content -->
-                        <div class="tab-pane fade" id="gcash3-content" role="tabpanel" aria-labelledby="gcash3-tab">
-                            <div class="d-flex flex-column align-items-center">
-                                <input class="form-check-input d-none" type="radio" name="payment_method" id="gcash3" value="gcash">
-                                <div class="bg-secondary p-1 d-flex align-items-center justify-content-center rounded-2" style="width: 100%; max-width: 300px; height: auto; aspect-ratio: 1/1; background-image: url('{{ asset('images/logosheesh.png') }}'); background-size: cover; background-position: center;">
-                                    <img src="{{ asset('images/qrcode.JPG') }}" alt="GCash QR Code 3" style="width: 80%; height: auto;">
-                                </div>
-                                <div class="text-center mt-3">
-                                    <p class="fw-bold text-success mb-0">GCash Number:</p>
-                                    <p class="text-dark">0934-567-8901</p>
-                                    <p class="text-dark">Lelo's R. (AR***E M** A.)</p>
-                                </div>
-                                <div class="alert mt-3 p-2" role="alert" style="background-color: #0B5D3B; color: white; font-size: 0.9rem;">
-                                    <h6 class="fw-bold">Important Payment Instructions:</h6>
-                                    <ul class="mb-0 ps-3">
-                                        <li>Please ensure to scan the correct QR code for payment</li>
-                                        <li>Double check the amount before confirming the transaction</li>
-                                        <li>Save your reference number and screenshot of payment</li>
-                                        <li>Payment confirmation may take up to 24 hours</li>
-                                        <li>No Refund Policy</li>
-                                        <li>Required security deposit. "Follow up will be done after done the reservation"</li>
-                                        <li>For assistance, contact our support team</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <!-- Toast Container for Notifications -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100;">
+        <!-- Toasts will be appended here by JavaScript -->
     </div>
+    <div class="container mt-5 px-3">
+        <div class="d-flex justify-content-between">
+            <h1 class="text-center fw-bold" style="color: #e9ffcc; font-size: 3rem; margin: 0 auto;">RESERVATION PAYMENT</h1>
+        </div>
+
+        <div class="payment-container mx-auto" style="width: 90%;">
+            <div class="row g-0">
+                <div class="col-12">
+                    <h5 class="text-center text-md-start fw-bold text-uppercase text-success" style="font-size: 2.5rem;">Payment Details</h5>
+                    <hr class="border-success my-3">
+                        <!-- LEFT & RIGHT CONTAINER -->
+                        <div class="row g-3">
+                            <!-- LEFT SIDE -->
+                            <div class="col-md-8">
+                                <div class="payment-details-section">
+
+                                    @php
+                                        // Calculate stay duration from check-in and check-out dates
+                                        $checkInDate = new DateTime($reservationDetails['reservation_check_in_date'] ?? '');
+                                        $checkOutDate = new DateTime($reservationDetails['reservation_check_out_date'] ?? '');
+                                        $stayDuration = $checkInDate && $checkOutDate ? $checkOutDate->diff($checkInDate)->days : 1;
+                                        if ($stayDuration < 1) $stayDuration = 1;
+ 
+                                        // Check if it's a one-day stay (same check-in and check-out date)
+                                        $isOneDayStay = $reservationDetails['reservation_check_in_date'] === $reservationDetails['reservation_check_out_date'];
+ 
+                                        $durationText = $isOneDayStay
+                                            ? "Day Tour ({$stayDuration} day)"
+                                            : "Stay Duration: {$stayDuration} " . ($stayDuration > 1 ? 'nights' : 'night');
+                                    @endphp
+
+                                    <p class="fw-bold mb-2 fs- .5">Total Payment For Duration of:</p>
+                                    <div class="duration-display mb-3">
+                                        <p id="duration-text" class="mb-0">
+                                            {{ $durationText }}
+                                        </p>
+                                    </div>
+                                    @php
+                                        // Get individual room quantities
+                                        $rawRoomQuantities = $reservationDetails['room_quantities'] ?? $reservationDetails['quantity'] ?? '{}';
+                                        $individualQuantities = [];
+
+                                        if (is_string($rawRoomQuantities) && is_array(json_decode($rawRoomQuantities, true))) {
+                                            $individualQuantities = json_decode($rawRoomQuantities, true);
+                                        } else {
+                                            // Fallback for old format - distribute total quantity among accommodations
+                                            $totalQuantity = (int) $rawRoomQuantities > 0 ? (int) $rawRoomQuantities : 1;
+                                            $accommodationIds = json_decode($reservationDetails['accomodation_id'] ?? '[]', true);
+                                            if (!empty($accommodationIds)) {
+                                                $quantityPerRoom = floor($totalQuantity / count($accommodationIds));
+                                                $remainder = $totalQuantity % count($accommodationIds);
+                                                foreach ($accommodationIds as $index => $accomId) {
+                                                    $individualQuantities[$accomId] = $quantityPerRoom + ($index < $remainder ? 1 : 0);
+                                                }
+                                            }
+                                        }
+                                    @endphp
+
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="fst-italic">Rooms Fee:</span>
+                                    </div>
+
+
+                                    <div id="accommodation-list">
+                                        @foreach ($accomodations as $accomodation)
+                                            @php
+                                                $quantity = $individualQuantities[$accomodation->accomodation_id] ?? 1;
+                                                $pricePerRoom = floatval($accomodation->accomodation_price) ?? 0;
+                                                $roomTotalPrice = $pricePerRoom * $quantity * $stayDuration;
+                                            @endphp
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <span>
+                                                    <span class="room-quantity-badge">{{ $quantity }}x</span>
+                                                    <span class="fw-bold">{{ $accomodation->accomodation_name }}</span>
+                                                </span>
+                                                <span class="fw-bold text-success">₱{{ number_format($roomTotalPrice, 2) }}</span>
+                                            </div>
+                                        @endforeach
+                                    </div>
+
+
+                                    {{-- Only show entrance fee for one-day stays --}}
+                                    @if($isOneDayStay && $totalEntranceFee > 0)
+                                    <div class="d-flex justify-content-between mt-3">
+                                        <span class="fst-italic">Entrance Fee</span>
+                                        <input type="text" class="form-control text-end bg-secondary-subtle border-0 w-50" value="₱{{ number_format($totalEntranceFee, 2) }}" readonly>
+                                    </div>
+                                    @endif
+
+                                    @if (isset($reservationDetails->package_id))
+                                        @php
+                                            $selectedPackage = $packages->where('id', $reservationDetails->package_id)->first();
+                                            $packagePrice = $selectedPackage->package_price ?? 0;
+                                            $packageEntranceFee = ($selectedPackage->package_max_guests ?? 0) * 100;
+                                            $totalPackageCost = ($packagePrice * 1) + $packageEntranceFee;
+                                        @endphp
+                                        <div class="d-flex justify-content-between align-items-center mt-3">
+                                            <span class="fst-italic">Package Price (1 day)</span>
+                                            <input type="text" class="form-control text-end bg-secondary-subtle border-0 w-50" 
+                                                   value="₱ {{ number_format($packagePrice, 2) }}" readonly>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mt-2">
+                                            <span class="fst-italic">Package Entrance Fee</span>
+                                            <input type="text" class="form-control text-end bg-secondary-subtle border-0 w-50" value="₱ {{ number_format($packageEntranceFee, 2) }}" readonly>
+                                        </div>
+                                    @endif
+                                    <hr class="border-success my-3">
+
+                                    @php
+                                        // Calculate total room price with correct duration and individual quantities
+                                        $totalPrice = 0;
+                                        foreach ($accomodations as $accomodation) {
+                                            $quantity = $individualQuantities[$accomodation->accomodation_id] ?? 1;
+                                            $pricePerRoom = floatval($accomodation->accomodation_price);
+                                            $totalPrice += $pricePerRoom * $quantity * $stayDuration;
+                                        }
+                                        
+                                        // Only add entrance fee for one-day stays
+                                        $entranceFeeToAdd = $isOneDayStay ? ($totalEntranceFee ?? 0) : 0;
+                                        
+                                        // Calculate final amount
+                                        $amount = $totalPrice + $entranceFeeToAdd;
+                                        
+                                        // Calculate downpayment (20% of total amount)
+                                        $downpayment = $amount * 0.20;
+                                        
+                                        // Calculate total quantity (sum of all individual quantities)
+                                        $totalQuantity = array_sum($individualQuantities);
+                                    @endphp
+
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 class="fw-bold text-success">Total Amount To Pay:</h5>
+                                        <input type="text" class="form-control text-success text-center bg-secondary-subtle border-0 fw-bold fs-6" 
+                                               id="amount-display" style="max-width: 150px;" 
+                                               value="₱{{ number_format($amount, 2) }}" 
+                                               readonly>
+                                    </div>
+
+                                    <div class="d-flex justify-content-between align-items-center mb-2 mt-2">
+                                        <span class="fst-italic">Required 20% Downpayment</span>
+                                        <input type="text" id="downpayment-display" class="form-control text-end bg-secondary-subtle border-0" 
+                                               style="max-width: 150px;" value="₱{{ number_format($downpayment, 2) }}" readonly>
+                                    </div>
+
+                                    <hr class="border-success my-3">
+                                </div>
+                            </div>
+
+
+                        <!-- RIGHT SIDE -->
+                        <div class="col-md-4">
+                            <div class="ticket-container text-dark mx-auto position-relative">
+                                <!-- Question Mark Icon -->
+                                <button type="button" class="btn btn-sm btn-success position-absolute top-0 end-0 m-2 rounded-circle shadow-sm d-flex align-items-center justify-content-center" 
+                                        data-bs-toggle="modal" data-bs-target="#ticketInfoModal" 
+                                        style="width: 32px; height: 32px; z-index: 10;">
+                                    <i class="fa-solid fa-circle-question text-white" style="font-size: 1.2rem;"></i>
+                                </button>
+
+                                <div class="ticket-header">
+                                    <p class="fw-bold mb-0">{{ $user->name ?? 'Guest' }}</p>
+                                    <p class="text-muted small mb-0">{{ $user->email ?? 'N/A' }}</p>
+                                    <p class="fw-semibold mt-1">{{ optional($reservationDetails['created_at'] ?? null)->format('m/d') }}</p>
+                                </div>
+
+                                <div class="ticket-body">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span class="fw-semibold">Receiver</span>
+                                        <span>Lelo's Resort</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span class="fw-semibold">Availed</span>
+                                        <span>Resort Booking</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- PayMongo Form -->
+                            <form action="{{ route('paymongo.checkout') }}" method="POST" class="mt-4">
+                                @csrf
+                                <p class="fw-bold text-success mb-2">Choose Payment Option:</p>
+                                <div class="list-group">
+                                    <!-- Downpayment Option -->
+                                    <label for="downpayment_option" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center rounded-3 mb-2 shadow-sm border-2 p-2 payment-option">
+                                        <div>
+                                            <p class="mb-0 fw-bold">Pay 20% Downpayment</p>
+                                            <small class="text-muted">Secure your booking now.</small>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <strong class="me-3 text-success">₱{{ number_format($downpayment, 2) }}</strong>
+                                            <input class="form-check-input fs-5 m-0" type="radio" name="payment_option" id="downpayment_option" value="{{ $downpayment }}" checked>
+                                        </div>
+                                    </label>
+                                    <!-- Full Payment Option -->
+                                    <label for="fullpayment_option" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center rounded-3 shadow-sm border-2 p-2 payment-option">
+                                        <div>
+                                            <p class="mb-0 fw-bold">Pay Full Amount</p>
+                                            <small class="text-muted">Settle everything in one go.</small>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <strong class="me-3 text-success">₱{{ number_format($amount, 2) }}</strong>
+                                            <input class="form-check-input fs-5 m-0" type="radio" name="payment_option" id="fullpayment_option" value="{{ $amount }}">
+                                        </div>
+                                    </label>
+                                </div>
+ 
+                                <!-- This hidden input will hold the amount to be sent to PayMongo -->
+                                <input type="hidden" name="amount" id="paymongo_amount" value="{{ $downpayment }}">
+                                <input type="hidden" name="payment_status" id="payment_status" value="partial">
+                                <input type="hidden" name="reservation_id" value="{{ $reservationDetails['id'] }}">
+ 
+                                <div class="d-grid gap-2 mt-4">
+                                    <button type="submit" class="btn btn-success fw-bold py-2">
+                                        <i class="fas fa-credit-card me-2"></i>
+                                        Proceed to Pay with PayMongo
+                                    </button>
+                                </div>
+                            </form>
+
+                        <!-- End PayMongo Form -->
+                            </div>
+                        </div>
+                    <!-- Ticket Info Modal -->
+                    <div class="modal fade" id="ticketInfoModal" tabindex="-1" aria-labelledby="ticketInfoModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header bg-success text-white">
+                                    <h5 class="modal-title text-white fw-bold" id="ticketInfoModalLabel">Reservation Payment Details</h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p class="text-muted small mt-3">Please review the following information before completing your payment.</p>
+                                    <ul class="mb-0 ps-3">
+                                        <li>Ensure the payment amount is correct before confirming the transaction.</li>
+                                        <li>Payment verification may take up to 24 hours to process.</li>
+                                        <li>All payments are final — strictly no refund policy.</li>
+                                        <li>A security deposit is required; follow-up will be conducted after reservation completion.</li>
+                                        <li>For any inquiries or assistance, kindly reach out to our support team.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                        <hr class="border-success my-3">
 
     <!-- Modal For the Editing the Mobile Number -->
-    <div class="modal fade" id="updateProfileModal" tabindex="-1" aria-labelledby="updateProfileModalLabel" aria-hidden="true">
+    <!-- Update Profile Modal – hidden by default, triggered via JS -->
+    <div class="modal fade" id="updateProfileModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="updateProfileModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg">
-            <div class="modal-header bg-success text-white">
-                <h5 class="modal-title fw-bold" id="updateProfileModalLabel">Update Profile</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-
-            <!-- FORM -->
-            <form action="{{ route('editProfile', $user->id) }}" method="POST">
-                @csrf
-                <div class="modal-body">
-                    <p class="text-muted">Please complete your profile details before proceeding with payment.</p>
-
-                    <div class="mb-3">
-                        <label for="name" class="form-label fw-bold">Full Name</label>
-                        <input type="text" class="form-control" id="name" name="name"
-                            value="{{ $user->name ?? '' }}" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="email" class="form-label fw-bold">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" 
-                            value="{{ $user->email ?? '' }}" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="mobileNo" class="form-label fw-bold">Mobile Number</label>
-                        <input type="text" class="form-control" id="mobileNo" name="mobileNo"
-                            value="{{ $user->mobileNo ?? '' }}" placeholder="09xxxxxxxxx" required
-                            maxlength="11"
-                            onkeypress="return (event.charCode >= 48 && event.charCode <= 57) && event.charCode != 45;"
-                            oninput="this.value = this.value.replace(/[^0-9]/g, '').substring(0, 11);"
-                            pattern="[0-9]{11}" title="Please enter a valid 11-digit mobile number (numbers only)">
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="address" class="form-label fw-bold">Address</label>
-                        <input type="text" class="form-control" id="address" name="address"
-                            value="{{ $user->address ?? '' }}" placeholder="Enter your full address" required>
-                    </div>
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title fw-bold text-white" id="updateProfileModalLabel">Update Profile</h5>
                 </div>
 
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-success w-100 fw-bold">Save and Continue</button>
-                </div>
-            </form>
+                <!-- FORM -->
+                <form action="{{ route('profile.update') }}" method="POST" id="updateProfileForm">
+                    @csrf
+                    <div class="modal-body">
+                        <p class="text-muted">Please complete your profile details before proceeding with payment.</p>
+
+                        <div class="mb-3">
+                            <label for="name" class="form-label fw-bold">Full Name</label>
+                            <input type="text" class="form-control-plaintext" id="name" name="name"
+                                value="{{ $user->name ?? '' }}" readonly>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label fw-bold">Email</label>
+                            <input type="email" class="form-control-plaintext" id="email" name="email" 
+                                value="{{ $user->email ?? '' }}" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="mobileNo" class="form-label fw-bold">Mobile Number</label>
+                            <input type="text" class="form-control" id="mobileNo" name="mobileNo"
+                                value="{{ $user->mobileNo ?? '' }}" placeholder="09xxxxxxxxx" required
+                                maxlength="11"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '').substring(0, 11);"
+                                pattern="[0-9]{11}" title="Please enter a valid 11-digit mobile number (numbers only)">
+                            <div class="invalid-feedback" id="mobileNo-error"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="address" class="form-label fw-bold">Address</label>
+                            <input type="text" class="form-control" id="address" name="address"
+                                value="{{ $user->address ?? '' }}" placeholder="Enter your full address" required>
+                            <div class="invalid-feedback" id="address-error"></div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="submit" id="saveProfileButton" class="btn btn-success w-100 fw-bold">Save and Continue</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 
     <!-- JavaScript -->
     <script>
+    // Helper function to clear validation errors
+    function clearErrors() {
+        document.querySelectorAll('.form-control').forEach(el => el.classList.remove('is-invalid'));
+        document.querySelectorAll('.invalid-feedback').forEach(el => el.textContent = '');
+    }
+
     document.addEventListener("DOMContentLoaded", function () {
         const paymentOptions = document.querySelectorAll('input[name="payment_option"]');
         const paymongoAmountInput = document.getElementById('paymongo_amount');
@@ -578,37 +618,98 @@
             }
         });
         
-        // Ensure GCash is selected by default
-        document.getElementById('gcash1').checked = true;
-
-        // Calculate proper stay duration
-        const checkInDate = "{{ $reservationDetails['reservation_check_in_date'] ?? '' }}";
-        const checkOutDate = "{{ $reservationDetails['reservation_check_out_date'] ?? '' }}";
-        const isOneDayStay = "{{ $isOneDayStay ? 'true' : 'false' }}" === 'true';
+        const updateProfileModalEl = document.getElementById('updateProfileModal');
+        const updateProfileModal = new bootstrap.Modal(updateProfileModalEl);
+        const updateProfileForm = document.getElementById('updateProfileForm');
+        const saveProfileButton = document.getElementById('saveProfileButton');
         
-        let stayDuration = 1;
-        if(checkInDate && checkOutDate) {
-            const start = new Date(checkInDate);
-            const end = new Date(checkOutDate);
-            stayDuration = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
-            if (stayDuration < 1) stayDuration = 1;
-        }
-
-        // Update duration display and hidden input
-        const durationText = isOneDayStay ? 
-            `Day Tour (${stayDuration} day)` : 
-            `Stay Duration: ${stayDuration} ${stayDuration > 1 ? 'nights' : 'night'}`;
-        
-        document.getElementById('duration-text').textContent = durationText;
-
-        // Auto-open modal if mobileNo is empty
-        const userMobile = "{{ $user->mobileNo ?? '' }}";
-        const userAddress = "{{ $user->address ?? '' }}";
-        if (!userMobile || userMobile.trim() === '' || !userAddress || userAddress.trim() === '') {
-            const updateProfileModal = new bootstrap.Modal(document.getElementById('updateProfileModal'));
+        // Only show the modal if the user's mobile number or address is missing.
+        @if(empty($user->mobileNo) || empty($user->address))
             updateProfileModal.show();
+        @endif
+        
+        // Handle form submission with AJAX
+        updateProfileForm.addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent default page reload
+            clearErrors();
+
+            const formData = new FormData(this);
+            const originalButtonHTML = saveProfileButton.innerHTML;
+            saveProfileButton.disabled = true;
+            saveProfileButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...`;
+
+            fetch("{{ route('profile.update') }}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
+                    'Accept': 'application/json',
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast(data.message, 'success');
+                    updateProfileModal.hide(); // Close modal on success
+                } else {
+                    // This block might not be hit if validation fails, as Laravel returns 422
+                    showToast(data.message || 'An error occurred.', 'danger');
+                }
+            })
+            .catch(error => {
+                if (error.response && error.response.status === 422) {
+                    // Handle Laravel validation errors
+                    const errors = error.response.data.errors;
+                    for (const field in errors) {
+                        const input = document.getElementById(field);
+                        const errorDiv = document.getElementById(`${field}-error`);
+                        if (input) input.classList.add('is-invalid');
+                        if (errorDiv) errorDiv.textContent = errors[field][0];
+                    }
+                    showToast('Please fix the errors in the form.', 'danger');
+                } else {
+                    console.error('Error:', error);
+                    showToast('An unexpected error occurred. Please try again.', 'danger');
+                }
+            })
+            .finally(() => {
+                // Re-enable button
+                saveProfileButton.disabled = false;
+                saveProfileButton.innerHTML = originalButtonHTML;
+            });
+        });
+
+        /**
+         * Shows a toast notification.
+         * @param {string} message - The message to display.
+         * @param {string} type - The background color type (e.g., 'danger', 'success').
+         */
+        function showToast(message, type = 'danger') {
+            const toastContainer = document.querySelector('.toast-container');
+            if (!toastContainer) return;
+
+            const toastId = 'toast-' + Date.now();
+            const toastHTML = `
+                <div id="${toastId}" class="toast align-items-center text-white bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body fw-bold">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            ${message}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            `;
+            toastContainer.insertAdjacentHTML('beforeend', toastHTML);
+
+            const newToast = new bootstrap.Toast(document.getElementById(toastId));
+            newToast.show();
         }
 
+        // Listen for attempts to close the mandatory modal
+        document.getElementById('updateProfileModal').addEventListener('hidePrevented.bs.modal', function () {
+            showToast('Please complete your profile to continue.');
+        });
     });
     </script>
 </body>

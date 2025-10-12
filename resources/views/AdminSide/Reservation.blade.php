@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="{{ asset('images/logo new.png') }}">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Anton&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
@@ -229,11 +230,19 @@
                     <!-- Search Function -->
                     <form class="d-flex justify-content-center align-items-center mt-2 mt-md-0 w-100 w-md-auto"
                         role="search" action="{{ route('reservations') }}" method="GET" style="max-width: 500px; flex: 1;">
-                        <select name="type" class="form-select me-2 rounded-5 bg-light border border-secondary" onchange="this.form.submit()">
-                            <option value="">All Types</option>
-                            <option value="online" {{ request('type') == 'online' ? 'selected' : '' }}>Online</option>
-                            <option value="walkin" {{ request('type') == 'walkin' ? 'selected' : '' }}>Walk-in</option>
-                        </select>
+                        <div class="d-flex w-100">
+                            <select name="type" class="form-select me-2 rounded-5 bg-light border border-secondary" onchange="this.form.submit()">
+                                <option value="">All Types</option>
+                                <option value="online" {{ request('type') == 'online' ? 'selected' : '' }}>Online</option>
+                                <option value="walkin" {{ request('type') == 'walkin' ? 'selected' : '' }}>Walk-in</option>
+                            </select>
+                            <select name="room_type" class="form-select me-2 rounded-5 bg-light border border-secondary" onchange="this.form.submit()">
+                                <option value="all">All Rooms</option>
+                                @foreach($accommodationTypes as $type)
+                                    <option value="{{ $type->accomodation_id }}" {{ request('room_type') == $type->accomodation_id ? 'selected' : '' }}>{{ $type->accomodation_name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                         <div class="input-group">
                             <input type="text" 
                                 name="search"
@@ -253,35 +262,33 @@
                     <table class="table table-hover table-striped table-sm align-middle reservation-table">
                         <thead class="table-light text-uppercase text-secondary small">
                             <tr>
-                                <th>Guest Name</th>
-                                <th>Dates(In-Out)</th>
-                                <th>Time(In-Out)</th>
-                                <th>Room Type</th>
-                                <th>Room Qty</th>
-                                <th>Mobile Number</th>
-                                <th>Reference Number</th>
-                                <th>Payment Status</th>
-                                <th>Res. Status</th>
-                                <th>Amount</th>
+                                <th class="py-3 px-4">Guest Name</th>
+                                <th class="py-3 px-4">Dates(In-Out)</th>
+                                <th class="py-3 px-4">Time(In-Out)</th>
+                                <th class="py-3 px-4">Room Type</th>
+                                <th class="py-3 px-4">Room Qty</th>
+                                <th class="py-3 px-4">Mobile Number</th>
+                                <th class="py-3 px-4">Payment Status</th>
+                                <th class="py-3 px-4">Res. Status</th>
+                                <th class="py-3 px-4">Amount</th>
                             </tr>
                         </thead>
                         <tbody id="reservationTable">
                             @foreach ($reservations as $reservation)
                                 <tr>
-                                    <td class="fw-semibold">{{ $reservation->name }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($reservation->reservation_check_in_date)->format('M j, Y') }}-{{ \Carbon\Carbon::parse($reservation->reservation_check_out_date)->format('M j, Y') }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($reservation->reservation_check_in)->format('h:i A') }}-{{ \Carbon\Carbon::parse($reservation->reservation_check_out)->format('h:i A') }}</td>
-                                    <td>
+                                    <td class="fw-semibold py-3 px-4">{{ $reservation->name }}</td>
+                                    <td class="py-2 px-4">{{ \Carbon\Carbon::parse($reservation->reservation_check_in_date)->format('M j, Y') }}-{{ \Carbon\Carbon::parse($reservation->reservation_check_out_date)->format('M j, Y') }}</td>
+                                    <td class="py-2 px-4">{{ \Carbon\Carbon::parse($reservation->reservation_check_in)->format('h:i A') }}-{{ \Carbon\Carbon::parse($reservation->reservation_check_out)->format('h:i A') }}</td>
+                                    <td class="py-2 px-4">
                                         @if(!empty($reservation->accomodation_names))
                                             {{ implode(', ', $reservation->accomodation_names) }}
                                         @else
                                             <span class="text-muted">No Accommodation</span>
                                         @endif
                                     </td>
-                                    <td>{{ $reservation->quantity}}</td>
-                                    <td>{{$reservation->mobileNo}}</td>
-                                    <td>{{ $reservation->reference_num}}</td>
-                                    <td>
+                                    <td class="py-2 px-4">{{ $reservation->quantity}}</td>
+                                    <td class="py-2 px-4">{{$reservation->mobileNo}}</td>
+                                    <td class="py-2 px-4">
                                         <span class="badge 
                                             @if($reservation->payment_status == 'paid') bg-success
                                             @elseif($reservation->payment_status == 'pending') bg-warning text-dark
@@ -292,7 +299,7 @@
                                             {{ ucfirst($reservation->payment_status) }}
                                         </span>
                                     </td>
-                                    <td>
+                                    <td class="py-3 px-4">
                                         <span class="badge 
                                             @if($reservation->reservation_status == 'pending')
                                                 bg-warning text-dark
@@ -309,7 +316,7 @@
                                             {{ ucfirst(str_replace('-', ' ', $reservation->reservation_status)) }}
                                         </span>
                                     </td>
-                                    <td>₱{{ number_format($reservation->amount, 2) }}</td>
+                                    <td class="py-3 px-4">₱{{ number_format($reservation->amount, 2) }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -321,42 +328,7 @@
                                             Showing {{ $reservations->firstItem() }} to {{ $reservations->lastItem() }} of {{ $reservations->total() }} reservations
                                         </div>
                                         <nav aria-label="Page navigation">
-                                            <ul class="pagination mb-0">
-                                                {{-- Previous Page Link --}}
-                                                @if ($reservations->onFirstPage())
-                                                    <li class="page-item disabled">
-                                                        <span class="page-link">&laquo;</span>
-                                                    </li>
-                                                @else
-                                                    <li class="page-item">
-                                                        <a class="page-link" href="{{ $reservations->previousPageUrl() }}" rel="prev">&laquo;</a>
-                                                    </li>
-                                                @endif
-
-                                                {{-- Pagination Elements --}}
-                                                @foreach ($reservations->getUrlRange(1, $reservations->lastPage()) as $page => $url) 
-                                                    @if ($page == $reservations->currentPage())
-                                                        <li class="page-item active" aria-current="page">
-                                                            <span class="page-link">{{ $page }}</span>
-                                                        </li>
-                                                    @else
-                                                        <li class="page-item">
-                                                            <a class="page-link" href="{{ $url }}">{{ $page }}</a>
-                                                        </li>
-                                                    @endif
-                                                @endforeach
-
-                                                {{-- Next Page Link --}}
-                                                @if ($reservations->hasMorePages())
-                                                    <li class="page-item">
-                                                        <a class="page-link" href="{{ $reservations->nextPageUrl() }}" rel="next">&raquo;</a>
-                                                    </li>
-                                                @else
-                                                    <li class="page-item disabled">
-                                                        <span class="page-link">&raquo;</span>
-                                                    </li>
-                                                @endif
-                                            </ul>
+                                            {{ $reservations->links('pagination.custom') }}
                                         </nav>
                                     </div>
                                 </td>
@@ -366,206 +338,12 @@
                 </div>
             </div>
 
-            <!-- Calendar -->
-            <div class="mt-5">
-                <div id="calendar-container" 
-                    class="shadow-lg rounded-4 p-3 bg-white floating-effect" 
-                    style="overflow-x: auto;">
-                    <div id="calendar" class="mb-5 calendar-table"></div>
-                </div>
-            </div>
-
         </div>
     </div>
 </div>
 
     
 
-<!-- Showing Calendar -->
-<script>
-    function renderCalendar() {
-        var calendarEl = document.getElementById('calendar');
-
-        // Get the selected reservation type from the dropdown
-        var selectedType = '{{ request('type', 'all') }}';
-        if (selectedType === '') selectedType = 'all';
-
-        // Filter events based on the selected type
-        var events = @json($events);
-        var filteredEvents = events;
-
-        if (selectedType !== 'all') {
-            filteredEvents = events.filter(function(event) {
-                return event.extendedProps.reservation_type === selectedType;
-            });
-        }
-
-        var calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'dayGridMonth',
-            height: 'auto',
-            contentHeight: 600,
-            events: filteredEvents,
-            eventColor: '#0b573d',
-            headerToolbar: {
-                left: 'prev,next today',
-                center: 'title',
-                right: 'dayGridMonth,timeGridWeek,timeGridDay'
-            },
-            eventClick: function(info) {
-                // Enhanced event details display
-                const event = info.event;
-                const startDateFmt = moment(event.start).format('MMMM D, YYYY');
-                const endDateFmt = event.end ? moment(event.end).subtract(1, 'days').format('MMMM D, YYYY') : startDateFmt;
-                const guestName = event.extendedProps.name;
-                const quantity = event.extendedProps.quantity;
-                
-                // Get original dates from extendedProps
-                const checkInDate = event.extendedProps.check_in_date;
-                const checkOutDate = event.extendedProps.check_out_date;
-                const reservationType = event.extendedProps.reservation_type;
-
-                // Determine stay type
-                const stayType = (checkInDate === checkOutDate) ? 'One-Day Stay' : 'Staycation';
-                
-                // Split the description into reserved and available rooms
-                const description = event.extendedProps.description;
-                const [reservedRooms, availableRooms] = description.split('\n');
-                
-                const detailsHtml = `
-                    <div class="p-4">
-                        <h5 class="text-center mb-4" style="font-family: 'Anton', sans-serif; color: #0b573d; letter-spacing: 0.1em;">RESERVATION DETAILS</h5>
-                        <div class="row g-3">
-                            <div class="col-12">
-                                <div class="card border-0 shadow-sm">
-                                    <div class="card-body" style="background-color: #f8f9fa; border-radius: 10px;">
-                                        <h6 class="card-subtitle mb-2" style="color: #0b573d; font-family: 'Poppins', sans-serif;">Guest Name</h6>
-                                        <p class="card-text fw-semibold">${guestName}</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="card border-0 shadow-sm">
-                                    <div class="card-body" style="background-color: #f8f9fa; border-radius: 10px;">
-                                        <h6 class="card-subtitle mb-2" style="color: #0b573d; font-family: 'Poppins', sans-serif;">Reservation Dates & Type</h6>
-                                        <p class="card-text fw-semibold">
-                                            ${startDateFmt}${startDateFmt !== endDateFmt ? ' - ' + endDateFmt : ''}
-                                            <span class="badge bg-success ms-2">${stayType}</span>
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="card border-0 shadow-sm">
-                                    <div class="card-body" style="background-color: #f8f9fa; border-radius: 10px;">
-                                        <h6 class="card-subtitle mb-2" style="color: #0b573d; font-family: 'Poppins', sans-serif;">Reservation Type</h6>
-                                        <p class="card-text fw-semibold text-capitalize">${reservationType} Reservation</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="card border-0 shadow-sm">
-                                    <div class="card-body" style="background-color: #0b573d; border-radius: 10px;">
-                                        <h6 class="card-subtitle mb-2 text-white" style="font-family: 'Poppins', sans-serif;">Reserved Rooms</h6>
-                                        <p class="card-text text-white fw-semibold">${reservedRooms.replace('Reserved Rooms: ', '')}</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="card border-0 shadow-sm">
-                                    <div class="card-body" style="background-color: #127656; border-radius: 10px;">
-                                        <h6 class="card-subtitle mb-2 text-white" style="font-family: 'Poppins', sans-serif;">Available Rooms</h6>
-                                        <p class="card-text text-white fw-semibold">${availableRooms.replace('Available Rooms: ', '')}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            
-                Swal.fire({
-                    title: '',
-                    html: detailsHtml,
-                    showCloseButton: true,
-                    showConfirmButton: false,
-                    width: '32rem',
-                    padding: '0',
-                    background: '#ffffff',
-                    customClass: {
-                        popup: 'rounded-4 shadow-lg',
-                        closeButton: 'btn btn-lg btn-outline-secondary rounded-circle p-2 position-absolute end-0 top-0 m-3'
-                    }
-                });
-            },
-            dayMaxEvents: true,
-            eventTimeFormat: {
-                hour: 'numeric',
-                minute: '2-digit',
-                meridiem: 'short'
-            }
-        });
-
-        calendar.render();
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        const calendarContainer = document.getElementById('calendar-container');
-
-        const observer = new IntersectionObserver((entries) => {
-            if (entries[0].isIntersecting) {
-                renderCalendar();
-                observer.disconnect();
-            }
-        }, {
-            root: null,
-            threshold: 0.1
-        });
-
-        observer.observe(calendarContainer);
-    });
-</script>
-
-<!-- Something Function -->
-<script>
-    document.getElementById('user_id').addEventListener('change', function() {
-        let userId = this.value;
-        let reservationTable = document.getElementById('reservationTable');
-
-        // Clear table content
-        reservationTable.innerHTML = '';
-
-        // Fetch filtered reservations
-        fetch("{{ route('reservations') }}?user_id=" + userId)
-            .then(response => response.json())
-            .then(data => {
-                if (data.length > 0) {
-                    data.forEach(reservation => {
-                        let row = `
-                            <tr>
-                                <td>${reservation.id}</td>
-                                <td>${reservation.reservation_check_in_date}</td>
-                                <td>example</td>
-                                <td>${reservation.name}</td>
-                                <td>${reservation.reservation_check_in}</td>
-                                <td>${reservation.reservation_check_out}</td>
-                                <td>${reservation.payment_status}</td>
-                                <td>${reservation.amount}</td>
-                                <td>
-                                    <a href="#" class="text-success"><i class="fa-solid fa-eye"></i></a>
-                                    <a href="#" class="text-warning mx-2"><i class="fa-solid fa-pen-to-square"></i></a>
-                                    <form action="#" method="POST" style="display:inline;">
-                                        <button type="submit" class="text-danger border-0 bg-transparent"><i class="fa-solid fa-trash-can"></i></button>
-                                    </form>
-                                </td>
-                            </tr>
-                        `;
-                        reservationTable.innerHTML += row;
-                    });
-                } else {
-                    reservationTable.innerHTML = `<tr><td colspan="9" class="text-center mt-3">No Reservations Found</td></tr>`;
-                }
-            });
-    });
-</script>
 <!-- Live Time and Date -->
 <script>
     function updateTime() {

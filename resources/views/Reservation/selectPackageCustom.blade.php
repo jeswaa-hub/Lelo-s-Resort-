@@ -115,7 +115,7 @@
     
     <form method="POST" action="{{ route('savePackageSelection') }}">
         @csrf
-        <input type="hidden" name="package_type" value="One day Stay">
+        <input type="hidden" name="package_type" value="Day Tour">
 
         <!-- Hidden user information fields -->
         <input type="hidden" name="name" value="{{ $user->name }}">
@@ -393,27 +393,37 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <!-- Booking Details -->
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <p class="mb-1"><strong>Check-in:</strong> <span id="summaryCheckIn"></span></p>
-                            <p class="mb-1"><strong>Check-out:</strong> <span id="summaryCheckOut"></span></p>
-                        </div>
-                        <div class="col-md-6 text-md-end">
-                            <p class="mb-1"><strong>Total Guests:</strong> <span id="summaryGuests"></span></p>
-                            <p class="mb-1"><strong>Duration:</strong> <span id="summaryNights"></span></p>
+                    <!-- Enhanced No Refund Policy Banner -->
+                    <div class="p-3 mb-4 rounded-3" style="background-color: #fffbe6; border: 1px solid #ffe58f;">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-exclamation-triangle me-3 fs-4" style="color: #faad14;"></i>
+                            <div>
+                                <h6 class="fw-bold mb-1" style="color: #d46b08;">Important: No Refund Policy</h6>
+                                <p class="mb-0 small text-muted">The down payment is non-refundable. Please review your booking details carefully before confirming your reservation.</p>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Room Charges -->
-                    <h6 class="fw-bold text-success">Room Charges</h6>
+                    <!-- Booking Details -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <p class="mb-1"><strong>Date:</strong> <span id="summaryDate"></span></p>
+                            <p class="mb-1"><strong>Session:</strong> <span id="summarySession"></span></p>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <p class="mb-1"><strong>Total Guests:</strong> <span id="summaryGuests"></span></p>
+                        </div>
+                    </div>
+
+                    <!-- Room & Entrance Charges -->
+                    <h6 class="fw-bold text-success">Charges</h6>
                     <div class="table-responsive">
                         <table class="table">
                             <thead>
                                 <tr>
-                                    <th>Room Type</th>
+                                    <th>Item</th>
                                     <th class="text-center">Qty</th>
-                                    <th class="text-end">Price/Night</th>
+                                    <th class="text-end">Price</th>
                                     <th class="text-end">Subtotal</th>
                                 </tr>
                             </thead>
@@ -429,13 +439,15 @@
                         <h5 class="me-3 mb-0">Total Amount:</h5>
                         <h4 class="fw-bold text-success mb-0" id="totalAmountDisplay">₱0.00</h4>
                     </div>
+
                 </div>
                 <div class="modal-footer bg-light">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-edit me-2"></i>Edit</button>
                     <button type="button" class="btn btn-success fw-bold" id="confirmPayment"><i class="fas fa-check-circle me-2"></i>Confirm & Proceed</button>
                 </div>
             </div>
-        </div>     
+        </div>
+    </div>   
 
 <script>
     // Fixed fetchAvailableQuantities function
@@ -657,20 +669,22 @@
         const totalGuestsInput = document.getElementById("total_guests");
     
         if (totalGuests > totalCapacity && totalCapacity > 0) {
+            guestError.textContent = `Exceeds capacity! Correcting to ${totalCapacity} guests.`;
+            guestError.style.display = 'block';
+
             const overBy = totalGuests - totalCapacity;
             if (document.activeElement === adultsInput) {
                 adultsInput.value = adults - overBy;
             } else if (document.activeElement === childrenInput) {
                 childrenInput.value = children - overBy;
             }
+
             // Recalculate total guests after correction
             adults = parseInt(adultsInput.value) || 0;
             children = parseInt(childrenInput.value) || 0;
             totalGuests = adults + children;
         } else {
             guestError.style.display = 'none';
-            totalGuestsInput.style.color = 'black';
-            totalGuestsInput.classList.remove('is-invalid');
         }
     
         totalGuestsInput.value = totalGuests;
@@ -768,7 +782,7 @@
                 Swal.fire({
                     icon: 'warning',
                     title: 'Invalid Number of Adults',
-                    text: 'Please enter the number of adults (must be greater than 0)',
+                    text: 'An adult must be included in every booking. Please ensure at least one adult is part of the guest count.',
                     confirmButtonColor: '#198754'
                 });
                 return;

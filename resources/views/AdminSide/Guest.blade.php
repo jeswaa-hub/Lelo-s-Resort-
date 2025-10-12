@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,6 +19,11 @@
         position: relative;
         transition: color 0.3s ease;
     }
+        text-decoration: none;
+        font-weight: 600;
+        position: relative;
+        transition: color 0.3s ease;
+    }
 
     .fancy-link::after {
         content: "";
@@ -29,7 +35,20 @@
         background-color: #0b573d;
         transition: width 0.3s ease;
     }
+    .fancy-link::after {
+        content: "";
+        position: absolute;
+        width: 0;
+        height: 2px;
+        left: 0;
+        bottom: -2px;
+        background-color: #0b573d;
+        transition: width 0.3s ease;
+    }
 
+    .fancy-link:hover {
+        color: #0b573d;
+    }
     .fancy-link:hover {
         color: #0b573d;
     }
@@ -192,6 +211,7 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <i class="fas fa-comments fs-1"></i>
                                 </div>
                             </div>
 
@@ -201,6 +221,24 @@
             </div>
 
 
+            <!-- Guest List -->
+            <div class="mt-5">
+                <!-- Table -->
+                <div class="bg-white shadow-lg rounded-4 p-4 mt-1">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <!-- Title -->
+                            <h2 class="mb-0 me-3" style="color: #0b573d; font-weight: bold; white-space: nowrap;">
+                                Guest Information
+                            </h2>
+
+                            <!-- Search box -->
+                            <div class="flex-grow-1">
+                                <input type="search" id="search" class="form-control" placeholder="Search Guest Name"
+                                    aria-label="Search">
+                            </div>
+                        </div>
+                        <hr class="mt-2 mb-0">
             <!-- Guest List -->
             <div class="mt-5">
                 <!-- Table -->
@@ -297,7 +335,15 @@
             const searchInput = document.querySelector('#search');
             const tableBody = document.querySelector('tbody');
             const reservationsData = @json($reservations->items()); // Get the actual array of items
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.querySelector('#search');
+            const tableBody = document.querySelector('tbody');
+            const reservationsData = @json($reservations->items()); // Get the actual array of items
 
+            // Function to filter table rows based on the search input
+            function filterGuests(search) {
+                // Clear the current table
+                tableBody.innerHTML = '';
             // Function to filter table rows based on the search input
             function filterGuests(search) {
                 // Clear the current table
@@ -305,7 +351,13 @@
 
                 // Convert reservationsData to array if it's not already
                 const reservationsArray = Array.isArray(reservationsData) ? reservationsData : [reservationsData];
+                // Convert reservationsData to array if it's not already
+                const reservationsArray = Array.isArray(reservationsData) ? reservationsData : [reservationsData];
 
+                // Filter the reservations by guest name (case insensitive)
+                const filteredGuests = reservationsArray.filter(guest => {
+                    return guest && guest.name && guest.name.toLowerCase().includes(search.toLowerCase());
+                });
                 // Filter the reservations by guest name (case insensitive)
                 const filteredGuests = reservationsArray.filter(guest => {
                     return guest && guest.name && guest.name.toLowerCase().includes(search.toLowerCase());
@@ -315,11 +367,22 @@
                 if (filteredGuests.length === 0) {
                     const row = document.createElement('tr');
                     row.innerHTML = `
+                // If no guests match the search, show a "No results found" message
+                if (filteredGuests.length === 0) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
                     <td colspan="6" class="text-center py-3 px-4">
                         <div class="d-flex justify-content-center align-items-center">
                             No results found
                         </div>
                     </td>`;
+                    tableBody.appendChild(row);
+                } else {
+                    // Append the filtered guests to the table
+                    filteredGuests.forEach(guest => {
+                        const row = document.createElement('tr');
+                        row.className = '';
+                        row.innerHTML = `
                     tableBody.appendChild(row);
                 } else {
                     // Append the filtered guests to the table
@@ -378,7 +441,16 @@
                     });
                 }
             }
+                        tableBody.appendChild(row);
+                    });
+                }
+            }
 
+            // Search event listener (triggered when typing or clicking search button)
+            searchInput.addEventListener('input', function () {
+                const search = searchInput.value.trim();
+                filterGuests(search); // Filter the guest list based on the input value
+            });
             // Search event listener (triggered when typing or clicking search button)
             searchInput.addEventListener('input', function () {
                 const search = searchInput.value.trim();
@@ -389,7 +461,43 @@
             filterGuests('');
         });
     </script>
+            // Initial display of all records when the page loads
+            filterGuests('');
+        });
+    </script>
 
+    <!-- Add these modals at the end of the body tag -->
+    @foreach($reservations as $reservation)
+        <!-- View Guest Modal -->
+        <div class="modal fade" id="viewGuestModal{{ $reservation->id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color: #0b573d; color: white;">
+                        <h5 class="modal-title">Guest Details</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Guest Information -->
+                        <div class="mb-4">
+                            <h6 class="fw-bold mb-3">Personal Information</h6>
+                            <div class="mb-2">
+                                <strong>Name:</strong> {{ $reservation->name }}
+                            </div>
+                            <div class="mb-2">
+                                <strong>Email:</strong> {{ $reservation->email }}
+                            </div>
+                            <div class="mb-2">
+                                <strong>Phone:</strong> {{ $reservation->mobileNo }}
+                            </div>
+                            <div class="mb-2">
+                                <strong>Total Visits:</strong> {{ $reservation->visit_count ?? '0' }}
+                            </div>
+                            <div class="mb-2">
+                                <strong>Last Visit:</strong>
+                                {{ $reservation->last_visit ? date('M d, Y', strtotime($reservation->last_visit)) : 'No visits yet' }}
+                            </div>
+                        </div>
     <!-- Add these modals at the end of the body tag -->
     @foreach($reservations as $reservation)
         <!-- View Guest Modal -->
@@ -512,5 +620,6 @@
     @endforeach
 
 </body>
+
 
 </html>

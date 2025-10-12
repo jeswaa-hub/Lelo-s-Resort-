@@ -3,66 +3,57 @@
 <head>
     <title>Transactions Report</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            font-size: 12px;
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        .total {
-            font-weight: bold;
-            margin-top: 20px;
-        }
+        body { font-family: 'DejaVu Sans', sans-serif; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #0b573d; color: white; }
+        .badge { padding: 5px 10px; border-radius: 12px; color: white; font-size: 12px; }
+        .bg-success { background-color: #198754; }
+        .bg-warning { background-color: #ffc107; color: black; }
+        .bg-danger { background-color: #dc3545; }
+        .bg-primary { background-color: #0d6efd; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h2>Lelo's Resort Transactions Report</h2>
-        <p>Generated on: {{ date('Y-m-d H:i:s') }}</p>
-    </div>
+    @include('exports.header', ['title' => 'Transactions Report'])
 
     <table>
         <thead>
             <tr>
-                <th>Date</th>
                 <th>Guest Name</th>
-                <th>Check In</th>
-                <th>Check Out</th>
-                <th>Amount</th>
-                <th>Status</th>
+                <th>Rooms Booked</th>
+                <th>Amount Paid</th>
+                <th>Remaining Balance</th>
+                <th>Check In - Out Date</th>
+                <th>Payment Status</th>
             </tr>
         </thead>
         <tbody>
-            @foreach($transactions as $transaction)
+            @forelse($transactions as $transaction)
                 <tr>
-                    <td>{{ \Carbon\Carbon::parse($transaction->created_at)->format('Y-m-d') }}</td>
-                    <td>{{ $transaction->name }}</td>
-                    <td>{{ \Carbon\Carbon::parse($transaction->reservation_check_in_date)->format('Y-m-d') }}</td>
-                    <td>{{ \Carbon\Carbon::parse($transaction->reservation_check_out_date)->format('Y-m-d') }}</td>
-                    <td>{{ $transaction->amount }}</td>
-                    <td>{{ $transaction->payment_status }}</td>
+                    <td>{{ $transaction->user_name ?? $transaction->name }}</td>
+                    <td>
+                        @php
+                            $roomNames = $transaction->accomodation_name ?? '';
+                            if (empty($roomNames) && isset($transaction->accomodations)) {
+                                if (is_string($transaction->accomodations)) {
+                                    $roomNames = $transaction->accomodations;
+                                } elseif (is_array($transaction->accomodations)) {
+                                    $roomNames = implode(', ', $transaction->accomodations);
+                                }
+                            }
+                        @endphp
+                        {{ $roomNames ?: 'N/A' }}
+                    </td>
+                    <td>&#8369;{{ number_format($transaction->amount, 2) }}</td>
+                    <td>&#8369;{{ number_format($transaction->balance, 2) }}</td>
+                    <td>{{ \Carbon\Carbon::parse($transaction->reservation_check_in_date)->format('M d, Y') }} - {{ \Carbon\Carbon::parse($transaction->reservation_check_out_date)->format('M d, Y') }}</td>
+                    <td><span class="badge bg-{{ $transaction->payment_status === 'paid' ? 'success' : ($transaction->payment_status === 'partial' ? 'primary' : 'warning') }}">{{ ucfirst($transaction->payment_status) }}</span></td>
                 </tr>
-            @endforeach
+            @empty
+                <tr><td colspan="6" style="text-align: center;">No transactions found.</td></tr>
+            @endforelse
         </tbody>
     </table>
-
-    <div class="total">
-        Total Transactions: {{ count($transactions) }}
-    </div>
 </body>
 </html>

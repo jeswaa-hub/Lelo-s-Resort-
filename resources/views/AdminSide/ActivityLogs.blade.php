@@ -7,6 +7,8 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Anton&display=swap"
         rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Anton&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -15,11 +17,17 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.css">
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <title>Activity Logs</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <style>
     .fancy-link {
+        text-decoration: none;
+        font-weight: 600;
+        position: relative;
+        transition: color 0.3s ease;
+    }
         text-decoration: none;
         font-weight: 600;
         position: relative;
@@ -36,7 +44,20 @@
         background-color: #0b573d;
         transition: width 0.3s ease;
     }
+    .fancy-link::after {
+        content: "";
+        position: absolute;
+        width: 0;
+        height: 2px;
+        left: 0;
+        bottom: -2px;
+        background-color: #0b573d;
+        transition: width 0.3s ease;
+    }
 
+    .fancy-link:hover {
+        color: #0b573d;
+    }
     .fancy-link:hover {
         color: #0b573d;
     }
@@ -133,7 +154,102 @@
         font-size: 1.2rem;
         font-weight: bold;
     }
+    .fancy-link:hover::after {
+        width: 100%;
+    }
+
+    .fancy-link.active::after {
+        width: 100% !important;
+    }
+
+    .transition-width {
+        transition: all 0.3s ease;
+    }
+
+    #mainContent.full-width {
+        width: 100% !important;
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* Custom Gradient Inputs */
+    .custom-input {
+        background: linear-gradient(180deg, #f9f9f9, #e3e3e3);
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        height: 38px;
+        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .custom-input:focus {
+        border-color: #0b573d;
+        box-shadow: 0 0 5px rgba(11, 87, 61, 0.4);
+    }
+
+    label {
+        font-size: 0.85rem;
+        margin-right: 5px;
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 5px;
+        margin-top: 20px;
+        font-family: 'Poppins', 'Montserrat', sans-serif;
+    }
+
+    .pagination .page-item {
+        list-style: none;
+    }
+
+    .pagination .page-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #fff;
+        color: #0b573d;
+        border: 2px solid #0b573d;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-weight: 600;
+    }
+
+    .pagination .page-link:hover {
+        background-color: #0b573d;
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px rgba(11, 87, 61, 0.2);
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: #0b573d;
+        color: #fff;
+        border-color: #0b573d;
+    }
+
+    .pagination .page-item.disabled .page-link {
+        background-color: #e9ecef;
+        border-color: #dee2e6;
+        color: #6c757d;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    .pagination .page-item:first-child .page-link,
+    .pagination .page-item:last-child .page-link {
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
 </style>
+
+<body
+    style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76))">
 
 <body
     style="margin: 0; padding: 0; height: 100vh; background: linear-gradient(rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.76))">
@@ -301,5 +417,6 @@
         </div>
     </div>
 </body>
+
 
 </html>

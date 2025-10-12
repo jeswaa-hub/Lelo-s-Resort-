@@ -15,5 +15,6 @@ class Activities extends Model
         'activity_name',
         'activity_image',
         'activity_status',
+        'activity_description',
     ];
 }

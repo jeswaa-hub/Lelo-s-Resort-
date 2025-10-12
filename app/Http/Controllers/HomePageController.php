@@ -27,17 +27,17 @@ public function profilepage()
         return redirect()->route('login')->with('error', 'User not found.');
     }
 
-    $latestReservation = DB::table('reservation_details')
-        ->leftJoin('activitiestbl', 'reservation_details.activity_id', '=', 'activitiestbl.id') // Corrected join condition
-        ->where('reservation_details.user_id', $userId)
-        ->select(
-            'reservation_details.*',
-            'activitiestbl.activity_name',
-            'activitiestbl.id as activity_id',
-        )
-        ->orderByDesc('reservation_details.id')
-        ->first();
+    // Fetch all reservations for the user, ordered by the most recent first.
+    $allReservations = DB::table('reservation_details')
+        ->where('user_id', $userId)
+        ->orderByDesc('id')
+        ->get();
 
+    // The first one in the collection is the latest, the rest are past.
+    $latestReservation = $allReservations->shift(); // shift() removes and returns the first item.
+    $pastReservations = $allReservations; // The remaining items are the past reservations.
+
+    $activities = [];
     // --- Fetch Accommodations Safely ---
     $accommodations = [];
     if ($latestReservation && $latestReservation->accomodation_id) {
@@ -56,89 +56,154 @@ public function profilepage()
         }
     }
 
-    // Fetch all past reservations except the latest one
-    $pastReservations = [];
-    if ($latestReservation) {
-        $pastReservations = DB::table('reservation_details')
-            ->where('reservation_details.user_id', $userId)
-            ->where('reservation_details.id', '!=', $latestReservation->id)
-            ->orderBy('reservation_details.reservation_check_in_date', 'desc')
-            ->get();
+    // --- Fetch Activities Safely ---
+    if ($latestReservation && $latestReservation->activity_id) {
+        $activityIds = json_decode($latestReservation->activity_id, true);
+
+        if (is_array($activityIds) && count($activityIds) > 0) {
+            // Convert string IDs to integers
+            $activityIds = array_map('intval', $activityIds);
+            
+            $activities = DB::table('activitiestbl')
+                ->whereIn('id', $activityIds)
+                ->pluck('activity_name')
+                ->toArray();
+        } elseif (is_numeric($activityIds)) { // Handle single integer
+            $activities = DB::table('activitiestbl')
+                ->where('id', (int)$activityIds)
+                ->pluck('activity_name')
+                ->toArray();
+        }
+    }
+
+    // Process accommodations for each past reservation
+    foreach ($pastReservations as $reservation) {
+        $accommodationIds = json_decode($reservation->accomodation_id, true);
+        $reservation->accommodations = []; // Add a new property to the object
+
+        if (is_array($accommodationIds) && count($accommodationIds) > 0) {
+            $reservation->accommodations = DB::table('accomodations')
+                ->whereIn('accomodation_id', $accommodationIds)
+                ->pluck('accomodation_name')
+                ->toArray();
+        } elseif (is_numeric($accommodationIds)) {
+            $reservation->accommodations = DB::table('accomodations')
+                ->where('accomodation_id', $accommodationIds)
+                ->pluck('accomodation_name')
+                ->toArray();
+        }
     }
 
     return view('FrontEnd.profilepage', [
         'user' => $user,
         'latestReservation' => $latestReservation,
         'pastReservations' => $pastReservations,
-        'accommodations' => $accommodations
+        'accommodations' => $accommodations,
+        'activities' => $activities
     ]);
 }
 
-
-    public function editProfile(Request $request)
-{
-    $request->validate([
-        'name' => 'string|max:255',
-        'email' => 'email|max:255',
-        'mobileNo' => 'string|max:11',
-        'address' => 'string|max:255',
-        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
-    ]);
-
-    $user = DB::table('users')->where('id', Auth::id())->first();
-
-    if (!$user) {
-        if ($request->expectsJson()) {
-            return response()->json(['success' => false, 'message' => 'User not found.'], 404);
-        }
-        return redirect()->back()->with('error', 'User not found.');
-    }
-
-    $data = [
-        'name' => $request->input('name'),
-        'email' => $request->input('email'),
-        'mobileNo' => $request->input('mobileNo'),
-        'address' => $request->input('address'),
-    ];
-
-    // Handle image upload (only for regular form requests)
-    if ($request->hasFile('image')) {
-        // Delete old image if it exists
-        if ($user->image) {
-            Storage::disk('public')->delete($user->image);
+    public function editProfile()
+    {
+        $userId = Auth::id();
+        if (!$userId) {
+            return redirect()->route('login')->with('error', 'Login first to edit your profile.');
         }
 
-        // Store new image
-        $imagePath = $request->file('image')->store('images', 'public');
-        $data['image'] = $imagePath;
+        // Fetch user details
+        $user = DB::table('users')->where('id', $userId)->first();
+        if (!$user) {
+            return redirect()->route('login')->with('error', 'User not found.');
+        }
+
+        return view('FrontEnd.editProfile', ['user' => $user]);
     }
 
-    // Update the user's profile
-    $updated = DB::table('users')->where('id', Auth::id())->update($data);
+    public function updateProfile(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'mobileNo' => 'required|string|size:11',
+            'address' => 'required|string|max:255',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+        ]);
 
-    // Handle AJAX response
-    if ($request->expectsJson()) {
+        $user = DB::table('users')->where('id', Auth::id())->first();
+
+        if (!$user) {
+            if ($request->expectsJson()) {
+                return response()->json(['success' => false, 'message' => 'User not found.'], 404);
+            }
+            return redirect()->back()->with('error', 'User not found.');
+        }
+
+        $data = [
+            'name' => $request->input('name'),
+            'email' => $request->input('email'),
+            'mobileNo' => $request->input('mobileNo'),
+            'address' => $request->input('address'),
+        ];
+
+        // Handle image upload (only for regular form requests)
+        if ($request->hasFile('image')) {
+            // Delete old image if it exists
+            if ($user->image) {
+                Storage::disk('public')->delete($user->image);
+            }
+
+            // Store new image
+            $imagePath = $request->file('image')->store('images', 'public');
+            $data['image'] = $imagePath;
+        }
+
+        // Update the user's profile
+        $updated = DB::table('users')->where('id', Auth::id())->update($data);
+
+        // After updating the main user profile, also update the latest pending/on-hold reservation details.
         if ($updated) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Profile updated successfully.',
-                'user' => $data
-            ]);
+            // Prepare data for reservation update, excluding the 'image' field.
+            $reservationUpdateData = [
+                'name' => $request->input('name'),
+                'email' => $request->input('email'),
+                'mobileNo' => $request->input('mobileNo'),
+                'address' => $request->input('address'),
+            ];
+
+            $latestPendingReservation = DB::table('reservation_details')
+                ->where('user_id', Auth::id())
+                ->whereIn('reservation_status', ['pending', 'on-hold'])
+                ->orderByDesc('id')
+                ->first();
+
+            if ($latestPendingReservation) {
+                DB::table('reservation_details')->where('id', $latestPendingReservation->id)->update($reservationUpdateData);
+            }
+        }
+
+        // Handle AJAX response
+        if ($request->expectsJson()) {
+            if ($updated) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Profile updated successfully.',
+                    'user' => $data
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No changes made.'
+                ], 400);
+            }
+        }
+
+        // Handle regular form response
+        if ($updated) {
+            return redirect()->back()->with('success', 'Profile updated successfully.');
         } else {
-            return response()->json([
-                'success' => false,
-                'message' => 'No changes made.'
-            ], 400);
+            return redirect()->back()->with('error', 'No changes made.');
         }
     }
-
-    // Handle regular form response
-    if ($updated) {
-        return redirect()->back()->with('success', 'Profile updated successfully.');
-    } else {
-        return redirect()->back()->with('error', 'No changes made.');
-    }
-}
     public function userlogout(Request $request)
     {
         Auth::logout();

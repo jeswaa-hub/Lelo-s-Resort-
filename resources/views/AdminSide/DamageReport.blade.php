@@ -1,10 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="{{ asset('images/logo new.png') }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Anton&display=swap"
+        rel="stylesheet">
     <link
         href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Anton&display=swap"
         rel="stylesheet">
@@ -21,12 +26,46 @@
 <style>
     .transition-width {
         transition: all 0.3s ease;
+        transition: all 0.3s ease;
     }
+
 
     #mainContent.full-width {
         width: 100% !important;
         flex: 0 0 100% !important;
         max-width: 100% !important;
+    }
+
+    /* Pending (yellow / warning) */
+    .status-pending {
+        background: #ffc107;
+        color: #000;
+    }
+
+    .status-inprogress {
+        background: linear-gradient(180deg, #963e15, #f4773e) !important;
+        color: #fff !important;
+        border: none !important;
+    }
+
+    /* Resolved (green gradient na binigay mo) */
+    .status-resolved {
+        background: linear-gradient(180deg, #226214, #43cc25);
+        color: #fff;
+    }
+
+    /* Custom Table Header Style */
+    .custom-table thead th {
+        background: linear-gradient(180deg, #f8f9fa, #dcdcdc);
+        /* light grey gradient */
+        color: #0b573d;
+        /* same green tone para match sa theme */
+        font-weight: 600;
+        text-align: center;
+        padding: 12px;
+        border-radius: 6px;
+        box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.15);
+        border: none !important;
     }
 
     /* Pending (yellow / warning) */
@@ -247,13 +286,27 @@
 
     <script>
         let reportIdToDelete = null;
+    <script>
+        let reportIdToDelete = null;
 
         function deleteReport(id) {
             reportIdToDelete = id;
             const modal = new bootstrap.Modal(document.getElementById('deleteConfirmationModal'));
             modal.show();
         }
+        function deleteReport(id) {
+            reportIdToDelete = id;
+            const modal = new bootstrap.Modal(document.getElementById('deleteConfirmationModal'));
+            modal.show();
+        }
 
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.delete-report-btn').forEach(button => {
+                button.addEventListener('click', function () {
+                    const reportId = this.dataset.reportId;
+                    deleteReport(reportId);
+                });
+            });
         document.addEventListener('DOMContentLoaded', function () {
             document.querySelectorAll('.delete-report-btn').forEach(button => {
                 button.addEventListener('click', function () {
@@ -289,6 +342,34 @@
             });
         });
     </script>
+            document.getElementById('confirmDelete').addEventListener('click', function () {
+                if (reportIdToDelete) {
+                    fetch(`/damage-report/delete/${reportIdToDelete}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json'
+                        }
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                window.location.reload();
+                            } else {
+                                alert('Hindi matagumpay ang pagtanggal ng report');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('May naganap na error sa pagtanggal ng report');
+                        });
+                }
+                const modal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmationModal'));
+                modal.hide();
+            });
+        });
+    </script>
 </body>
+
 
 </html>

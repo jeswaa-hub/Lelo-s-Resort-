@@ -1,195 +1,129 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8">
-    <title>Monthly Report - {{ date('F Y', mktime(0, 0, 0, $selectedMonth, 1, $selectedYear)) }}</title>
+    <title>Report</title>
     <style>
-        /* Remove media query to ensure styles apply both on screen and print */
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            margin: 20px;
-            background: white !important;
-            color: #333;
+        body { 
+            font-family: sans-serif; 
+            margin: 0;
+            padding: 20px;
         }
-        .no-print {
-            display: none !important;
-        }
-        .page-break {
-            page-break-before: always;
-        }
-        .header {
+        .header-container {
             text-align: center;
-            margin-bottom: 30px;
-            border-bottom: 2px solid #0b573d;
-            padding-bottom: 10px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 15px;
         }
         .logo {
-            max-width: 100px;
-            margin-bottom: 15px;
+            max-height: 80px;
+            max-width: 200px;
+            margin-bottom: 10px;
         }
-        .header h1 {
-            color: #0b573d;
-            font-size: 28px;
-            margin: 10px 0;
-        }
-        .header h2 {
-            color: #666;
-            font-size: 20px;
-            margin: 5px 0;
-        }
-        .section {
-            margin-bottom: 25px;
-            page-break-inside: avoid;
-        }
-        .section-title {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 15px;
-            color: #0b573d;
-            border-bottom: 1px solid #0b573d;
-            padding-bottom: 5px;
-        }
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-        .stat-box {
-            border: 1px solid #0b573d;
-            padding: 15px;
-            text-align: center;
-            background-color: #f9f9f9;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .stat-value {
+        .report-title {
+            margin: 0;
             font-size: 24px;
-            font-weight: bold;
-            color: #0b573d;
-            margin: 10px 0;
+            color: #333;
         }
-        .stat-label {
-            font-size: 14px;
-            color: #666;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+        .generated-on {
+            text-align: right;
+            font-size: 10px;
+            color: #777;
+            margin-bottom: 15px;
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 15px 0;
-            background-color: white;
+        .report-container { 
+            width: 100%; 
         }
-        th, td {
-            border: 1px solid #0b573d;
-            padding: 12px 8px;
-            text-align: left;
+        .summary-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 20px; 
         }
-        th {
-            background-color: #0b573d;
-            color: white;
-            font-weight: bold;
+        .summary-table th, .summary-table td { 
+            border: 1px solid #ddd; 
+            padding: 10px; 
+            text-align: left; 
         }
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
+        .summary-table th { 
+            background-color: #f2f2f2; 
+            font-weight: bold; 
         }
-        .footer {
-            text-align: center;
-            margin-top: 30px;
-            font-size: 12px;
-            color: #666;
-            border-top: 1px solid #0b573d;
-            padding-top: 15px;
+        .summary-table .metric { 
+            width: 70%; 
         }
-        .footer p {
-            margin: 5px 0;
+        .summary-table .value { 
+            width: 30%; 
+            text-align: right; 
+        }
+        .total { 
+            font-weight: bold; 
         }
         
         /* Print-specific styles */
-        @page {
-            size: A4;
-            margin: 2cm;
+        @media print {
+            body {
+                padding: 0;
+            }
+            .header-container {
+                page-break-after: avoid;
+            }
+            .summary-table {
+                page-break-inside: avoid;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <img src="{{ asset('images/appicon.png') }}" alt="Lelo's Resort Logo" class="logo">
-        <h1>Monthly Report</h1>
-        <h2>{{ date('F Y', mktime(0, 0, 0, $selectedMonth, 1, $selectedYear)) }}</h2>
+    @php
+        $reportTitle = 'Report';
+        if ($filterType == 'monthly') {
+            $reportTitle = 'Monthly Report for ' . date('F Y', mktime(0, 0, 0, $selectedMonth, 1, $selectedYear));
+        } elseif ($filterType == 'weekly') {
+            $reportTitle = 'Weekly Report for Week ' . substr($selectedWeek, 6) . ', ' . substr($selectedWeek, 0, 4);
+        } elseif ($filterType == 'yearly') {
+            $reportTitle = 'Yearly Report for ' . $selectedYear;
+        }
+    @endphp
+
+    <div class="header-container">
+        <img src="{{ asset('images/logo new.png') }}" alt="Company Logo" class="logo">
+        <h1 class="report-title">{{ $reportTitle }}</h1>
     </div>
 
-    <div class="section">
-        <div class="section-title">Monthly Overview</div>
-        <div class="stats-grid">
-            <div class="stat-box">
-                <div class="stat-value">{{ $confirmedBookings }}</div>
-                <div class="stat-label">Total Paid Bookings</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-value">{{ ($adultGuests ?? 0) + ($childGuests ?? 0) }}</div>
-                <div class="stat-label">Total Guests</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-value">{{ $adultGuests }}</div>
-                <div class="stat-label">Adult Guests</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-value">{{ $childGuests }}</div>
-                <div class="stat-label">Child Guests</div>
-            </div>
-        </div>
-    </div>
+    <div class="generated-on">Generated on: {{ now('Asia/Manila')->format('F d, Y h:i A') }}</div>
 
-    <div class="section">
-        <div class="section-title">Booking Statistics</div>
-        <div class="stats-grid">
-            <div class="stat-box">
-                <div class="stat-value">{{ $mostBookedRoomType ?? 'N/A' }}</div>
-                <div class="stat-label">Most Booked Room Type</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-value">{{ $cancelledBookings }}</div>
-                <div class="stat-label">Cancelled Bookings ({{ $cancellationPercentage }}%)</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-value">{{ $checkedOutCount }}</div>
-                <div class="stat-label">Total Checked Out</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-value">{{ $earlyCheckedOutCount }}</div>
-                <div class="stat-label">Early Checked Out</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="section">
-        <div class="section-title">Payment Status Breakdown</div>
-        <table>
-            <thead>
-                <tr>
-                    <th>Status</th>
-                    <th>Count</th>
-                    <th>Percentage</th>
-                </tr>
-            </thead>
+    <div class="report-container">
+        <table class="summary-table">
             <tbody>
-                @foreach($paymentStatusData as $status => $count)
                 <tr>
-                    <td>{{ ucfirst($status) }}</td>
-                    <td>{{ $count }}</td>
-                    <td>{{ array_sum($paymentStatusData) > 0 ? number_format(($count / array_sum($paymentStatusData)) * 100, 1) : '0' }}%</td>
+                    <td class="metric">Total Sale</td>
+                    <td class="value">&#8369;{{ number_format($totalRevenue ?? 0, 2) }}</td>
                 </tr>
-                @endforeach
+                <tr>
+                    <td class="metric">Total Paid Bookings</td>
+                    <td class="value">{{ $confirmedBookings ?? 0 }}</td>
+                </tr>
+                <tr>
+                    <td class="metric">Total Guests (Adults + Children)</td>
+                    <td class="value">{{ ($adultGuests ?? 0) + ($childGuests ?? 0) }}</td>
+                </tr>
+                <tr>
+                    <td class="metric">Most Booked Room Type</td>
+                    <td class="value">{{ $mostBookedRoomType ?? 'N/A' }}</td>
+                </tr>
+                <tr>
+                    <td class="metric">Cancelled Bookings</td>
+                    <td class="value">{{ $cancelledBookings ?? 0 }}</td>
+                </tr>
+                <tr>
+                    <td class="metric">Checked-in Bookings</td>
+                    <td class="value">{{ $checkedInCount ?? 0 }}</td>
+                </tr>
+                <tr>
+                    <td class="metric">Checked-out Bookings</td>
+                    <td class="value">{{ $checkedOutCount ?? 0 }}</td>
+                </tr>
             </tbody>
         </table>
-    </div>
-
-    <div class="footer">
-        <p>Generated on {{ date('F d, Y h:i A') }}</p>
-        <p>Lelo's Resort Reservation and Management System</p>
     </div>
 </body>
 </html>

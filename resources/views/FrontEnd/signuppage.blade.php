@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Signup - Lelo's Resort</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/logo new.png') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link
         href="https://fonts.googleapis.com/css2?family=Anton&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap"
@@ -84,8 +85,12 @@
 </head>
 
 <body>
+    <x-loading-screen />
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;"></div>
+
+    @include('Alert.errorLogin')
     @include('Alert.loginSuccessUser')
-    @include('Alert.errornotification')
 
     <div class="w-100 d-flex justify-content-between align-items-center p-3">
         <!-- Back Button -->
@@ -124,8 +129,8 @@
                                 pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
                                 title="Please enter a valid email address"
                                 oninput="this.value = this.value.toLowerCase().slice(0, 30);">
-                            <div id="emailValidationMessage" class="invalid-feedback">
-                                Please enter a valid email address.
+                            <div id="emailValidationMessage" class="mt-1" style="font-size: 0.875em;">
+                                <!-- This is where the email validation message will appear -->
                             </div>
                         </div>
                         <div class="mb-3">
@@ -139,10 +144,9 @@
                         <div class="mb-3">
                             <div class="input-group">
                                 <input type="password" class="form-control p-2 font-paragraph" id="password"
-                                    name="password" placeholder="Password..." required oninput="checkPasswordMatch()"
-                                    maxlength="20" required>
-                                <button class="btn btn-outline-secondary" type="button" id="togglePassword"
-                                    style="height:42px;">
+                                    name="password" placeholder="Password..." required
+                                    maxlength="20">
+                                <button class="btn btn-outline-secondary" type="button" id="togglePassword" style="height:42px;">
                                     <i class="fa-solid fa-eye"></i>
                                 </button>
                             </div>
@@ -159,8 +163,8 @@
                         <div class="mb-1">
                             <div class="input-group">
                                 <input type="password" class="form-control p-2 font-paragraph"
-                                    id="password_confirmation" name="password_confirmation"
-                                    placeholder="Confirm Password..." required oninput="checkPasswordMatch()"
+                                    id="password_confirmation" name="password_confirmation" 
+                                    placeholder="Confirm Password..." required
                                     maxlength="20" required>
                                 <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword"
                                     style="height:42px;">
@@ -174,7 +178,7 @@
                         </div>
 
                         <div class="form-check text-start mt-2 mb-2">
-                            <input class="form-check-input" type="checkbox" id="agreeTerms" required>
+                            <input class="form-check-input" type="checkbox" id="agreeTerms">
                             <label class="form-check-label text-color-1 font-paragraph" for="agreeTerms"
                                 style="font-size: 0.9rem;">
                                 I agree to the
@@ -327,33 +331,10 @@
                                 }
                             });
 
-                            function checkPasswordMatch() {
-                                const password = document.getElementById('password');
-                                const confirmPassword = document.getElementById('password_confirmation');
-                                const matchMessage = document.getElementById('passwordMatchMessage').querySelector('small');
-                                const signupBtn = document.getElementById('signup-btn');
-
-                                if (confirmPassword.value === '') {
-                                    matchMessage.textContent = '';
-                                    matchMessage.className = 'text-muted';
-                                    signupBtn.disabled = true;
-                                    return;
-                                }
-
-                                if (password.value === confirmPassword.value) {
-                                    matchMessage.textContent = 'Passwords match';
-                                    matchMessage.className = 'text-success';
-                                    signupBtn.disabled = false;
-                                } else {
-                                    matchMessage.textContent = 'Password does not match';
-                                    matchMessage.className = 'text-danger';
-                                    signupBtn.disabled = true;
-                                }
-                            }
                         </script>
 
                         <div class="mt-3 text-center">
-                            <button type="submit" id="signup-btn" class="signup-button">
+                            <button type="submit" id="signup-btn" class="signup-button" disabled>
                                 SIGN-UP
                                 <span class="arrow d-flex align-items-center justify-content-center rounded-circle">
                                     &rsaquo;
@@ -386,22 +367,29 @@
 
                 <!-- Header -->
                 <div class="modal-header bg-success text-white rounded-top-4 py-3">
-                    <h5 class="modal-title fw-bold" id="otpModalLabel">Verify Your Email</h5>
+                    <h5 class="modal-title" id="otpModalLabel">Verify Your Email</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                         aria-label="Close"></button>
                 </div>
 
                 <!-- Body -->
                 <div class="modal-body px-4 py-3">
-                    <p class="text-success mb-3" style="font-size: 1rem;">
-                        We've sent a 6-digit OTP to your email. Please enter it below to verify your account.
+                    <p class="text-muted mb-3 text-center">
+                        We've sent a 6-digit OTP to <strong id="otp-sent-to-email">your email</strong>. Please enter it below to verify your account.
                     </p>
-                    <input type="text" id="otp" class="form-control p-2 border-success" placeholder="Enter OTP"
-                        maxlength="6" style="font-weight: 500;">
+                    <div class="d-flex justify-content-center">
+                        <input type="text" id="otp" class="form-control p-2 text-center" placeholder="Enter OTP"
+                            maxlength="6" style="font-weight: 500; width: 200px; letter-spacing: 0.5rem;">
+                    </div>
                 </div>
 
                 <!-- Footer -->
                 <div class="modal-footer border-0 px-4 pb-4">
+                    <div class="text-center w-100">
+                        <small class="text-muted">Didn't receive the code?</small>
+                        <button type="button" id="resendSignupOtpBtn" class="btn btn-link text-decoration-none p-0" disabled>Resend OTP</button>
+                        <small id="signupOtpTimer" class="text-muted ms-1">(60s)</small>
+                    </div>
                     <button type="button" id="verify-otp" class="btn btn-success fw-bold px-4 py-2 w-100">
                         Verify OTP
                     </button>
@@ -415,6 +403,184 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // --- BOOTSTRAP TOAST HELPER (from login page) ---
+        function showBootstrapToast(message, type = 'success') {
+            const toastContainer = document.querySelector('.toast-container');
+            if (!toastContainer) return;
+
+            let iconClass = '';
+            let bgColor = '';
+            let fontWeightClass = '';
+            let closeButtonHTML = '<button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>';
+
+            if (type === 'success') {
+                iconClass = 'fa-check-circle';
+                bgColor = 'bg-success';
+                fontWeightClass = 'fw-bold';
+                closeButtonHTML = ''; // No close button for success
+            } else if (type === 'error') {
+                iconClass = 'fa-exclamation-circle';
+                bgColor = 'bg-danger';
+            } else if (type === 'warning') {
+                iconClass = 'fa-exclamation-circle';
+                bgColor = 'bg-warning';
+            }
+
+            const toastEl = document.createElement('div');
+            toastEl.classList.add('toast', 'align-items-center', 'text-white', bgColor, 'border-0');
+            toastEl.setAttribute('role', 'alert');
+            toastEl.setAttribute('aria-live', 'assertive');
+            toastEl.setAttribute('aria-atomic', 'true');
+
+            toastEl.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body ${fontWeightClass}">
+                        <i class="fas ${iconClass} me-2"></i>
+                        ${message}
+                    </div>
+                    ${closeButtonHTML}
+                </div>
+            `;
+
+            toastContainer.appendChild(toastEl);
+
+            const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
+            toast.show();
+
+            toastEl.addEventListener('hidden.bs.toast', () => toastEl.remove());
+        }
+    </script>
+    <script>
+        // Real-time email validation
+        $('#email').on('blur', function() {
+            let emailField = $(this);
+            let email = emailField.val();
+            let validationMessage = $('#emailValidationMessage');
+            let signupBtn = $('#signup-btn');
+            
+            // Simple regex for email format validation
+            const emailPattern = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
+
+            if (email.length === 0) {
+                emailField.removeClass('is-invalid is-valid');
+                validationMessage.empty();
+                signupBtn.prop('disabled', true); // Disable button if email is empty
+                return;
+            }
+
+            if (!emailPattern.test(email)) {
+                emailField.removeClass('is-valid').addClass('is-invalid');
+                validationMessage.html('<span class="text-danger">Please enter a valid email format.</span>');
+                signupBtn.prop('disabled', true); // Disable button for invalid format
+                return;
+            }
+
+            $.ajax({
+                url: "{{ url('/signup/check-email') }}",
+                method: "POST",
+                data: {
+                    email: email,
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    emailField.removeClass('is-invalid').addClass('is-valid');
+                    validationMessage.html('<span class="text-success">' + response + '</span>');
+                    validateForm(); // Re-check all form conditions
+                },
+                error: function(xhr) {
+                    emailField.removeClass('is-valid').addClass('is-invalid');
+                    validationMessage.html('<span class="text-danger">' + xhr.responseText + '</span>');
+                    signupBtn.prop('disabled', true);
+                }
+            });
+        });
+
+        // Central function to validate the entire form and manage the signup button state
+        function validateForm() {
+            const emailField = $('#email');
+            const passwordField = $('#password');
+            const confirmPasswordField = $('#password_confirmation');
+            const termsCheckbox = $('#agreeTerms');
+            const signupBtn = $('#signup-btn');
+            const matchMessage = $('#passwordMatchMessage small');
+
+            // Condition 1: Email must be valid and available (has 'is-valid' class)
+            const isEmailValid = emailField.hasClass('is-valid');
+
+            // Condition 2: Passwords must not be empty and must match
+            const passwordsMatch = passwordField.val() !== '' && passwordField.val() === confirmPasswordField.val();
+
+            // Update password match message
+            if (confirmPasswordField.val() !== '') {
+                if (passwordsMatch) {
+                    matchMessage.text('Passwords match').removeClass('text-danger').addClass('text-success');
+                } else {
+                    matchMessage.text('Passwords do not match').removeClass('text-success').addClass('text-danger');
+                }
+            } else {
+                matchMessage.text('').removeClass('text-success text-danger');
+            }
+
+            // Condition 3: Terms must be agreed to
+            const termsAgreed = termsCheckbox.is(':checked');
+
+            // Enable or disable the button based on all conditions
+            if (isEmailValid && passwordsMatch && termsAgreed) {
+                signupBtn.prop('disabled', false);
+            } else {
+                signupBtn.prop('disabled', true);
+            }
+        }
+
+        // Add event listeners to all relevant fields to trigger validation
+        $('#password, #password_confirmation, #agreeTerms').on('input change', validateForm);
+
+        // --- OTP TIMER AND RESEND LOGIC (from login page) ---
+        function setupOtpTimer(resendBtnId, timerElId, email, resendUrl) {
+            const resendBtn = document.getElementById(resendBtnId);
+            const timerEl = document.getElementById(timerElId);
+            let timer;
+
+            function startTimer() {
+                let seconds = 60;
+                resendBtn.disabled = true;
+                timerEl.style.display = 'inline';
+
+                timer = setInterval(() => {
+                    seconds--;
+                    timerEl.textContent = `(${seconds}s)`;
+                    if (seconds <= 0) {
+                        clearInterval(timer);
+                        resendBtn.disabled = false;
+                        timerEl.style.display = 'none';
+                    }
+                }, 1000);
+            }
+
+            resendBtn.addEventListener('click', async () => {
+                resendBtn.disabled = true;
+                resendBtn.innerHTML = 'Sending...';
+
+                try {
+                    // For signup, we need to resend all form data, not just email
+                    const formData = new FormData(document.getElementById('signup-form'));
+                    const response = await fetch(resendUrl, {
+                        method: "POST",
+                        body: formData,
+                        headers: { "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"), "Accept": "application/json" }
+                    });
+                    const data = await response.json();
+                    showBootstrapToast(data.message, data.success ? 'success' : 'error');
+                } finally {
+                    resendBtn.innerHTML = 'Resend OTP';
+                    startTimer();
+                }
+            });
+
+            startTimer();
+        }
+    </script>
     <script>
         $(document).ready(function () {
             // Handle signup button click
@@ -451,7 +617,7 @@
                         // Check if enough time has passed since last request
                         const now = Date.now();
                         if (now - lastOtpRequest < OTP_COOLDOWN) {
-                            alert("Please wait 60 seconds before requesting another OTP");
+                            showBootstrapToast("Please wait 60 seconds before requesting another OTP", "warning");
                             return false;
                         }
                         lastOtpRequest = now;
@@ -466,8 +632,10 @@
                     </span>
                 `);
 
-                        alert(response.message);
+                        showBootstrapToast(response.message, 'success');
                         $('#otpModal').modal('show'); // Show OTP modal
+                        $('#otp-sent-to-email').text(formData.email); // Show email in modal
+                        setupOtpTimer('resendSignupOtpBtn', 'signupOtpTimer', formData.email, "{{ route('signup.send-otp') }}"); // Start timer
                     },
                     error: function (xhr) {
                         // Reset button state
@@ -498,11 +666,11 @@
                     method: "POST",
                     data: formData,
                     success: function (response) {
-                        alert(response.message);
-                        window.location.href = "{{ url('/login') }}"; // Redirect to login page
+                        showBootstrapToast(response.message || 'OTP Verified Successfully!', 'success');
+                        window.location.href = response.redirect || "{{ url('/login') }}"; // Redirect to login page
                     },
                     error: function (xhr) {
-                        alert(xhr.responseJSON?.error || "Invalid OTP");
+                        showBootstrapToast(xhr.responseJSON?.message || "Invalid OTP", 'error');
                     }
                 });
             });
@@ -512,9 +680,9 @@
                 if (xhr.status === 422) {
                     let errors = xhr.responseJSON.errors;
                     let errorMessage = Object.values(errors).map(e => e[0]).join("\n");
-                    alert(errorMessage);
+                    showBootstrapToast(errorMessage, 'error');
                 } else {
-                    alert("Something went wrong. Please try again.");
+                    showBootstrapToast(xhr.responseJSON?.message || "Something went wrong. Please try again.", 'error');
                 }
             }
         });
@@ -586,27 +754,6 @@
                     percentage: Math.min(strength, 100)
                 };
             }
-        });
-        // Add this script before </html>
-        document.addEventListener('DOMContentLoaded', function () {
-            const form = document.querySelector('form');
-            const submitBtn = document.querySelector('button[type="submit"]');
-            const requiredInputs = form.querySelectorAll('input[required]');
-
-            function checkForm() {
-                let allFilled = true;
-                requiredInputs.forEach(input => {
-                    if (!input.value.trim()) allFilled = false;
-                });
-                submitBtn.disabled = !allFilled;
-            }
-
-            requiredInputs.forEach(input => {
-                input.addEventListener('input', checkForm);
-            });
-
-            // Initial check on page load
-            checkForm();
         });
     </script>
 

@@ -15,7 +15,8 @@
 
 <style>
   * {
-    font-family: 'Montserrat';
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 500;
   }
 
   /* Default navbar link style */
@@ -76,9 +77,8 @@
 
       <!-- Logo always visible -->
       <a class="navbar-brand d-flex align-items-center ms-3" href="#">
-        <img src="{{ asset('images/logo2.png') }}" alt="Logo" width="100" height="100" class="rounded-circle">
+        <img src="{{ asset('images/logo new.png') }}" alt="Logo" width="150" height="150" class="rounded-circle">
       </a>
-
       <!-- Burger toggler (opens offcanvas) -->
       <button class="navbar-toggler me-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNav"
         aria-controls="offcanvasNav">
@@ -96,21 +96,21 @@
             <li class="nav-item">
               <a class="nav-link text-black px-3 py-2 {{ Request::routeIs('staff.dashboard') ? 'active bg-white bg-opacity-10' : '' }}"
                 href="{{ route('staff.dashboard') }}">
-                <i class="fas fa-tachometer-alt"></i> Dashboard
+<i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
               </a>
             </li>
 
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle text-black px-3 py-2" href="#" role="button" data-bs-toggle="dropdown"
                 aria-expanded="false">
-                <i class="fas fa-calendar-alt"></i> Reservations
+<i class="fas fa-calendar-alt"></i> <span>Reservations</span>
               </a>
               <ul class="dropdown-menu p-1">
-                <li><a class="dropdown-item text-black rounded py-1" href="{{ route('staff.reservation') }}">Online
+                <li><a class="dropdown-item rounded py-1" href="{{ route('staff.reservation') }} ">Online
                     Reservations</a></li>
-                <li><a class="dropdown-item text-black rounded py-1" href="{{ route('staff.walkIn') }}">Walk In
+                <li><a class="dropdown-item rounded py-1" href="{{ route('staff.walkIn') }}" >Walk In
                     Reservations</a></li>
-                <li><a class="dropdown-item text-black rounded py-1" href="{{ route('staff.accomodations') }}">Room
+                <li><a class="dropdown-item rounded py-1" href="{{ route('staff.accomodations') }}">Room
                     Availability</a></li>
               </ul>
             </li>
@@ -118,14 +118,14 @@
             <li class="nav-item">
               <a class="nav-link text-black px-3 py-2 {{ Request::routeIs('staff.guests') ? 'active bg-white bg-opacity-10' : '' }}"
                 href="{{ route('staff.guests') }}">
-                <i class="fas fa-users"></i> Guests
+                <i class="fas fa-users"></i> <span>Guests</span>
               </a>
             </li>
 
             <li class="nav-item">
               <a class="nav-link text-black px-3 py-2 {{ Request::routeIs('staff.damageReport') ? 'active bg-white bg-opacity-10' : '' }}"
                 href="{{ route('staff.damageReport') }}">
-                <i class="fas fa-clipboard-list"></i> Damage Report
+                <i class="fas fa-clipboard-list"></i> <span ">Damage Report</span>
               </a>
             </li>
 

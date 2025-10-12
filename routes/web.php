@@ -16,6 +16,7 @@ use App\Http\Controllers\SignUpController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\Admin\RoomController;
+use App\Http\Controllers\PaymentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,10 +28,6 @@ use App\Http\Controllers\Admin\RoomController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-// Admin Login
-Route::get('/login/admin', [AdminSideController::class, 'AdminLogin'])->name('AdminLogin');
-Route::post('/login/admin/authenticate', [AdminSideController::class, 'login'])->name('authenticate');
-
 // Apply middleware to admin-specific routes only
 Route::middleware(['isAdmin', 'prevent.back'])->group(function () {
     // ADMIN ROUTES
@@ -42,7 +39,7 @@ Route::middleware(['isAdmin', 'prevent.back'])->group(function () {
     Route::post('/store-addons', [AdminSideController::class, 'storeAddOns'])->name('storeAddOns');
     Route::put('/edit-addons/{id}', [AdminSideController::class, 'editAddOn'])->name('editAddOn');
     Route::delete('/addons/delete/{id}', [AdminSideController::class, 'deleteAddOn'])->name('deleteAddOn');
-    Route::post('add-room', [AdminSideController::class, 'addRoom'])->name('addRoom');
+    Route::post('/add-room', [AdminSideController::class, 'addRoom'])->name('addRoom');
     Route::put('/rooms/update/{id}', [AdminSideController::class, 'updateRoom'])->name('updateRoom');
     Route::delete('/rooms/delete/{id}', [AdminSideController::class, 'deleteRoom'])->name('deleteRoom');
     Route::get('/rooms-display', [AdminSideController::class, 'DisplayAccomodations'])->name('rooms');
@@ -53,6 +50,7 @@ Route::middleware(['isAdmin', 'prevent.back'])->group(function () {
     Route::get('/add-activities', [AdminSideController::class, 'Activities'])->name('addActivities');
     Route::post('/store-activities', [AdminSideController::class, 'storeActivity'])->name('storeActivity');
     Route::put('/activities/update/{id}', [AdminSideController::class, 'updateActivity'])->name('updateActivity');
+    Route::delete('/activities/delete/{id}', [AdminSideController::class, 'deleteActivity'])->name('deleteActivity');
     Route::get('/guests', [AdminSideController::class, 'guests'])->name('guests');
     Route::post('/guests/ban/{id}', [AdminSideController::class, 'banGuest'])->name('ban.guest');
     Route::get('/transactions', [AdminSideController::class, 'editPrice'])->name('transactions');
@@ -60,7 +58,9 @@ Route::middleware(['isAdmin', 'prevent.back'])->group(function () {
     Route::get('/export-pdf', [AdminSideController::class, 'exportPDF'])->name('transactions.export.pdf');
     Route::post('/transactions/add-price', [AdminSideController::class, 'addPrice'])->name('addPrice');
     Route::post('/transactions/update-entrance-fee', [AdminSideController::class, 'updatePrice'])->name('updatePrice');
+    Route::delete('/transactions/delete-price/{id}', [AdminSideController::class, 'deletePrice'])->name('deletePrice');
     Route::get('reports', [AdminSideController::class, 'reports'])->name('reports');
+    Route::get('/reports/compare', [AdminSideController::class, 'compareReports'])->name('reports.compare');
     Route::get('/export-excel-reports', [AdminSideController::class, 'exportExcelReports'])->name('export.excel');
     Route::get('/admin/reports/export-pdf', [AdminSideController::class, 'exportPDFReports'])->name('admin.reports.export-pdf');
     Route::get('/admin/reports/print', [AdminSideController::class, 'printReport'])->name('reports.print');
@@ -81,15 +81,15 @@ Route::get('/login', [LoginController::class, 'login'])->name('login');
 Route::post('/login/verify-recaptcha', [LoginController::class, 'verifyRecaptcha'])->name('login.verifyRecaptcha');
 Route::post('/login/send-login-otp', [LoginController::class, 'sendLoginOTP'])->name('send-login-otp');
 Route::post('/login/verify-login-otp', [LoginController::class, 'verifyLoginOTP'])->name('verify-login-otp');
-Route::post('/login/resend-otp', [LoginController::class, 'resendOTP'])->name('resend-login-otp');
+Route::post('/login/resend-otp', [LoginController::class, 'resendOTP'])->name('resendOTP');
 Route::post('/login/authenticate', [LoginController::class, 'authenticate'])->name('login.authenticate');
 Route::post('/forgot/otp', [LoginController::class, 'sendOtp'])->name('forgot.sendOTP');
 Route::post('/forgot/reset', [LoginController::class, 'resetPassword'])->name('forgot.reset');
 
 // SIGNUP
 Route::get('/signup', [SignUpController::class, 'signup'])->name('signup');
-Route::post('/signup/send-otp', [SignUpController::class, 'sendOTP'])->name('signup.sendOTP');
-Route::post('/check-email', [SignUpController::class, 'checkEmail'])->name('check.email');
+Route::post('/signup/send-otp', [SignUpController::class, 'sendOTP'])->name('signup.send-otp');
+Route::post('/signup/check-email', [SignUpController::class, 'checkEmail'])->name('check.email');
 Route::post('/signup/verify-otp', [SignUpController::class, 'verifyOTP'])->name('signup.verifyOTP');
 /*Landing page/index */
 Route::get('/', [LandingPageController::class, 'index'])->name('landingpage');
@@ -98,7 +98,7 @@ Route::middleware(['auth', 'prevent.back'])->group(function () {
     Route::get('/homepage', [LandingPageController::class, 'homepage'])->name('homepage');
     Route::get('/profile', [HomePageController::class, 'profilepage'])->name('profile');
     Route::get('/profile/edit', [HomePageController::class, 'editProfile'])->name('editProfile');
-    Route::post('/edit-profile', [HomePageController::class, 'editProfile'])->name('profile.update');
+    Route::post('/profile/edit', [HomePageController::class, 'updateProfile'])->name('profile.update');
     Route::post('/reservation/cancel/{id}', [ReservationController::class, 'guestcancelReservation'])->name('guestcancelReservation');
     Route::get('/reservation-summary/{id}', [ReservationController::class, 'displayReservationSummary'])->name('displaySummary');
     Route::get('/get-all-reservations', [HomePageController::class, 'getAllReservations'])->name('getAllReservations');
@@ -112,6 +112,7 @@ Route::middleware(['auth', 'prevent.back'])->group(function () {
     Route::get('/check-accommodation-availability', [ReservationController::class, 'checkAccommodationAvailability']);
     Route::get('/reservation/fetch-addons', [ReservationController::class, 'fetchAddons'])->name('fetchAddons');
     Route::get('/reservation/payment-process', [ReservationController::class, 'paymentProcess'])->name('paymentProcess');
+    Route::get('/reservation/status/{id}', [ReservationController::class, 'getReservationStatus'])->name('reservation.status');
     Route::get('/reservation/display-summary', [ReservationController::class, 'displayReservationSummary'])->name('summary');
     Route::post('/reservation/feedback', [ReservationController::class, 'feedback'])->name('feedback.store');
 
@@ -125,6 +126,28 @@ Route::middleware(['auth', 'prevent.back'])->group(function () {
     Route::post('/homepage/reservation', [ReservationController::class, 'homepageReservation'])->name('homepageReservation');
     Route::post('/reservation/save-payment-process', [ReservationController::class, 'savePaymentProcess'])->name('savePaymentProcess');
     Route::get('/reservation/display-packages', [ReservationController::class, 'displayPackageSelection'])->name('authenticatedPackages');
+    // PayMongo
+    Route::post('/checkout', [PaymentController::class, 'checkout'])->name('checkout');
+    Route::post('/paymongo/checkout', [PaymentController::class, 'createCheckout'])->name('paymongo.checkout');
+
+    // This route is the success_url for PayMongo.
+    Route::get('/payment/success', function (Request $request) {
+        $reservationId = $request->input('reservation_id');
+        $message = 'Your payment was successful! Your reservation is now being processed.'; // Default message
+
+        if ($reservationId) {
+            $reservation = \Illuminate\Support\Facades\DB::table('reservation_details')->find($reservationId);
+            if ($reservation && $reservation->reservation_status === 'reserved') {
+                $message = 'Thank you for your reservation. Your reservation is now reserved';
+            }
+        }
+
+        return redirect()->route('summary')->with('success', $message);
+    });
+
+    Route::get('/payment/cancel', function () {
+        return redirect()->route('paymentProcess')->with('error', 'Your payment was cancelled.');
+    });
     // API
     Route::get('/get-reservations', function () {
         $reservations = Reservation::select('name', 'reservation_date', 'reservation_time')->get();
@@ -159,6 +182,7 @@ Route::middleware(['auth', 'prevent.back'])->group(function () {
 Route::get('/auth/google/redirect',[GoogleAuthController::class, 'redirect'])->name('google.redirect');
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback']);
 Route::post('/verify-otp', [GoogleAuthController::class, 'verifyOTP'])->name('verifyOTP');
+Route::post('/google/resend-otp', [GoogleAuthController::class, 'resendOTP'])->name('google.resend.otp');
 
 //Staff Route
 Route::middleware(['IsStaff' , 'prevent.back'])->group(function () {
@@ -169,6 +193,7 @@ Route::middleware(['IsStaff' , 'prevent.back'])->group(function () {
     Route::post('/staff/extend-reservation/{id}', [StaffController::class, 'extendReservation'])->name('staff.extendReservation');
     Route::get('/staff/auto-cancellation', [StaffController::class, 'AutoCancellation'])->name('staff.autoCancellation');
     Route::get('/staff/accomodations', [StaffController::class, 'accomodations'])->name('staff.accomodations');
+    Route::get('/staff/accomodations/availability', [StaffController::class, 'getAvailability'])->name('staff.accomodations.availability');
     Route::get('/staff/walk-in-guest', [StaffController::class, 'walkIn'])->name('staff.walkIn');
     Route::get('/staff/walk-in-guest/add', [StaffController::class, 'walkInAdd'])->name('staff.walkin.create');
     Route::post('/staff/walk-in-guest/add', [StaffController::class, 'storeWalkInGuest'])->name('staff.walkin.store');
@@ -185,9 +210,8 @@ Route::middleware(['IsStaff' , 'prevent.back'])->group(function () {
     Route::get('/staff/damage-report', [StaffController::class, 'damageReport'])->name('staff.damageReport');
     Route::post('/staff/damage-report', [StaffController::class, 'storeDamageReport'])->name('staff.storeDamageReport');
     Route::post('/staff/damage-report/edit/{id}', [StaffController::class, 'editDamageReport'])->name('staff.editDamageReport');
+    Route::post('/staff/damage-report/delete/{id}', [StaffController::class, 'deleteDamageReport'])->name('staff.deleteDamageReport');
+    Route::post('/staff/reservations/{id}/update-guests', [StaffController::class, 'updateGuestCount'])->name('staff.reservations.updateGuests');
     Route::get('/staff/guests', [StaffController::class, 'guests'])->name('staff.guests');
     Route::get('/staff/logout', [StaffController::class, 'logout'])->name('staff.logout');
 });
-
-
-

@@ -18,10 +18,12 @@
         width: 8px;
     }
 
+
     .fee-list::-webkit-scrollbar-track {
         background: #e9ecef;
         border-radius: 4px;
     }
+
 
     .fee-list::-webkit-scrollbar-thumb {
         background: #0b573d;
@@ -73,18 +75,18 @@
     font-weight: 600;
 }
 
-.pagination .page-link:hover {
-    background-color: #0b573d;
-    color: #fff;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 6px rgba(11, 87, 61, 0.2);
-}
+    .pagination .page-link:hover {
+        background-color: #0b573d;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
 
-.pagination .page-item.active .page-link {
-    background-color: #0b573d;
-    color: #fff;
-    border-color: #0b573d;
-}
+    .pagination .page-item.active .page-link {
+        background-color: #0b573d;
+        border-color: #0b573d;
+        color: white;
+    }
 
 .pagination .page-item.disabled .page-link {
     background-color: #e9ecef;
@@ -125,6 +127,8 @@
                 <div>
                     <!-- Export Buttons -->
                     <div class="d-flex justify-content-end mb-3">
+                    <!-- Export Buttons -->
+                    <div class="d-flex justify-content-end mb-3">
                         <div class="btn-group">
                             <a href="{{ route('transactions.export.pdf') }}"
                                 class="btn btn-danger btn-sm me-2 rounded-2"
@@ -133,6 +137,10 @@
                                 onmouseout="this.style.transform='scale(1)'">
                                 <i class="fas fa-file-pdf"></i> PDF
                             </a>
+                            <button onclick="printContent()" class="btn btn-primary btn-sm rounded-2"
+                                style="font-size: 14px; background: linear-gradient(180deg, #226214, #43cc25); transition: all 0.3s ease;"
+                                onmouseover="this.style.transform='scale(1.1)'"
+                                onmouseout="this.style.transform='scale(1)'">
                             <button onclick="printContent()" class="btn btn-primary btn-sm rounded-2"
                                 style="font-size: 14px; background: linear-gradient(180deg, #226214, #43cc25); transition: all 0.3s ease;"
                                 onmouseover="this.style.transform='scale(1.1)'"
@@ -190,20 +198,25 @@
 
                                     // Write the content to the new window
                                     printWindow.document.write('<html><head><title>Lelo\'s Resort - Transactions</title>' + styles + '</head><body>');
-                                    printWindow.document.write('<h2 style="text-align: center; margin-bottom: 20px;">Lelo\'s Resort - Transactions Report</h2>');
-                                    printWindow.document.write(contentToPrint);
+                                    printWindow.document.write(header);
+                                    printWindow.document.write(contentToPrint.outerHTML);
                                     printWindow.document.write('</body></html>');
+
 
                                     // Wait for content to load then print
                                     printWindow.document.close();
+                                    printWindow.onload = function () {
                                     printWindow.onload = function () {
                                         printWindow.focus();
                                         printWindow.print();
                                         printWindow.close();
                                     };
-                                }
+                            }
                             </script>
                         </div>
+                        </div>
+                        <!-- Filter and Entrance Fee Section -->
+                     <div class="row mb-4">
                         </div>
                         <!-- Filter and Entrance Fee Section -->
                      <div class="row mb-4">
@@ -222,8 +235,13 @@
                                             <div class="input-group">
                                                 <span class="input-group-text bg-white border-end-0"
                                                     style="height: 45px;">
+                                                <span class="input-group-text bg-white border-end-0"
+                                                    style="height: 45px;">
                                                     <i class="far fa-calendar-alt text-muted"></i>
                                                 </span>
+                                                <input type="date" class="form-control border-start-0" id="start_date"
+                                                    name="start_date" value="{{ request('start_date') }}"
+                                                    style="height: 45px;">
                                                 <input type="date" class="form-control border-start-0" id="start_date"
                                                     name="start_date" value="{{ request('start_date') }}"
                                                     style="height: 45px;">
@@ -234,8 +252,13 @@
                                             <div class="input-group">
                                                 <span class="input-group-text bg-white border-end-0"
                                                     style="height: 45px;">
+                                                <span class="input-group-text bg-white border-end-0"
+                                                    style="height: 45px;">
                                                     <i class="far fa-calendar-alt text-muted"></i>
                                                 </span>
+                                                <input type="date" class="form-control border-start-0" id="end_date"
+                                                    name="end_date" value="{{ request('end_date') }}"
+                                                    style="height: 45px;">
                                                 <input type="date" class="form-control border-start-0" id="end_date"
                                                     name="end_date" value="{{ request('end_date') }}"
                                                     style="height: 45px;">
@@ -248,8 +271,13 @@
                                             <div class="input-group">
                                                 <span class="input-group-text bg-white border-end-0"
                                                     style="height: 45px;">
+                                                <span class="input-group-text bg-white border-end-0"
+                                                    style="height: 45px;">
                                                     <i class="far fa-user text-muted"></i>
                                                 </span>
+                                                <input type="text" class="form-control border-start-0" id="guest_name"
+                                                    name="guest_name" placeholder="Enter guest name"
+                                                    value="{{ request('guest_name') }}" style="height: 45px;">
                                                 <input type="text" class="form-control border-start-0" id="guest_name"
                                                     name="guest_name" placeholder="Enter guest name"
                                                     value="{{ request('guest_name') }}" style="height: 45px;">
@@ -260,17 +288,22 @@
                                         <div class="col-md-3">
                                             <label for="payment_status" class="form-label fw-semibold">Payment
                                                 Status</label>
+                                            <label for="payment_status" class="form-label fw-semibold">Payment
+                                                Status</label>
                                             <div class="input-group">
+                                                <span class="input-group-text bg-white border-end-0"
+                                                    style="height: 45px;">
                                                 <span class="input-group-text bg-white border-end-0"
                                                     style="height: 45px;">
                                                     <i class="fas fa-money-check-alt text-muted"></i>
                                                 </span>
                                                 <select class="form-select border-start-0" id="payment_status"
                                                     name="payment_status" style="height: 45px;">
+                                                <select class="form-select border-start-0" id="payment_status"
+                                                    name="payment_status" style="height: 45px;">
                                                     <option value="">All</option>
-                                                    <option value="pending" {{ request('payment_status') == 'pending' ? 'selected' : '' }}>Pending</option>
                                                     <option value="paid" {{ request('payment_status') == 'paid' ? 'selected' : '' }}>Paid</option>
-                                                    <option value="cancelled" {{ request('payment_status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                                                    <option value="partial" {{ request('payment_status') == 'partial' ? 'selected' : '' }}>Partial</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -279,13 +312,18 @@
                                         <div class="col-12 d-flex justify-content-end mt-4">
                                             <a href="{{ route('transactions') }}" 
                                                class="btn btn-outline-secondary btn-custom me-2">
+                                            <a href="{{ route('transactions') }}" 
+                                               class="btn btn-outline-secondary btn-custom me-2">
                                                 <i class="fas fa-undo-alt me-2"></i>Reset
                                             </a>
+                                        
+                                            <button type="submit" class="btn btn-success btn-custom">
                                         
                                             <button type="submit" class="btn btn-success btn-custom">
                                                 <i class="fas fa-filter me-2"></i>Apply
                                             </button>
                                         </div>
+                                        
                                         
                                     </div>
                                     @if(request('year'))
@@ -297,12 +335,15 @@
                         <!-- Entrance Fee Section -->
                         <div class="col-md-5">
                             <div class="card shadow-lg border-0 rounded-4 p-2 bg-white bg-opacity-90 h-100">
+                            <div class="card shadow-lg border-0 rounded-4 p-2 bg-white bg-opacity-90 h-100">
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between align-items-center mb-3">
                                         <h6 class="card-title fw-bold" style="color: #0b573d;">
                                             <i class="fas fa-ticket-alt me-2"></i>Entrance Fee
                                         </h6>
                                         <div>
+                                            <a href="#" class="text-success" data-bs-toggle="modal"
+                                                data-bs-target="#addEntranceFeeModal">
                                             <a href="#" class="text-success" data-bs-toggle="modal"
                                                 data-bs-target="#addEntranceFeeModal">
                                                 <i class="fas fa-plus-circle fs-5"></i>
@@ -320,8 +361,20 @@
                                                             <option value="{{ $session }}">{{ ucfirst($session) }}</option>
                                                         @endforeach
                                                     </select>
+                                                    <select class="form-select form-select-sm" id="sessionFilter">
+                                                        <option value="">All Sessions</option>
+                                                        @foreach($transactions->pluck('session')->unique() as $session)
+                                                            <option value="{{ $session }}">{{ ucfirst($session) }}</option>
+                                                        @endforeach
+                                                    </select>
                                                 </div>
                                                 <div class="col-6">
+                                                    <select class="form-select form-select-sm" id="typeFilter">
+                                                        <option value="">All Types</option>
+                                                        @foreach($transactions->pluck('type')->unique() as $type)
+                                                            <option value="{{ $type }}">{{ ucfirst($type) }}</option>
+                                                        @endforeach
+                                                    </select>
                                                     <select class="form-select form-select-sm" id="typeFilter">
                                                         <option value="">All Types</option>
                                                         @foreach($transactions->pluck('type')->unique() as $type)
@@ -334,7 +387,13 @@
 
                                         <div class="fee-list"
                                             style="height: 100px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #0b573d #e9ecef;">
+
+                                        <div class="fee-list"
+                                            style="height: 100px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #0b573d #e9ecef;">
                                             @foreach($transactions as $fee)
+                                                <div class="fee-item mb-2 p-3 border rounded hover-shadow"
+                                                    data-id="{{ $fee->id }}" data-session="{{ $fee->session }}"
+                                                    data-type="{{ $fee->type }}" style="transition: all 0.3s ease;">
                                                 <div class="fee-item mb-2 p-3 border rounded hover-shadow"
                                                     data-id="{{ $fee->id }}" data-session="{{ $fee->session }}"
                                                     data-type="{{ $fee->type }}" style="transition: all 0.3s ease;">
@@ -342,6 +401,8 @@
                                                         <div>
                                                             <span class="fw-bold text-success">
                                                                 <i class="fas fa-clock me-2"></i>
+                                                                {{ ucfirst($fee->session) }} Session -
+                                                                {{ ucfirst($fee->type) }}
                                                                 {{ ucfirst($fee->session) }} Session -
                                                                 {{ ucfirst($fee->type) }}
                                                             </span>
@@ -360,6 +421,11 @@
                                                                 data-entrance-fee="{{ $fee->entrance_fee }}">
                                                                 <i class="fas fa-edit fs-5"></i>
                                                             </a>
+                                                            <a href="#" class="delete-entrance-fee text-danger ms-2"
+                                                                data-bs-toggle="modal" data-bs-target="#deleteEntranceFeeModal"
+                                                                data-id="{{ $fee->id }}">
+                                                                <i class="fas fa-trash fs-5"></i>
+                                                            </a>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -375,6 +441,8 @@
                     <!-- Add Entrance Fee Modal -->
                     <div class="modal fade" id="addEntranceFeeModal" tabindex="-1"
                         aria-labelledby="addEntranceFeeModalLabel" aria-hidden="true">
+                    <div class="modal fade" id="addEntranceFeeModal" tabindex="-1"
+                        aria-labelledby="addEntranceFeeModalLabel" aria-hidden="true">
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
@@ -383,22 +451,26 @@
                                         aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <form id="entranceFeeForm" method="POST" action="{{ route('updatePrice') }}">
+                                    <form id="entranceFeeForm" method="POST" action="{{ route('addPrice') }}">
                                         @csrf
                                         <div class="mb-3">
                                             <label for="session" class="form-label">Session</label>
                                             <select class="form-select" id="session" name="session" required>
-                                                <option value="Morning Session">Morning Session</option>
-                                                <option value="Night Session">Night Session</option>
+                                            <option value="Morning">Morning Session</option>
+                                            <option value="Evening">Evening Session</option>
                                             </select>
                                         </div>
                                         <div class="mb-3">
                                             <label for="start_time" class="form-label">Start Time</label>
                                             <input type="time" class="form-control" id="start_time" name="start_time"
                                                 required>
+                                            <input type="time" class="form-control" id="start_time" name="start_time"
+                                                required>
                                         </div>
                                         <div class="mb-3">
                                             <label for="end_time" class="form-label">End Time</label>
+                                            <input type="time" class="form-control" id="end_time" name="end_time"
+                                                required>
                                             <input type="time" class="form-control" id="end_time" name="end_time"
                                                 required>
                                         </div>
@@ -426,9 +498,13 @@
                                                 <span class="input-group-text">₱</span>
                                                 <input type="number" class="form-control" id="entrance_fee"
                                                     name="entrance_fee" required>
+                                                <input type="number" class="form-control" id="entrance_fee"
+                                                    name="entrance_fee" required>
                                             </div>
                                         </div>
                                         <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary"
+                                                data-bs-dismiss="modal">Close</button>
                                             <button type="button" class="btn btn-secondary"
                                                 data-bs-dismiss="modal">Close</button>
                                             <button type="submit" class="btn btn-success">Save Changes</button>
@@ -442,6 +518,8 @@
                     <!-- Edit Entrance Fee Modal -->
                     <div class="modal fade" id="editEntranceFeeModal" tabindex="-1"
                         aria-labelledby="editEntranceFeeModalLabel" aria-hidden="true">
+                    <div class="modal fade" id="editEntranceFeeModal" tabindex="-1"
+                        aria-labelledby="editEntranceFeeModalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content">
                                 <div class="modal-header bg-success text-white">
@@ -450,16 +528,21 @@
                                     </h5>
                                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                                         aria-label="Close"></button>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
                                     <form id="editEntranceFeeForm" method="POST" action="{{ route('updatePrice') }}">
                                         @csrf
                                         <input type="hidden" id="edit_fee_id" name="fee_id">
 
+
                                         <div class="mb-3">
                                             <label for="edit_session" class="form-label fw-bold">
                                                 <i class="fas fa-clock me-2 text-success"></i>Session
                                             </label>
+                                            <select class="form-select border-2" id="edit_session" name="session"
+                                                style="height: 45px;" required>
                                             <select class="form-select border-2" id="edit_session" name="session"
                                                 style="height: 45px;" required>
                                                 <option value="Morning">Morning Session</option>
@@ -473,6 +556,8 @@
                                             </label>
                                             <input type="time" class="form-control border-2" id="edit_start_time"
                                                 name="start_time" style="height: 45px;" required>
+                                            <input type="time" class="form-control border-2" id="edit_start_time"
+                                                name="start_time" style="height: 45px;" required>
                                         </div>
 
                                         <div class="mb-3">
@@ -481,12 +566,16 @@
                                             </label>
                                             <input type="time" class="form-control border-2" id="edit_end_time"
                                                 name="end_time" style="height: 45px;" required>
+                                            <input type="time" class="form-control border-2" id="edit_end_time"
+                                                name="end_time" style="height: 45px;" required>
                                         </div>
 
                                         <div class="mb-3">
                                             <label for="edit_type" class="form-label fw-bold">
                                                 <i class="fas fa-users me-2 text-success"></i>Type
                                             </label>
+                                            <select class="form-select border-2" id="edit_type" name="type"
+                                                style="height: 45px;" required>
                                             <select class="form-select border-2" id="edit_type" name="type"
                                                 style="height: 45px;" required>
                                                 <option value="">Select Guest</option>
@@ -501,7 +590,11 @@
                                             </label>
                                             <select class="form-select border-2" id="edit_age_range" name="age_range"
                                                 style="height: 45px;" required>
+                                            <select class="form-select border-2" id="edit_age_range" name="age_range"
+                                                style="height: 45px;" required>
                                                 <option value="">Select Age Range</option>
+                                                <option value="13 years - 18 years above">Adult (13 years - 18 years
+                                                    above)</option>
                                                 <option value="13 years - 18 years above">Adult (13 years - 18 years
                                                     above)</option>
                                                 <option value="12 years old below">Child (12 years old below)</option>
@@ -513,6 +606,10 @@
                                                 <i class="fas fa-dollar-sign me-2 text-success"></i>Entrance Fee
                                             </label>
                                             <div class="input-group" style="height: 45px;">
+                                                <span class="input-group-text" style="height: 46px;">₱</span>
+                                                <input type="number" class="form-control border-2"
+                                                    id="edit_entrance_fee" name="entrance_fee" style="height: 46px;"
+                                                    required>
                                                 <span class="input-group-text" style="height: 46px;">₱</span>
                                                 <input type="number" class="form-control border-2"
                                                     id="edit_entrance_fee" name="entrance_fee" style="height: 46px;"
@@ -575,8 +672,10 @@
                     </script>
 
 
+
+
                     <!-- Table -->
-                    <div class="card shadow-lg border-0 rounded-4">
+                    <div class="card shadow-lg border-0 rounded-4" id="transactionsTableCard">
                         <div class="card-body">
                             <div class="table-responsive">
                                 <table class="table table-hover align-middle">
@@ -586,8 +685,6 @@
                                             <th scope="col" class="py-3 px-4">Rooms Booked</th>
                                             <th scope="col" class="py-3 px-4">Amount Paid</th>
                                             <th scope="col" class="py-3 px-4">Remaining Balance</th>
-                                            <th scope="col" class="py-3 px-4">Reference Number</th>
-                                            <th scope="col" class="py-3 px-4">Payment Mode</th>
                                             <th scope="col" class="py-3 px-4">Check In - Out Date</th>
                                             <th scope="col" class="py-3 px-4">Payment Status</th>
                                         </tr>
@@ -619,13 +716,16 @@
                                             <tr>
                                                 <td colspan="8" class="text-center py-4 text-muted">No transactions found
                                                 </td>
+                                                <td colspan="8" class="text-center py-4 text-muted">No transactions found
+                                                </td>
                                             </tr>
                                         @endforelse
                                     </tbody>
                                 </table>
 
+
                                 <!-- Pagination -->
-                                <div class="d-flex justify-content-between align-items-center mt-4 border-top pt-3">
+                                <div class="d-flex justify-content-between align-items-center mt-4 pt-3">
                                     <div class="text-muted small">
                                         Showing <strong>{{ $reservationDetails->firstItem() ?? 0 }}</strong> 
                                         to <strong>{{ $reservationDetails->lastItem() ?? 0 }}</strong> 
@@ -722,19 +822,65 @@
                                 label: function (context) {
                                     return '₱' + context.raw.toLocaleString();
                                 }
+        document.addEventListener('DOMContentLoaded', function () {
+            const ctx = document.getElementById('incomeChart').getContext('2d');
+
+            // Use data from backend
+            const chartLabels = {!! $chartLabels !!};
+            const chartValues = {!! $chartValues !!};
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: chartLabels,
+                    datasets: [{
+                        label: 'Monthly Income',
+                        data: chartValues,
+                        backgroundColor: 'rgba(11, 87, 61, 0.7)', // Matching your theme color
+                        borderColor: 'rgba(11, 87, 61, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function (value) {
+                                    return '₱' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    return '₱' + context.raw.toLocaleString();
+                                }
                             }
                         }
                     }
                 }
             });
         });
+            });
+        });
     </script>
     <script>
+    <script>
         // Date range validation
+        document.addEventListener('DOMContentLoaded', function () {
         document.addEventListener('DOMContentLoaded', function () {
             const startDate = document.getElementById('start_date');
             const endDate = document.getElementById('end_date');
 
+            startDate.addEventListener('change', function () {
             startDate.addEventListener('change', function () {
                 endDate.min = this.value;
                 if (endDate.value && endDate.value < this.value) {
@@ -742,6 +888,7 @@
                 }
             });
 
+            endDate.addEventListener('change', function () {
             endDate.addEventListener('change', function () {
                 startDate.max = this.value;
                 if (startDate.value && startDate.value > this.value) {
@@ -751,6 +898,14 @@
         });
     </script>
     <script>
+        function updateFeeFields() {
+            const selectElement = document.getElementById('select_fee');
+            const selectedOption = selectElement.options[selectElement.selectedIndex];
+
+            if (selectedOption.value) {
+                document.getElementById('entranceFee').value = selectedOption.dataset.fee;
+            }
+        }
         function updateFeeFields() {
             const selectElement = document.getElementById('select_fee');
             const selectedOption = selectElement.options[selectElement.selectedIndex];
@@ -784,12 +939,48 @@
                 });
             });
         });
+        document.addEventListener('DOMContentLoaded', function () {
+            const editButtons = document.querySelectorAll('[data-bs-toggle="modal"][data-bs-target="#editEntranceFeeModal"]');
+
+            editButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const type = this.getAttribute('data-type');
+                    const typeField = document.getElementById('edit_type');
+
+                    if (typeField) {
+                        // Convert both values to lowercase for comparison
+                        const options = typeField.options;
+                        for (let i = 0; i < options.length; i++) {
+                            if (options[i].value.toLowerCase() === type.toLowerCase()) {
+                                typeField.selectedIndex = i;
+                                break;
+                            }
+                        }
+                    }
+
+                    // ... existing code ...
+                });
+            });
+        });
 
         document.addEventListener('DOMContentLoaded', function () {
             const sessionFilter = document.getElementById('sessionFilter');
             const typeFilter = document.getElementById('typeFilter');
             const feeItems = document.querySelectorAll('.fee-item');
+        document.addEventListener('DOMContentLoaded', function () {
+            const sessionFilter = document.getElementById('sessionFilter');
+            const typeFilter = document.getElementById('typeFilter');
+            const feeItems = document.querySelectorAll('.fee-item');
 
+            if (sessionFilter && typeFilter) {
+                // Add event listeners
+                sessionFilter.addEventListener('change', filterFees);
+                typeFilter.addEventListener('change', filterFees);
+            }
+            function filterFees() {
+                const selectedSession = sessionFilter.value;
+                const selectedType = typeFilter.value;
+                const feeItems = document.querySelectorAll('.fee-item');
             if (sessionFilter && typeFilter) {
                 // Add event listeners
                 sessionFilter.addEventListener('change', filterFees);

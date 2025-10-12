@@ -1,18 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link
         href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Anton&display=swap"
         rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Anton&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <title>Reports</title>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <style>
+    .transition-width {
+        transition: all 0.3s ease;
+    }
+
+    #mainContent.full-width {
+        width: 100% !important;
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+    }
+
     .transition-width {
         transition: all 0.3s ease;
     }
@@ -29,6 +44,7 @@
     @include('Navbar.navbarAdmin')
     <div class="container-fluid min-vh-100 d-flex p-0">
         <div class="d-flex w-100" id="mainLayout" style="min-height: 100vh;">
+
 
             <!-- Main Content -->
             <div id="mainContent" class="flex-grow-1 py-4 px-4 transition-width" style="transition: all 0.3s ease;">
@@ -66,37 +82,45 @@
                                 aria-expanded="false"
                                 style="background: linear-gradient(180deg, #226214, #43cc25); width: 180px;">
                                 <i class="fas fa-upload me-2"></i>Export As
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li>
-                                    <a class="dropdown-item"
-                                        href="{{ route('export.excel', ['month_year' => request('month_year', date('Y-m'))]) }}">
-                                        <i class="fas fa-file-excel me-2"></i>Excel
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item"
-                                        href="{{ route('export.pdf', ['month_year' => request('month_year', date('Y-m'))]) }}">
-                                        <i class="fas fa-file-pdf me-2"></i>PDF
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="#" onclick="printReport()">
-                                        <i class="fas fa-print me-2"></i>Print
-                                    </a>
-                                    <script>
-                                        function printReport() {
-                                            const monthYearInput = document.getElementById('bookingMonth');
-                                            const monthYear = monthYearInput.value;
-                                            const printWindow = window.open(`/admin/reports/print?month_year=${monthYear}`, '_blank');
-                                            printWindow.onload = function () {
-                                                printWindow.print();
-                                            };
-                                        }
-                                    </script>
-                                </li>
-                            </ul>
+                                <button type="button" class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown"
+                                    aria-expanded="false"
+                                    style="background: linear-gradient(180deg, #226214, #43cc25); width: 180px;">
+                                    <i class="fas fa-upload me-2"></i>Export As
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item"
+                                            href="{{ route('export.excel', ['month_year' => request('month_year', date('Y-m'))]) }}">
+                                            <i class="fas fa-file-excel me-2"></i>Excel
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item"
+                                            href="{{ route('export.pdf', ['month_year' => request('month_year', date('Y-m'))]) }}">
+                                            <i class="fas fa-file-pdf me-2"></i>PDF
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#" onclick="printReport()">
+                                            <i class="fas fa-print me-2"></i>Print
+                                        </a>
+                                        <script>
+                                            function printReport() {
+                                                const monthYearInput = document.getElementById('bookingMonth');
+                                                const monthYear = monthYearInput.value;
+                                                const printWindow = window.open(`/admin/reports/print?month_year=${monthYear}`, '_blank');
+                                                printWindow.onload = function () {
+                                                    printWindow.print();
+                                                };
+                                            }
+                                        </script>
+                                    </li>
+                                </ul>
                         </div>
+                        <button type="button" class="btn btn-info ms-2" data-bs-toggle="modal"
+                            data-bs-target="#compareModal" style="color: white;">
+                            <i class="fas fa-balance-scale me-2"></i>Compare Data
+                        </button>
                     </div>
 
                     <div>
@@ -324,6 +348,66 @@
         </div>
     </div>
 
+    <!-- Comparison Modal -->
+    <div class="modal fade" id="compareModal" tabindex="-1" aria-labelledby="compareModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content rounded-4 shadow-lg border-0">
+                <div class="modal-header text-white border-0"
+                    style="background: linear-gradient(135deg, #0b573d, #198754);">
+                    <h5 class="modal-title fw-bold" id="compareModalLabel">
+                        <i class="fas fa-balance-scale-right me-2"></i>Compare Monthly Reports
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4" style="background-color: #f8f9fa;">
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-body">
+                            <div class="row g-3 align-items-end">
+                                <div class="col-md-5">
+                                    <label for="compareMonth1" class="form-label fw-semibold small">Select First
+                                        Month</label>
+                                    <input type="month" class="form-control" id="compareMonth1" name="compare_month_1"
+                                        value="{{ date('Y-m', strtotime('-1 month')) }}">
+                                </div>
+                                <div class="col-md-5">
+                                    <label for="compareMonth2" class="form-label fw-semibold small">Select Second
+                                        Month</label>
+                                    <input type="month" class="form-control" id="compareMonth2" name="compare_month_2"
+                                        value="{{ date('Y-m') }}">
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="button" class="btn btn-success w-100" id="runComparison">
+                                        <i class="fas fa-chart-bar me-1"></i> Compare
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="comparisonResult" class="mt-4" style="display: none;">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="mb-0 fw-bold text-success">Comparison Result</h5>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" id="printComparison">
+                                <i class="fas fa-print me-1"></i> Print
+                            </button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                                <thead class="table-light text-secondary small text-uppercase"></thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div id="comparisonSpinner" class="text-center mt-4" style="display: none;">
+                        <div class="spinner-border text-success" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- Add Chart.js library -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -371,7 +455,7 @@
                         }
                     });
                 @else
-                                                                                                                                                                                                                                                                                                                                                                                                                                const ctx = chartCanvas.getContext('2d');
+                                                                                                                                                                                                                                                                                                                                                                                                                                    const ctx = chartCanvas.getContext('2d');
                     ctx.clearRect(0, 0, chartCanvas.width, chartCanvas.height);
                     ctx.font = '15px Arial';
                     ctx.fillStyle = '#666';
@@ -421,7 +505,7 @@
                         }
                     });
                 @else
-                                                                                                                                                                                                                                                                                                const ctx = chartCanvas.getContext('2d');
+                                                                                                                                                                                                                                                                                                    const ctx = chartCanvas.getContext('2d');
                     ctx.clearRect(0, 0, chartCanvas.width, chartCanvas.height);
                     ctx.font = '15px Arial';
                     ctx.fillStyle = '#666';

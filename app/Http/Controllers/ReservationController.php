@@ -20,6 +20,7 @@ use DateTime;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\NewReservationNotification;
+use App\Mail\PendingReservation;
 
 
 class ReservationController extends Controller
@@ -72,7 +73,7 @@ class ReservationController extends Controller
         return response()->json(['error' => 'Server error'], 500);
     }
 }
-// One Day Stay
+// Day Tour
 public function fetchAccomodationData()
     {
         // Get the authenticated user
@@ -144,6 +145,7 @@ public function selectPackageCustom(Request $request)
         'transactions' => $transaction,
     ]);
 }
+
 public function OnedayStay(Request $request)
 {
     try {
@@ -155,7 +157,13 @@ public function OnedayStay(Request $request)
             'number_of_adults' => 'required|integer|min:1',
             'number_of_children' => 'required|integer|min:0',
             'special_request' => 'nullable|string|max:500',
-            'quantity' => 'required|integer|min:1'
+            'quantity' => 'required|array|min:1',
+            'quantity.*' => 'required|integer|min:1',
+            'quantity' => ['required', 'array', 'min:1', function ($attribute, $value, $fail) {
+                if (DB::table('accomodations')->whereIn('accomodation_id', array_keys($value))->count() !== count($value)) {
+                    $fail('One or more selected accommodations are invalid.');
+                }
+            }],
         ], [
             'number_of_adults.required' => 'At least one adult must be included.',
             'number_of_adults.min' => 'At least one adult must be included.',
@@ -167,24 +175,23 @@ public function OnedayStay(Request $request)
         return redirect()->back()->withErrors($e->validator)->withInput();
     }
     
-    // Validate selected accommodations
-    $selectedAccommodationIds = (array) $request->input('accomodation_id');
-    if (empty($selectedAccommodationIds)) {
-        return redirect()->back()->with('error', 'Please select at least one accommodation.');
-    }
+    // Get quantities and filter for those actually requested (quantity > 0)
+    $quantities = $request->input('quantity', []);
+    $selectedQuantities = array_filter($quantities, function($q) {
+        return is_numeric($q) && $q > 0;
+    });
+    $selectedAccommodationIds = array_keys($selectedQuantities);
 
-    // If single value is received, convert it to array
-    if (!is_array($selectedAccommodationIds)) {
-        $selectedAccommodationIds = [$selectedAccommodationIds];
+    if (empty($selectedAccommodationIds)) {
+        return redirect()->back()->with('error', 'Please select a quantity of at least 1 for an accommodation.');
     }
 
     // Get logged-in user information
     $user = Auth::user();
 
-    // Get dates and quantity
+    // Get dates
     $checkInDate = $request->input('reservation_check_in_date');
     $checkOutDate = $request->input('reservation_check_out_date');
-    $requestedQuantity = (int) $request->input('quantity', 1);
 
     // Check availability using getAvailableQuantities
     $availabilityRequest = new Request([
@@ -200,35 +207,42 @@ public function OnedayStay(Request $request)
         return redirect()->back()->with('error', 'Error checking availability: ' . $availabilityData['error']);
     }
     
-    // Check availability for each selected accommodation
-    foreach ($selectedAccommodationIds as $accommodationId) {
+    // Fetch accommodation data for price calculation and availability check
+    $accommodations = DB::table('accomodations')
+        ->whereIn('accomodation_id', $selectedAccommodationIds)->get()->keyBy('accomodation_id');
+
+    // Check if all requested accommodation IDs were found in the database
+    if ($accommodations->count() !== count($selectedAccommodationIds)) {
+        $foundIds = $accommodations->keys()->toArray();
+        $invalidIds = array_diff($selectedAccommodationIds, $foundIds);
+        
+        return redirect()->back()->with('error', 'The following accommodation IDs are invalid: ' . implode(', ', $invalidIds));
+    }
+
+    $accommodationPrice = 0;
+    $totalQuantity = 0;
+
+    // Check availability and calculate price for each selected accommodation
+    foreach ($selectedQuantities as $accommodationId => $requestedQuantity) {
+        $requestedQuantity = (int) $requestedQuantity;
+
         $availableRooms = $availabilityData[$accommodationId] ?? 0;
         
         if ($requestedQuantity > $availableRooms) {
-            // Get accommodation name for better error message
-            $accommodation = DB::table('accomodations')
-                ->where('accomodation_id', $accommodationId)
-                ->first();
-            
-            $accommodationName = $accommodation ? $accommodation->accomodation_name : "Accommodation ID: $accommodationId";
+            $accommodationName = $accommodations[$accommodationId]->accomodation_name ?? "Accommodation ID: $accommodationId";
             
             return redirect()->back()->with('error', 
                 "Not enough rooms available for {$accommodationName}. " .
                 "Available: {$availableRooms}, Requested: {$requestedQuantity}"
             );
         }
-    }
 
-    // Get accommodations data
-    $accommodations = DB::table('accomodations')
-        ->whereIn('accomodation_id', $selectedAccommodationIds)
-        ->get();
-    
-    if ($accommodations->isEmpty()) {
-        return redirect()->back()->with('error', 'Selected accommodations not found.');
+        // Calculate price for this accommodation and add to total
+        if (isset($accommodations[$accommodationId])) {
+            $accommodationPrice += $accommodations[$accommodationId]->accomodation_price * $requestedQuantity;
+            $totalQuantity += $requestedQuantity;
+        }
     }
-    
-    $accommodationPrice = (float) $accommodations->sum('accomodation_price') * $requestedQuantity;
 
     // Handle activity selection (store as JSON if multiple)
     $activityIds = $request->input('activity_id', []);
@@ -253,10 +267,27 @@ public function OnedayStay(Request $request)
     // Compute total price
     $totalPrice = $entranceFee + $accommodationPrice;
 
+    // Calculate 20% downpayment
+    $downpayment = $totalPrice * 0.20; // Use 0.20 for 20%
+
     // Generate unique reservation ID
     $reservationId = $this->generateReservationId();
 
-    // Save reservation directly to database
+    // Prepare accommodation details with proper structure
+    $accommodationDetails = [];
+    foreach ($selectedQuantities as $accommodationId => $quantity) {
+        if (isset($accommodations[$accommodationId])) {
+            $accommodationDetails[] = [
+                'accomodation_id' => $accommodationId,
+                'accomodation_name' => $accommodations[$accommodationId]->accomodation_name,
+                'quantity' => $quantity,
+                'price' => $accommodations[$accommodationId]->accomodation_price,
+                'total' => $accommodations[$accommodationId]->accomodation_price * $quantity
+            ];
+        }
+    }
+
+    // Save reservation with INDIVIDUAL QUANTITY PER ROOM
     $reservationData = [
         'reservation_id' => $reservationId,
         'user_id' => Auth::id(),
@@ -264,22 +295,27 @@ public function OnedayStay(Request $request)
         'email' => $user->email,
         'mobileNo' => $user->mobileNo,
         'address' => $user->address,
-        'accomodation_id' => json_encode($selectedAccommodationIds),
+        'accomodation_id' => json_encode(array_keys($selectedQuantities)), // Store only IDs as array
         'activity_id' => $selectedActivityId,
         'reservation_check_in' => $request->input('reservation_check_in'),
         'reservation_check_out' => $request->input('reservation_check_out'),
         'reservation_check_in_date' => $checkInDate,
         'reservation_check_out_date' => $checkOutDate,
         'special_request' => $request->input('special_request'),
-        'quantity' => $requestedQuantity,
+        'quantity' => $totalQuantity, // Store TOTAL quantity as integer
+        'room_quantities' => json_encode($selectedQuantities), // Store INDIVIDUAL quantities per room
         'total_guest' => $numAdults + $numChildren,
         'number_of_adults' => $numAdults,
         'number_of_children' => $numChildren,
         'amount' => $totalPrice,
-        'payment_status' => 'pending',
+        'payment_status' => $request->input('payment_Status'),
+        'downpayment' => $downpayment,
+        'balance' => $totalPrice - $downpayment,
         'reservation_status' => 'pending',
-        'created_at' => now(),
-        'updated_at' => now(),
+        'created_at' => now('Asia/Manila'),
+        'updated_at' => now('Asia/Manila'),
+        'paymongo_checkout_id' => null, // Add this line
+        'paymongo_checkout_id' => null, // Add this line
     ];
 
     // Insert reservation into database
@@ -288,12 +324,25 @@ public function OnedayStay(Request $request)
     // Create reservation object for email notification
     $reservation = (object) $reservationData;
 
+    // Prepare accommodation details for the customer email
+    $accommodationDetailsForEmail = [];
+    foreach ($selectedQuantities as $id => $qty) {
+        if (isset($accommodations[$id])) {
+            $accommodationDetailsForEmail[] = [
+                'name' => $accommodations[$id]->accomodation_name,
+                'quantity' => $qty,
+                'price' => $accommodations[$id]->accomodation_price,
+                'total' => $accommodations[$id]->accomodation_price * $qty
+            ];
+        }
+    }
+
     // Retrieve admin email and send notification
     $adminEmail = DB::table('settings')->where('key', 'admin_email')->value('value');
     Mail::to($adminEmail)->send(new NewReservationNotification($reservation));
 
-    // Log reservation creation
-    Log::info('One Day Stay Reservation Created Successfully', [
+    // Log reservation creation for Day Tour
+    Log::info('Day Tour Reservation Created Successfully', [
         'reservation_id' => $reservationId,
         'user_id' => Auth::id(),
         'user_info' => [
@@ -301,10 +350,13 @@ public function OnedayStay(Request $request)
             'email' => $user->email,
             'mobileNo' => $user->mobileNo,
             'address' => $user->address,
+            'special_request' => $request->input('special_request'),
         ],
         'reservation_data' => $reservationData,
         'accommodation_details' => [
-            'selected_ids' => $selectedAccommodationIds,
+            'selected_rooms' => $selectedQuantities, // Individual quantities per room
+            'total_quantity' => $totalQuantity, // Total sum of all rooms
+            'structured_data' => $accommodationDetails,
             'accommodation_price' => $accommodationPrice
         ],
         'activity_details' => [
@@ -324,7 +376,53 @@ public function OnedayStay(Request $request)
         'timestamp' => now()->toDateTimeString()
     ]);
 
-    return redirect()->route('summary')->with('success', 'Reservation processed successfully, wait for the approval of the staff to process your reservation. Thank you for your reservation!');
+    // Instead of redirecting to summary, redirect to payment process with the new reservation ID.
+    return redirect()->route('paymentProcess', ['reservationId' => $reservationId])
+                     ->with('success', 'Reservation details saved. Please proceed with the payment.');
+
+    // return redirect()->route('summary')->with('success', 'Reservation processed successfully, wait for the approval of the staff to process your reservation. Thank you for your reservation!');
+}  
+// Sample function to get reservation with proper room quantities
+public function getReservationWithRooms($reservationId)
+{
+    $reservation = DB::table('reservation_details')
+        ->where('reservation_id', $reservationId)
+        ->first();
+
+    if (!$reservation) {
+        return null;
+    }
+
+    // Get the INDIVIDUAL quantities as array from room_quantities
+    $individualQuantities = json_decode($reservation->room_quantities, true);
+    $accommodationIds = json_decode($reservation->accomodation_id, true);
+
+    // Get accommodation details
+    $accommodations = DB::table('accomodations')
+        ->whereIn('accomodation_id', $accommodationIds)
+        ->get()
+        ->keyBy('accomodation_id');
+
+    // Build room details with INDIVIDUAL quantities
+    $roomDetails = [];
+    foreach ($individualQuantities as $accomodationId => $quantity) {
+        if (isset($accommodations[$accomodationId])) {
+            $roomDetails[] = [
+                'accomodation_id' => $accomodationId,
+                'accomodation_name' => $accommodations[$accomodationId]->accomodation_name,
+                'quantity' => $quantity, // Individual quantity per room
+                'price' => $accommodations[$accomodationId]->accomodation_price,
+                'total' => $accommodations[$accomodationId]->accomodation_price * $quantity
+            ];
+        }
+    }
+
+    return [
+        'reservation' => $reservation,
+        'room_details' => $roomDetails,
+        'total_quantity' => $reservation->quantity, // Total quantity
+        'individual_quantities' => $individualQuantities // Individual quantities per room
+    ];
 }
 public function StayInPackages(Request $request)
 {
@@ -337,24 +435,27 @@ public function StayInPackages(Request $request)
             'number_of_adults' => 'required|integer|min:1',
             'number_of_children' => 'required|integer|min:0',
             'special_request' => 'nullable|string|max:500',
-            'quantity' => 'required|integer|min:1',
-            'total_amount' => 'required|numeric|min:0'
+            'quantity' => 'required|array|min:1',
+            'amount' => 'required|numeric|min:0'
         ], [
             'number_of_adults.required' => 'At least one adult must be included.',
             'number_of_adults.min' => 'At least one adult must be included.',
             'number_of_children.min' => 'Number of children cannot be negative.',
-            'quantity.required' => 'Please select number of rooms.',
-            'quantity.min' => 'Please select at least one room.',
-            'total_amount.required' => 'Total amount is required.',
-            'total_amount.numeric' => 'Total amount must be a valid number.',
-            'total_amount.min' => 'Total amount cannot be negative.',
+            'quantity.required' => 'Please select at least one room.',
+            'amount.numeric' => 'Total amount must be a valid number.',
+            'amount.min' => 'Total amount cannot be negative.',
         ]);
     } catch (\Illuminate\Validation\ValidationException $e) {
         return redirect()->back()->withErrors($e->validator)->withInput();
     }
 
     // Validate selected accommodations
-    $selectedAccommodationIds = $request->input('accomodation_id', []);
+    $quantities = $request->input('quantity');
+    $selectedQuantities = array_filter($quantities, function($q) {
+        return is_numeric($q) && $q > 0;
+    });
+    $selectedAccommodationIds = array_keys($selectedQuantities);
+    
     if (empty($selectedAccommodationIds)) {
         return redirect()->back()->with('error', 'Please select at least one accommodation.');
     }
@@ -363,9 +464,9 @@ public function StayInPackages(Request $request)
     $user = Auth::user();
 
     // Calculate number of nights
-    $checkInDate = new \DateTime($request->input('reservation_check_in_date'));
-    $checkOutDate = new \DateTime($request->input('reservation_check_out_date'));
-    $numberOfNights = $checkInDate->diff($checkOutDate)->days;
+    $checkIn = Carbon::parse($request->input('reservation_check_in_date'));
+    $checkOut = Carbon::parse($request->input('reservation_check_out_date'));
+    $numberOfNights = $checkOut->diffInDays($checkIn);
 
     // Validate that there's at least 1 night
     if ($numberOfNights < 1) {
@@ -374,24 +475,27 @@ public function StayInPackages(Request $request)
 
     // Fetch accommodation prices
     $accommodations = DB::table('accomodations')
-        ->whereIn('accomodation_id', $selectedAccommodationIds)
-        ->get();
-    
-    // Calculate accommodation price: room price × quantity × number of nights
-    $baseAccommodationPrice = (float) $accommodations->sum('accomodation_price');
-    $quantity = (int) $request->input('quantity', 1);
-    $accommodationPrice = $baseAccommodationPrice * $quantity * $numberOfNights;
+        ->whereIn('accomodation_id', $selectedAccommodationIds)->get()->keyBy('accomodation_id');
+
+    $accommodationPrice = 0;
+    $totalQuantity = 0;
+
+    foreach ($selectedQuantities as $accommodationId => $quantity) {
+        if (isset($accommodations[$accommodationId])) {
+            $quantity = (int)$quantity;
+            $accommodationPrice += $accommodations[$accommodationId]->accomodation_price * $quantity * $numberOfNights;
+            $totalQuantity += $quantity;
+        }
+    }
 
     // Get the total amount calculated from frontend
-    $frontendTotalAmount = (float) $request->input('total_amount', 0);
+    $frontendTotalAmount = (float) $request->input('amount', 0);
 
     // Verify that frontend calculation matches backend calculation
-    if (abs($accommodationPrice - $frontendTotalAmount) > 0.01) { // Allow for small floating point differences
+    if (abs($accommodationPrice - $frontendTotalAmount) > 0.01) {
         Log::warning('Price calculation mismatch', [
             'backend_calculated' => $accommodationPrice,
             'frontend_calculated' => $frontendTotalAmount,
-            'base_price' => $baseAccommodationPrice,
-            'quantity' => $quantity,
             'nights' => $numberOfNights,
             'reservation_data' => $request->all()
         ]);
@@ -410,10 +514,28 @@ public function StayInPackages(Request $request)
     // Use the verified total price (accommodation price includes nights calculation)
     $totalPrice = $accommodationPrice;
 
+    // Calculate 20% downpayment
+    $downpayment = $totalPrice * 0.20; // Use 0.20 for 20%
+
     // Generate unique reservation ID
     $reservationId = $this->generateReservationId();
 
-    // Save reservation directly to database
+    // Prepare accommodation details with proper structure
+    $accommodationDetails = [];
+    foreach ($selectedQuantities as $accommodationId => $quantity) {
+        if (isset($accommodations[$accommodationId])) {
+            $accommodationDetails[] = [
+                'accomodation_id' => $accommodationId,
+                'accomodation_name' => $accommodations[$accommodationId]->accomodation_name,
+                'quantity' => $quantity,
+                'price' => $accommodations[$accommodationId]->accomodation_price,
+                'total_per_night' => $accommodations[$accommodationId]->accomodation_price * $quantity,
+                'total_for_stay' => $accommodations[$accommodationId]->accomodation_price * $quantity * $numberOfNights
+            ];
+        }
+    }
+
+    // Save reservation with INDIVIDUAL QUANTITY PER ROOM (same structure as OneDayStay)
     $reservationData = [
         'reservation_id' => $reservationId,
         'user_id' => Auth::id(),
@@ -421,22 +543,25 @@ public function StayInPackages(Request $request)
         'email' => $user->email,
         'mobileNo' => $user->mobileNo,
         'address' => $user->address,
-        'accomodation_id' => json_encode($selectedAccommodationIds),
+        'accomodation_id' => json_encode(array_keys($selectedQuantities)), // Store only IDs as array
         'activity_id' => $selectedActivityId,
         'reservation_check_in' => $request->input('reservation_check_in'),
         'reservation_check_out' => $request->input('reservation_check_out'),
         'reservation_check_in_date' => $request->input('reservation_check_in_date'),
         'reservation_check_out_date' => $request->input('reservation_check_out_date'),
         'special_request' => $request->input('special_request'),
-        'quantity' => $quantity,
+        'quantity' => $totalQuantity, // Store TOTAL quantity as integer
+        'room_quantities' => json_encode($selectedQuantities), // Store INDIVIDUAL quantities per room
         'total_guest' => $numAdults + $numChildren,
         'number_of_adults' => $numAdults,
         'number_of_children' => $numChildren,
         'amount' => $totalPrice,
-        'payment_status' => 'pending',
+        'payment_status' => $request->input('payment_Status'),
+        'downpayment' => $downpayment,
+        'balance' => $totalPrice - $downpayment,
         'reservation_status' => 'pending',
-        'created_at' => now(),
-        'updated_at' => now(),
+        'created_at' => now('Asia/Manila'),
+        'updated_at' => now('Asia/Manila'),
     ];
 
     // Insert reservation into database
@@ -445,12 +570,25 @@ public function StayInPackages(Request $request)
     // Create reservation object for email notification
     $reservation = (object) $reservationData;
 
+    // Prepare accommodation details for the customer email
+    $accommodationDetailsForEmail = [];
+    foreach ($selectedQuantities as $id => $qty) {
+        if (isset($accommodations[$id])) {
+            $accommodationDetailsForEmail[] = [
+                'name' => $accommodations[$id]->accomodation_name,
+                'quantity' => $qty,
+                'price' => $accommodations[$id]->accomodation_price,
+                'total_per_night' => $accommodations[$id]->accomodation_price * $qty,
+                'total_for_stay' => $accommodations[$id]->accomodation_price * $qty * $numberOfNights
+            ];
+        }
+    }
+
     // Retrieve admin email and send notification
     $adminEmail = DB::table('settings')->where('key', 'admin_email')->value('value');
     Mail::to($adminEmail)->send(new NewReservationNotification($reservation));
-
-    // Log reservation creation
-    Log::info('Reservation Created Successfully', [
+        // Log reservation creation
+    Log::info('Stay In Packages Reservation Created Successfully', [
         'reservation_id' => $reservationId,
         'user_id' => Auth::id(),
         'user_info' => [
@@ -458,13 +596,14 @@ public function StayInPackages(Request $request)
             'email' => $user->email,
             'mobileNo' => $user->mobileNo,
             'address' => $user->address,
+            'special_request' => $request->input('special_request'),
         ],
         'reservation_data' => $reservationData,
         'accommodation_details' => [
-            'selected_ids' => $selectedAccommodationIds,
-            'base_accommodation_price' => $baseAccommodationPrice,
-            'accommodation_price_with_nights' => $accommodationPrice,
-            'quantity' => $quantity,
+            'selected_rooms' => $selectedQuantities, // Individual quantities per room
+            'total_quantity' => $totalQuantity, // Total sum of all rooms
+            'structured_data' => $accommodationDetails,
+            'accommodation_price' => $accommodationPrice,
             'number_of_nights' => $numberOfNights
         ],
         'activity_details' => [
@@ -477,26 +616,17 @@ public function StayInPackages(Request $request)
             'total_guests' => $numAdults + $numChildren
         ],
         'price_details' => [
-            'base_price_per_room' => $baseAccommodationPrice,
-            'quantity' => $quantity,
-            'number_of_nights' => $numberOfNights,
             'accommodation_price' => $accommodationPrice,
             'total_price' => $totalPrice,
-            'frontend_calculated' => $frontendTotalAmount
+            'frontend_calculated' => $frontendTotalAmount,
+            'downpayment' => $downpayment
         ],
         'timestamp' => now()->toDateTimeString()
     ]);
 
-    // Determine success message based on reservation status
-    $successMessage = 'Reservation processed successfully, wait for the approval of the staff to process your reservation. Thank you for your reservation!';
-    
-    if ($reservationData['reservation_status'] === 'on-hold') {
-        $successMessage = 'Reservation #' . $reservationId . ' is being on-hold, please pay the required downpayment to complete the process.';
-    } elseif ($reservationData['reservation_status'] === 'reserved') {
-        $successMessage = 'Reservation #' . $reservationId . ' process successfully!';
-    }
-
-    return redirect()->route('summary')->with('success', $successMessage);
+    // Instead of redirecting to summary, redirect to payment process with the new reservation ID.
+    return redirect()->route('paymentProcess', ['reservationId' => $reservationId])
+                     ->with('success', 'Reservation details saved. Please proceed with the payment.');
 }
 public function getAvailableQuantities(Request $request)
 {
@@ -657,6 +787,7 @@ public function getAvailableQuantities(Request $request)
     // Convert stdClass to array for consistency
     $reservationDetails = (array) $reservationDetails;
 
+    $user = auth()->user();
     $packages = Package::all();
 
     // Ensure accommodation IDs are properly handled
@@ -701,6 +832,7 @@ public function getAvailableQuantities(Request $request)
         'totalEntranceFee', 
         'totalAccomodationPrice', 
         'accomodations',
+        'user',
         'numberOfNights',
         'baseAccomodationPrice'
     ));
@@ -831,7 +963,7 @@ public function savePaymentProcess(Request $request)
         'upload_payment' => 'required|image|mimes:jpeg,png,jpg',
         'reference_num' => 'required|string|size:13',
         'balance' => 'required|numeric',
-        'downpayment' => 'required|numeric|min:0' // Downpayment is a numeric amount
+        'downpayment' => 'required|numeric|min:0'
     ]);
 
     // Get the latest reservation for the user
@@ -848,27 +980,12 @@ public function savePaymentProcess(Request $request)
     $downpaymentAmount = str_replace(['₱', ' ', ','], '', $request->input('downpayment'));
     $balance = str_replace(['₱', ' ', ','], '', $request->input('balance'));
     
-    // Determine if it's full payment or partial downpayment
-    $isFullPayment = ($downpaymentAmount >= $reservation->amount);
-    
-    // Set payment status based on payment amount
-    $paymentStatus = $isFullPayment ? 'paid' : 'partial';
-
     $data = [
         'reference_num' => $request->input('reference_num'),
         'downpayment' => $downpaymentAmount, // Store the actual amount paid
         'balance' => $balance,
-        'payment_status' => $paymentStatus,
         'updated_at' => now()
     ];
-
-    // If partial payment, set reservation status to on-hold
-    if (!$isFullPayment) {
-        $data['reservation_status'] = 'on-hold';
-    } else {
-        // If full payment, set reservation status to reserved
-        $data['reservation_status'] = 'reserved';
-    }
 
     // Handle file upload for proof of payment
     if ($request->hasFile('upload_payment')) {
@@ -895,11 +1012,11 @@ public function savePaymentProcess(Request $request)
     // Determine success message based on reservation status
     $successMessage = '';
     if ($updatedReservation->reservation_status === 'on-hold') {
-        $successMessage = 'Downpayment of ₱' . number_format($downpaymentAmount, 2) . ' submitted successfully. Reservation #' . $updatedReservation->reservation_id . ' is on hold. Please pay the remaining balance to complete your reservation.';
+        $successMessage = 'Payment submitted successfully. Reservation #' . $updatedReservation->reservation_id . ' is on hold. Please wait for confirmation.';
     } else if ($updatedReservation->reservation_status === 'reserved') {
-        $successMessage = 'Full payment of ₱' . number_format($downpaymentAmount, 2) . ' submitted successfully. Reservation #' . $updatedReservation->reservation_id . ' is now confirmed!';
+        $successMessage = 'Payment submitted successfully. Reservation #' . $updatedReservation->reservation_id . ' reserved. Your reservation is confirmed.';
     } else {
-        $successMessage = 'Payment of ₱' . number_format($downpaymentAmount, 2) . ' submitted successfully for Reservation #' . $updatedReservation->reservation_id . '.';
+        $successMessage = 'Payment submitted successfully. Reservation #' . $updatedReservation->reservation_id . ' reserved. Your reservation is confirmed.';
     }
 
     return redirect()->route('summary')->with('success', $successMessage);
@@ -982,6 +1099,32 @@ private function generateReservationId()
             'reservationDetails' => $reservationDetails,
             'activities' => $activities,
             'accommodations' => $accommodations
+        ]);
+    }
+
+    public function getReservationStatus($id)
+    {
+        // Ensure the user is authenticated
+        if (!Auth::check()) {
+            return response()->json(['error' => 'Unauthenticated'], 401);
+        }
+
+        $userId = Auth::id();
+
+        // Fetch the reservation ensuring it belongs to the authenticated user
+        $reservation = DB::table('reservation_details')
+            ->where('id', $id)
+            ->where('user_id', $userId)
+            ->select('reservation_status', 'payment_status')
+            ->first();
+
+        if (!$reservation) {
+            return response()->json(['error' => 'Reservation not found or access denied'], 404);
+        }
+
+        return response()->json([
+            'reservation_status' => $reservation->reservation_status,
+            'payment_status' => $reservation->payment_status,
         ]);
     }
 
@@ -1109,11 +1252,10 @@ public function showReservationsInCalendar()
     public function homepageReservation(Request $request)
     {
         // Validate ang request
-        $validated = $request->validate([
+        $request->validate([
             'accomodation_id' => 'required|exists:accomodations,accomodation_id',
             'number_of_adults' => 'required|integer|min:1',
             'number_of_children' => 'required|integer|min:0', // Changed min to 0 as children can be 0
-            'total_guest' =>'required|integer|min:1',
             'reservation_check_in_date' => 'required|date',
             'reservation_check_in' => 'required',
             'reservation_check_out' => 'required',
@@ -1121,24 +1263,33 @@ public function showReservationsInCalendar()
             'activity_id' => 'nullable|array', // Changed to nullable array
             'quantity' => 'required|integer|min:1' // Added validation for quantity
         ]);
-    
+
         try {
+            $user = Auth::user();
             // Kunin ang accommodation details
             $accommodation = Accomodation::findOrFail($request->accomodation_id);
-    
+
             // Calculate total price (assuming price is per unit of quantity)
             $totalPrice = $accommodation->accomodation_price * $request->quantity;
-    
+
             // Calculate total guests
             $totalGuests = $request->number_of_adults + $request->number_of_children;
-    
+
             // Handle activity selection (store as JSON if multiple)
             $activityIds = $request->input('activity_id', []);
             $selectedActivityId = count($activityIds) > 1 ? json_encode($activityIds) : (count($activityIds) === 1 ? $activityIds[0] : null);
-    
-            // I-prepare ang reservation details para sa session
+
+            // Generate a reservation ID
+            $reservationId = $this->generateReservationId();
+
+            // I-prepare ang reservation details para sa database
             $reservationDetails = [
                 'user_id' => Auth::id(),
+                'reservation_id' => $reservationId,
+                'name' => $user->name,
+                'email' => $user->email,
+                'mobileNo' => $user->mobileNo,
+                'address' => $user->address,
                 'accomodation_id' => json_encode([$request->accomodation_id]),
                 'activity_id' => $selectedActivityId, // Add activity_id to reservation details
                 'number_of_adults' => $request->number_of_adults,
@@ -1149,13 +1300,17 @@ public function showReservationsInCalendar()
                 'reservation_check_out' => $request->reservation_check_out,
                 'reservation_check_out_date' => $request->reservation_check_out_date,
                 'quantity' => $request->quantity, // Added quantity to session details
-                'amount' => $totalPrice
+                'amount' => $totalPrice,
+                'reservation_status' => 'pending', // Set initial status to pending
+                'created_at' => now('Asia/Manila'),
+                'updated_at' => now('Asia/Manila'),
             ];
-    
-            // I-save sa session ang reservation details
-            session(['reservation_details' => $reservationDetails]);
-    
-            return redirect()->route('paymentProcess')->with('success', 'Reservation saved.Wait for the staff to process your reservation.Thank you!');
+
+            // I-save sa database ang reservation details
+            DB::table('reservation_details')->insert($reservationDetails);
+
+            // Redirect to payment process with the new reservation ID
+            return redirect()->route('paymentProcess', ['reservationId' => $reservationId])->with('success', 'Reservation saved. Please proceed with the payment.');
 
         } catch (\Exception $e) {
             Log::error('Reservation save error: ' . $e->getMessage());

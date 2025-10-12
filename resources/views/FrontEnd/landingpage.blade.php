@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Lelo's Resort</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/logo new.png') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css">
     <link
@@ -14,8 +15,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    </body>
-
 </head>
 <style>
     h1,
@@ -164,7 +163,7 @@
                 <div class="offcanvas-header" style="background-color: #0b573d; padding: 1.5rem;">
                     <div class="d-flex align-items-center w-100 justify-content-between">
                         <div class="d-flex align-items-center">
-                            <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" class="me-3"
+                            <img src="{{ asset('images/logo new.png') }}" alt="Lelo's Resort Logo" class="me-3"
                                 style="width: 60px; height: auto; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));">
                             <h5 class="offcanvas-title text-white mb-0" id="sideNavbarLabel"
                                 style="font-size: 1.5rem; font-weight: 700; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">
@@ -256,7 +255,7 @@
                                 }
                             </style>
                             <div class="d-flex justify-content-center align-items-center mt-1">
-                                <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" class="mx-3"
+                                <img src="{{ asset('images/logo new.png') }}" alt="Lelo's Resort Logo" class="mx-3"
                                     style="width: 120px; height: auto; @media (max-width: 768px) { width: 100px; }">
                             </div>
                             <div class="d-flex justify-content-center align-items-center">
@@ -312,11 +311,11 @@
                             <div id="carouselExampleInterval" class="carousel slide" data-bs-ride="carousel">
                                 <div class="carousel-inner">
                                     <div class="carousel-item active" data-bs-interval="5000">
-                                        <img src="{{ asset('images/harap.JPG') }}" class="d-block w-100 rounded"
+                                        <img src="{{ asset('images/harap.jpg') }}" class="d-block w-100 rounded"
                                             alt="Hotel Image 1">
                                     </div>
                                     <div class="carousel-item" data-bs-interval="5000">
-                                        <img src="{{ asset('images/labas.JPG') }}" class="d-block w-100 rounded"
+                                        <img src="{{ asset('images/labas.jpg') }}" class="d-block w-100 rounded"
                                             alt="Hotel Image 2">
                                     </div>
                                     <div class="carousel-item" data-bs-interval="5000">
@@ -332,11 +331,11 @@
                                             alt="Hotel Image 3">
                                     </div>
                                     <div class="carousel-item" data-bs-interval="5000">
-                                        <img src="{{ asset('images/dalawa.JPG') }}" class="d-block w-100 rounded"
+                                        <img src="{{ asset('images/dalawa.jpg') }}" class="d-block w-100 rounded"
                                             alt="Hotel Image 3">
                                     </div>
                                     <div class="carousel-item" data-bs-interval="5000">
-                                        <img src="{{ asset('images/tatlo.JPG') }}" class="d-block w-100 rounded"
+                                        <img src="{{ asset('images/tatlo.jpg') }}" class="d-block w-100 rounded"
                                             alt="Hotel Image 3">
                                     </div>
                                 </div>
@@ -618,7 +617,11 @@
                         <div class="row g-4 mb-4">
                             @foreach($chunk as $activity)
                                 <div class="col-md-4">
-                                    <div class="card h-100 shadow-sm border-0" style="border-radius: 20px; overflow: hidden;">
+                                    <div class="card h-100 shadow-sm border-0"
+                                        style="border-radius: 20px; overflow: hidden; cursor: pointer;" data-bs-toggle="modal"
+                                        data-bs-target="#activityModal" data-activity="{{ $activity->activity_name }}"
+                                        data-description="{{ $activity->activity_description ?? 'No description available.' }}"
+                                        data-image="{{ asset('storage/' . $activity->activity_image) }}">
                                         <div class="position-relative">
                                             <img src="{{ asset('storage/' . $activity->activity_image) }}" class="card-img-top"
                                                 alt="{{ $activity->activity_name }}"
@@ -636,6 +639,48 @@
                     @endforeach
                 </div>
             </div>
+
+            <!-- Activity Details Modal -->
+            <div class="modal fade" id="activityModal" tabindex="-1" aria-labelledby="activityModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content" style="border-radius: 15px; overflow: hidden;">
+                        <div class="modal-header text-white border-0"
+                            style="background: linear-gradient(135deg, #0b573d, #198754);">
+                            <h5 class="modal-title fw-bold" id="activityModalLabel">
+                                <i class="bi bi-activity me-2"></i>Activity Details
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body p-4" style="background-color: #f8f9fa;">
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <img id="modalActivityImage" src="" class="img-fluid rounded shadow-sm"
+                                        alt="Activity Image"
+                                        style="height: 100%; max-height: 300px; width: 100%; object-fit: cover;">
+                                </div>
+                                <div class="col-md-6 d-flex flex-column">
+                                    <h3 id="modalActivityName" class="fw-bold mb-3" style="color: #0b573d;"></h3>
+                                    <p id="modalActivityDescription" class="text-muted mb-4 flex-grow-1"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    const activityModal = document.getElementById('activityModal');
+                    activityModal.addEventListener('show.bs.modal', function (event) {
+                        const button = event.relatedTarget;
+                        document.getElementById('modalActivityName').textContent = button.getAttribute('data-activity');
+                        document.getElementById('modalActivityImage').src = button.getAttribute('data-image');
+                        document.getElementById('modalActivityDescription').textContent = button.getAttribute('data-description');
+                    });
+                });
+            </script>
     </section>
     <!-- Third Page -->
     <section id="about">
@@ -684,7 +729,8 @@
                     <!-- Second section content -->
                     <div class="p-4 h-100">
                         <div class="d-flex flex-column h-100">
-                            <img src="{{ asset('images/logo2.png') }}" alt="Lelo's Resort Logo" class="img-fluid mb-4"
+                            <img src="{{ asset('images/logo new.png') }}" alt="Lelo's Resort Logo"
+                                class="img-fluid mb-4"
                                 style="height: 150px; width: auto; margin: -20px auto; display: block;">
 
                             <div class="text-start">
@@ -771,7 +817,6 @@
     </section>
 
     <!-- footer section -->
-    <!-- footer section -->
     <footer style="background-color: #0b573d; color: white;font-size: 10px;">
         <div class="container">
             <div class="row align-items-center">
@@ -821,7 +866,6 @@
                         </div>
                     </div>
 
-                    <!-- Terms and Conditions Modal -->
                     <!-- TERMS AND CONDITIONS MODAL -->
                     <div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel"
                         aria-hidden="true">

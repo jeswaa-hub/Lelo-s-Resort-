@@ -137,59 +137,41 @@ class LoginController extends Controller
         );
     }
     public function resetPassword(Request $request)
-    {
-        try {
-            \Log::info('Reset Request:', [
-                'email' => $request->email,
-                'otp_entered' => $request->otp
-            ]);
-    
-            // Validate input with proper error messages
-            $validated = $request->validate([
-                'email' => 'required|email|exists:users,email',
-                'otp' => 'required',
-                'password' => 'required|min:6|confirmed'
-            ], [
-                'password.confirmed' => 'The password confirmation does not match.',
-                'password.min' => 'Password must be at least 6 characters.',
-            ]);
-    
-            // Fetch OTP from the database
-            $otpRecord = DB::table('password_resets')
-                ->where('email', $request->email)
-                ->where('token', $request->otp)
-                ->first();
-    
-            if (!$otpRecord) {
-                \Log::warning('OTP mismatch', [
-                    'email' => $request->email,
-                    'otp_entered' => $request->otp
-                ]);
-                return redirect()->back()->with('error', 'Invalid OTP.');
-            }
-    
-            // Verify password confirmation
-            if ($request->password !== $request->password_confirmation) {
-                return redirect()->back()->with('error', 'Password confirmation does not match.');
-            }
-    
-            // Reset Password
-            $user = User::where('email', $request->email)->first();
-            $user->password = Hash::make($request->password);
-            $user->save();
-    
-            // Delete OTP after use
-            DB::table('password_resets')->where('email', $request->email)->delete();
-    
-            return redirect()->route('login')->with('success', 'Password reset successfully!');
-    
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return redirect()->back()->withErrors($e->validator)->withInput();
-        } catch (\Exception $e) {
-            \Log::error('Password reset error: '.$e->getMessage());
-            return redirect()->back()->with('error', 'Error resetting password. Please try again.');
+{
+    try {
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'email' => 'required|email|exists:users,email',
+            'otp' => 'required',
+            'password' => 'required|min:6|confirmed'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'message' => $validator->errors()->first()], 422);
         }
+
+        $otpRecord = \Illuminate\Support\Facades\DB::table('password_resets')
+            ->where('email', $request->email)
+            ->where('token', $request->otp)
+            ->first();
+
+        if (!$otpRecord) {
+            return response()->json(['success' => false, 'message' => 'Invalid OTP.'], 401);
+        }
+
+        $user = \App\Models\User::where('email', $request->email)->first();
+        $user->password = \Illuminate\Support\Facades\Hash::make($request->password);
+        $user->save();
+
+        \Illuminate\Support\Facades\DB::table('password_resets')->where('email', $request->email)->delete();
+
+        return response()->json(['success' => true, 'message' => 'Password reset successfully! Redirecting to login...']);
+
+    } catch (\Exception $e) {
+        \Illuminate\Support\Facades\Log::error('Password reset error: ' . $e->getMessage());
+        return response()->json(['success' => false, 'message' => 'An unexpected error occurred. Please try again.'], 500);
     }
+}
+
 
     // Send OTP method
     public function sendOTP(Request $request) 
@@ -210,10 +192,15 @@ class LoginController extends Controller
             // Send OTP to user's email
             Mail::to($request->email)->send(new SendOTP($otp));
 
-            return response()->json(['message' => 'OTP sent successfully!']);
+            return response()->json([
+                'success' => true,
+                'message' => 'OTP sent successfully!']);
         } catch (\Exception $e) {
             \Log::error('Error sending OTP: ' . $e->getMessage()); // Log the exception message
-            return response()->json(['message' => 'Error sending OTP'], 500);
+            return response()->json([
+                'success' => false,
+                'message' => 'Error sending OTP'
+        ], 500);
         }
     }
 
@@ -337,7 +324,7 @@ public function resendOTP(Request $request)
         // Generate new 6-digit OTP
         $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
-        // Update OTP in session and cooldown timestamp
+        // Update OTP in session, using the correct keys
         session(['login_otp' => $otp, 'login_otp_email' => $email, 'last_otp_sent' => $currentTimestamp]);
 
         // Send new OTP via email
@@ -361,25 +348,27 @@ public function resendOTP(Request $request)
         $inputOTP = $request->otp;
         $email = $request->email;
         
-        // Check if OTP matches
         if (session('login_otp') == $inputOTP && session('login_otp_email') == $email) {
-            // Clear OTP from session
             session()->forget(['login_otp', 'login_otp_email']);
             
-            // Log the user in
-            $user = User::where('email', $email)->first();
-            Auth::login($user);
+            $user = \App\Models\User::where('email', $email)->first();
 
-            // Add success message to flash session
-            session()->flash('success', 'OTP verified successfully.');
-            
-            // Return with success message and redirect
-            return redirect()->route('homepage')->with([
-                'success' => 'Welcome ' . $user->name . '!',
-            ]);
+            if ($user) {
+                \Illuminate\Support\Facades\Auth::login($user);
+                
+                // Return a JSON response with a redirect URL
+                return response()->json([
+                    'success' => true,
+                    'message' => 'OTP verified successfully! Redirecting...',
+                    'redirect' => route('homepage')
+                ]);
+            }
         }
         
-        // Return with error message
-        return back()->with('error', 'Invalid OTP. Please try again.');
+        // Return a JSON error response
+        return response()->json([
+            'success' => false,
+            'message' => 'Invalid OTP. Please try again.'
+        ], 422); // Use an error status code
     }
 }

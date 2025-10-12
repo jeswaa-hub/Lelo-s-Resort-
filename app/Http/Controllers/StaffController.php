@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use App\Models\Accomodation;
 use App\Models\Staff;
@@ -13,14 +14,14 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use App\Mail\ReservationStatusUpdated;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
-use App\Models\WalkInGuest;
+use App\Models\WalkinGuest;
 use App\Models\Transaction;
 use App\Models\Notification;
 use App\Models\DamageReport;
 use App\Models\ActivityLog;
 use DateTime;
+use Carbon\Carbon;
 
 class StaffController extends Controller
 {
@@ -37,6 +38,13 @@ class StaffController extends Controller
     }
 public function guests(Request $request)
 {
+    // Get current staff credentials
+    if (session()->has('StaffLogin')) {
+        $staffCredentials = Staff::where('id', session()->get('StaffLogin'))->first();
+    } else {
+        return redirect()->route('staff.login');
+    }
+
     // Base query for users
     $query = DB::table('users');
 
@@ -92,7 +100,7 @@ public function guests(Request $request)
             ->paginate(5);
     }
 
-    return view('StaffSide.StaffGuest', compact('guests'));
+    return view('StaffSide.StaffGuest', compact('guests', 'staffCredentials'));
 }
     public function logout(Request $request)
 {
@@ -187,8 +195,7 @@ public function dashboard()
 
         // Get counts for dashboard cards
         $pendingReservations = DB::table('reservation_details')
-            ->where('payment_status', 'pending')
-            ->where('reservation_status', 'pending')
+            ->where('reservation_status', 'reserved') // Count based on reservation status only
             ->count();
 
         $checkedInGuests = DB::table('reservation_details')
@@ -202,8 +209,7 @@ public function dashboard()
         // Get pending reservations list - limited to 3 records with name and date only
         $pendingReservationsList = DB::table('reservation_details')
             ->join('users', 'reservation_details.user_id', '=', 'users.id')
-            ->where('reservation_details.payment_status', 'pending')
-            ->where('reservation_details.reservation_status', 'pending')
+            ->where('reservation_details.reservation_status', 'reserved') // Filter based on reservation status only
             ->select(
                 'users.name as guest_name',
                 'reservation_details.reservation_check_in_date',
@@ -220,7 +226,7 @@ public function dashboard()
                 $join->whereRaw("JSON_CONTAINS(reservation_details.accomodation_id, CONCAT('\"', accomodations.accomodation_id, '\"'))");
             })
             ->whereDate('reservation_check_in_date', Carbon::today())
-            ->where('reservation_status', 'pending')
+            ->where('reservation_status', 'reserved')
             ->select(
                 'reservation_details.id',
                 'reservation_details.user_id', 
@@ -250,7 +256,7 @@ public function dashboard()
                 'users.name'
             )
             ->orderBy('reservation_check_in_date')
-            ->limit(5)
+            ->limit(3)
             ->get();
         return view('StaffSide.StaffDashboard', [
             'staffCredentials' => $staffCredentials,
@@ -298,9 +304,16 @@ public function cancelReservationWithReason(Request $request, $id)
 }
 public function reservations(Request $request)
 {
+    // Get current staff credentials
+    if (session()->has('StaffLogin')) {
+        $staffCredentials = Staff::where('id', session()->get('StaffLogin'))->first();
+    } else {
+        return redirect()->route('staff.login');
+    }
+
     // Count reservations by status
     $pendingCount = DB::table('reservation_details')
-        ->where('reservation_status', 'pending')
+        ->where('reservation_status', 'cancelled')
         ->count();
     
     $OnHoldCount = DB::table('reservation_details')
@@ -322,7 +335,7 @@ public function reservations(Request $request)
     $reservedCount = DB::table('reservation_details')
         ->where('reservation_status', 'reserved')
         ->count();
-
+    
     $totalCount = DB::table('reservation_details')->count();
     $accommodationIdRows = DB::table('reservation_details')->pluck('accomodation_id');
     $allAccommodationIds = [];
@@ -358,12 +371,7 @@ public function reservations(Request $request)
         )
         ->orderByDesc('reservation_details.created_at');
 
-    // Add status filter
-    if ($request->has('status') && $request->status !== 'pending') {
-        $query->where('reservation_details.reservation_status', $request->status);
-    }
-
-    // Add search functionality
+    // Add search functionality FIRST (before status filter)
     if ($request->has('search')) {
         $searchTerm = $request->search;
         $query->where(function($q) use ($searchTerm) {
@@ -371,11 +379,18 @@ public function reservations(Request $request)
               ->orWhere('reservation_details.email', 'LIKE', '%' . $searchTerm . '%')
               ->orWhere('reservation_details.reservation_id', 'LIKE', '%' . $searchTerm . '%');
         });
+        
+        // If search is present, don't apply status filter (global search)
+        // This allows QR scanner to find reservations across all statuses
+    } else {
+        // Only apply status filter if no search is present
+        $status = $request->get('status', 'reserved');
+        $query->where('reservation_details.reservation_status', $status);
     }
 
     // Add stay_type filter
     if ($request->has('stay_type') && $request->stay_type !== '') {
-        if ($request->stay_type === 'overnight') {
+        if ($request->stay_type === 'stay-in') {
             $query->whereRaw('reservation_details.reservation_check_in_date <> reservation_details.reservation_check_out_date');
         } elseif ($request->stay_type === 'one_day') {
             $query->whereRaw('reservation_details.reservation_check_in_date = reservation_details.reservation_check_out_date');
@@ -417,20 +432,37 @@ public function reservations(Request $request)
                 ->toArray();
         }
 
-        // --- Filter kung Overnight o One Day Stay ---
+        // --- Filter kung Overnight o Day Tour ---
         if (
             isset($reservation->reservation_check_in_date) &&
             isset($reservation->reservation_check_out_date)
         ) {
             if ($reservation->reservation_check_in_date == $reservation->reservation_check_out_date) {
-                $reservation->stay_type = 'One Day Stay';
+                $reservation->stay_type = 'Day Tour';
             } else {
-                $reservation->stay_type = 'Overnight';
+                $reservation->stay_type = 'Stay-in';
             }
         } else {
             $reservation->stay_type = 'Unknown';
         }
     }
+
+    // Get the latest entrance fees for both sessions
+    $morningFees = DB::table('transaction')->where('session', 'Morning')->latest()->get()->keyBy('type');
+    $eveningFees = DB::table('transaction')->where('session', 'Evening')->latest()->get()->keyBy('type');
+
+    $entranceFees = [
+        'morning' => [
+            'adult' => $morningFees->get('adult')->entrance_fee ?? 0,
+            'child' => $morningFees->get('kid')->entrance_fee ?? 0,
+        ],
+        'evening' => [
+            'adult' => $eveningFees->get('adult')->entrance_fee ?? 0,
+            'child' => $eveningFees->get('kid')->entrance_fee ?? 0,
+        ],
+    ];
+    $status = $request->get('status', 'reserved'); // default reserved
+    $reservationsPending = Reservation::where('reservation_status', $status)->get();
 
     // Debugging: Log the fetched details
     \Log::info('All Reservations:', ['reservations' => $reservations]);
@@ -448,78 +480,178 @@ public function reservations(Request $request)
         'earlyCheckedOutCount',
         'totalCount',
         'accommodationTypes',
-        'reservedCount'
+        'reservedCount',
+        'reservationsPending',
+        'status',
+        'staffCredentials',
+        'entranceFees'
     ));
 }
 
 
-public function accomodations()
+public function accomodations(Request $request)
 {
     // Get current staff info
     $staffId = session()->get('StaffLogin');
     $staff = Staff::find($staffId);
 
-    // Fetch all accommodations
-    $accomodations = DB::table('accomodations')->paginate(5);
+    // Get current staff credentials
+    if (session()->has('StaffLogin')) {
+        $staffCredentials = Staff::where('id', session()->get('StaffLogin'))->first();
+    } else {
+        return redirect()->route('staff.login');
+    }
+
+    // Get filter parameters from request
+    $filter = $request->get('filter', 'overview'); // overview, daily
+    $date = $request->get('date', date('Y-m-d'));
+    $accomodation_type = $request->get('accomodation_type', 'all');
+
+    // Base query for accommodations
+    $accomodationsQuery = DB::table('accomodations');
+
+    if ($accomodation_type !== 'all') {
+        $accomodationsQuery->where('accomodation_type', $accomodation_type);
+    }
     
-    // Compute Room Overview
-    $totalRooms = DB::table('accomodations')->sum('quantity');
-    $vacantRooms = DB::table('accomodations')
-        ->sum('quantity');
+    // Fetch all accommodations
+    $accomodations = $accomodationsQuery->paginate(5);
+    $accommodationTypes = DB::table('accomodations')->distinct()->pluck('accomodation_type');
+
+    // Initialize variables
+    $totalRooms = 0;
+    $vacantRooms = 0;
+    $reservedRooms = 0;
+    $activeReservations = collect();
+    $availabilityData = collect();
+    
+    // Base query for reservations
+    $reservedStatuses = ['reserved', 'checked-in'];
+    
+    if ($filter === 'overview') {
+        // Compute Room Overview (daily count)
+        $totalRooms = DB::table('accomodations')->sum('quantity');
         
-    $reservedRoomsFromWalkin = DB::table('walkin_guests')
-        ->whereIn('reservation_status', ['reserved', 'checked-in'])
-        ->sum('quantity');
+        $today = \Carbon\Carbon::today();
 
-    // Add reserved rooms from reservation_details table
-    $reservedRoomsFromReservations = DB::table('reservation_details')
-    ->whereIn('reservation_status', ['reserved', 'checked-in'])
-    ->sum('quantity');
+        $reservedRoomsFromWalkin = DB::table('walkin_guests')
+            ->whereIn('reservation_status', $reservedStatuses)
+            ->whereDate('reservation_check_in_date', '<=', $today)
+            ->whereDate('reservation_check_out_date', '>', $today)
+            ->sum('quantity');
 
-    // Combine both reserved room counts
-    $reservedRooms = $reservedRoomsFromWalkin + $reservedRoomsFromReservations;
+        $reservedRoomsFromReservations = DB::table('reservation_details')
+            ->whereIn('reservation_status', $reservedStatuses)
+            ->whereDate('reservation_check_in_date', '<=', $today)
+            ->whereDate('reservation_check_out_date', '>', $today)
+            ->sum('quantity');
 
-    // Get reservation details with checkout dates for countdown timer
-    $activeReservations = DB::table('reservation_details')
-        ->leftJoin('accomodations', function($join) {
-            $join->whereRaw("JSON_CONTAINS(reservation_details.accomodation_id, CONCAT('\"', accomodations.accomodation_id, '\"'))");
-        })
-        ->whereIn('reservation_details.reservation_status', ['reserved', 'checked-in'])
-        ->select([
-            'reservation_details.accomodation_id',
-            'accomodations.accomodation_name',
-            'accomodations.quantity as total_quantity', 
-            'reservation_details.quantity as reserved_quantity',
-            'reservation_details.reservation_check_out_date as next_available_date',
-            'reservation_details.reservation_status'
-        ])
-        ->orderBy('accomodations.accomodation_name')
-        ->orderBy('next_available_date')
-        ->get()
-        ->map(function($item) {
-            // Decode the JSON accomodation_id
-            $accomIds = json_decode($item->accomodation_id, true);
-            $item->accomodation_id = $accomIds[0] ?? null; // Get first ID since we're grouping by it
-            return $item;
-        })
-        ->groupBy('accomodation_id')
-        ->map(function ($group) {
-            return (object)[
-                'id' => $group->first()->accomodation_id,
-                'name' => $group->first()->accomodation_name ?? 'No accommodation found',
-                'reserved_quantity' => $group->sum('reserved_quantity'),
-                'next_available_time' => $group->first()->next_available_date,
-                'total_quantity' => $group->first()->total_quantity ?? 0,
-                'status' => $group->first()->reservation_status
-            ];
-        });
+        $reservedRooms = $reservedRoomsFromWalkin + $reservedRoomsFromReservations;
+        $vacantRooms = $totalRooms - $reservedRooms;
 
-    // Optional: Group by accommodation for easier display
-    $reservationsByAccommodation = $activeReservations->groupBy('accomodation_id');
+        // Get active reservations for countdown timer
+        $activeReservations = DB::table('reservation_details')
+            ->leftJoin('accomodations', function($join) {
+                $join->whereRaw('JSON_CONTAINS(reservation_details.accomodation_id, CONCAT("\"", accomodations.accomodation_id, "\""))');
+            })
+            ->whereIn('reservation_details.reservation_status', $reservedStatuses)
+            ->select([
+                'reservation_details.accomodation_id',
+                'accomodations.accomodation_name',
+                'accomodations.quantity as total_quantity', 
+                'reservation_details.quantity as reserved_quantity',
+                'reservation_details.reservation_check_out_date as next_available_date',
+                'reservation_details.reservation_status'
+            ])
+            ->orderBy('accomodations.accomodation_name')
+            ->orderBy('next_available_date')
+            ->get()
+            ->map(function($item) {
+                // Decode the JSON accomodation_id
+                $accomIds = json_decode($item->accomodation_id, true);
+                $item->accomodation_id = $accomIds[0] ?? null;
+                return $item;
+            })
+            ->groupBy('accomodation_id')
+            ->map(function ($group) {
+                return (object)[
+                    'id' => $group->first()->accomodation_id,
+                    'name' => $group->first()->accomodation_name ?? 'No accommodation found',
+                    'reserved_quantity' => $group->sum('reserved_quantity'),
+                    'next_available_time' => $group->first()->next_available_date,
+                    'total_quantity' => $group->first()->total_quantity ?? 0,
+                    'status' => $group->first()->reservation_status
+                ];
+            });
+            
+    } else { // daily
+        // Date-based availability calculation
+        $startDate = Carbon::parse($date);
+        $endDate = $startDate->copy()->addDay();
+        
+        // Calculate availability for each accommodation
+        foreach ($accomodations as $accommodation) {
+            $accommodationId = $accommodation->accomodation_id;
+            $totalRoomsForAccom = (int)($accommodation->quantity ?? 0);
+            
+            // Get reservations for this period
+            $reservationQuery = DB::table('reservation_details')
+                ->whereIn('reservation_status', $reservedStatuses)
+                ->where(function($query) use ($startDate, $endDate) {
+                    $query->where(function($q) use ($startDate, $endDate) {
+                        $q->where('reservation_check_in_date', '<', $endDate)
+                          ->where('reservation_check_out_date', '>', $startDate);
+                    });
+                })
+                ->where(function($jsonQuery) use ($accommodationId) {
+                    $jsonQuery->whereJsonContains('accomodation_id', (string)$accommodationId)
+                              ->orWhereJsonContains('accomodation_id', (int)$accommodationId)
+                              ->orWhere('accomodation_id', '=', (string)$accommodationId)
+                              ->orWhere('accomodation_id', '=', (int)$accommodationId)
+                              ->orWhere('accomodation_id', 'LIKE', '%"'.$accommodationId.'"%')
+                              ->orWhere('accomodation_id', 'LIKE', '%['.$accommodationId.']%');
+                });
+
+            $bookedFromReservations = (int)$reservationQuery->sum('quantity');
+
+            // Get walk-ins for this period
+            $walkinQuery = DB::table('walkin_guests')
+                ->where('accomodation_id', $accommodationId)
+                ->whereIn('reservation_status', $reservedStatuses)
+                ->where(function($query) use ($startDate, $endDate) {
+                    $query->where(function($q) use ($startDate, $endDate) {
+                        $q->where('reservation_check_in_date', '<', $endDate)
+                          ->where('reservation_check_out_date', '>', $startDate);
+                    });
+                });
+
+            $bookedFromWalkins = (int)$walkinQuery->sum('quantity');
+
+            $totalBooked = $bookedFromReservations + $bookedFromWalkins;
+            $availableRooms = max(0, $totalRoomsForAccom - $totalBooked);
+            
+            // Store availability data
+            $availabilityData->push([
+                'id' => $accommodationId,
+                'name' => $accommodation->accomodation_name,
+                'total_rooms' => $totalRoomsForAccom,
+                'booked' => $totalBooked,
+                'available' => $availableRooms,
+                'period_start' => $startDate->format('Y-m-d'),
+                'period_end' => $endDate->format('Y-m-d')
+            ]);
+            
+            // Update overall counts
+            $totalRooms += $totalRoomsForAccom;
+            $reservedRooms += $totalBooked;
+        }
+        
+        $vacantRooms = $totalRooms - $reservedRooms;
+    }
 
     // Record activity with staff username if available, otherwise use 'System'
     $activityUser = $staff ? $staff->username : 'System';
-    $this->recordActivity($activityUser . ' viewed accommodations overview - Total: ' . $totalRooms . 
+    $this->recordActivity($activityUser . ' viewed accommodations ' . $filter . ' overview - Total: ' . $totalRooms . 
                          ', Vacant: ' . $vacantRooms . 
                          ', Reserved: ' . $reservedRooms);
 
@@ -529,8 +661,117 @@ public function accomodations()
         'vacantRooms', 
         'reservedRooms',
         'activeReservations',
-        'reservationsByAccommodation'
+        'availabilityData',
+        'filter',
+        'date',
+        'staffCredentials',
+        'accommodationTypes',
+        'accomodation_type'
     ));
+}
+public function getAvailability(Request $request)
+{
+    // 1. Authorization: Ensure a staff member is logged in.
+    if (!session()->has('StaffLogin')) {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+
+    // 2. Validation: Validate the incoming date.
+    $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+        'date' => 'required|date_format:Y-m-d',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json(['error' => 'Invalid date parameter', 'messages' => $validator->errors()], 400);
+    }
+
+    // 3. Performance Refactoring
+    try {
+        $date = $request->get('date');
+        $startDate = Carbon::parse($date);
+        $endDate = $startDate->copy()->addDay();
+        
+        $reservedStatuses = ['reserved', 'checked-in'];
+
+        // Get all accommodations and key them by ID for efficient lookup.
+        $accommodations = DB::table('accomodations')->get()->keyBy('accomodation_id');
+
+        // --- Get all booked rooms from online reservations in ONE query ---
+        $bookedReservations = DB::table('reservation_details')
+            ->whereIn('reservation_status', $reservedStatuses)
+            ->where(function($query) use ($startDate, $endDate) {
+                $query->where('reservation_check_in_date', '<', $endDate)
+                      ->where('reservation_check_out_date', '>', $startDate);
+            })
+            ->select('accomodation_id', 'quantity')
+            ->get()
+            ->flatMap(function ($item) {
+                // Handle JSON array of accommodation IDs
+                $ids = json_decode($item->accomodation_id, true);
+                if (is_array($ids)) {
+                    return collect($ids)->map(function($id) use ($item) {
+                        return ['accomodation_id' => $id, 'quantity' => $item->quantity];
+                    });
+                }
+                // Handle single ID
+                return [['accomodation_id' => $item->accomodation_id, 'quantity' => $item->quantity]];
+            })
+            ->groupBy('accomodation_id')
+            ->map(function ($group) {
+                return $group->sum('quantity');
+            });
+
+        // --- Get all booked rooms from walk-in guests in ONE query ---
+        $bookedWalkIns = DB::table('walkin_guests')
+            ->whereIn('reservation_status', $reservedStatuses)
+            ->where(function($query) use ($startDate, $endDate) {
+                $query->where('reservation_check_in_date', '<', $endDate)
+                      ->where('reservation_check_out_date', '>', $startDate);
+            })
+            ->select('accomodation_id', 'quantity')
+            ->get()
+            ->flatMap(function ($item) {
+                // Handle JSON array of accommodation IDs
+                $ids = json_decode($item->accomodation_id, true);
+                if (is_array($ids)) {
+                    return collect($ids)->map(function($id) use ($item) {
+                        return ['accomodation_id' => $id, 'quantity' => $item->quantity];
+                    });
+                }
+                 // Handle single ID
+                return [['accomodation_id' => $item->accomodation_id, 'quantity' => $item->quantity]];
+            })
+            ->groupBy('accomodation_id')
+            ->map(function ($group) {
+                return $group->sum('quantity');
+            });
+
+        // --- Combine results and calculate availability ---
+        $availabilityData = $accommodations->map(function ($accommodation) use ($bookedReservations, $bookedWalkIns) {
+            $accommodationId = $accommodation->accomodation_id;
+            $totalRooms = (int)($accommodation->quantity ?? 0);
+
+            $bookedFromReservations = $bookedReservations->get($accommodationId, 0);
+            $bookedFromWalkins = $bookedWalkIns->get($accommodationId, 0);
+            
+            $totalBooked = $bookedFromReservations + $bookedFromWalkins;
+            $availableRooms = max(0, $totalRooms - $totalBooked);
+
+            return [
+                'id' => $accommodationId,
+                'name' => $accommodation->accomodation_name,
+                'total_rooms' => $totalRooms,
+                'booked' => $totalBooked,
+                'available' => $availableRooms
+            ];
+        });
+
+        return response()->json($availabilityData->values());
+
+    } catch (\Exception $e) {
+        Log::error('Error fetching availability data: ' . $e->getMessage());
+        return response()->json(['error' => 'An internal server error occurred.'], 500);
+    }
 }
 public function editRoom(Request $request, $accomodation_id)
 {
@@ -708,13 +949,19 @@ public function UpdateStatus(Request $request, $id)
     DB::beginTransaction();
 
     try {
-        // Update reservation/payment status
-        DB::table('reservation_details')->where('id', $id)->update([
+        $updateData = [
             'payment_status' => $request->payment_status,
             'reservation_status' => $request->reservation_status,
             'custom_message' => $request->custom_message ?? null,
             'updated_at' => now(),
-        ]);
+        ];
+
+        // If payment status is 'paid', set balance to 0
+        if ($request->payment_status === 'paid') {
+            $updateData['balance'] = 0;
+        }
+        // Update reservation/payment status
+        DB::table('reservation_details')->where('id', $id)->update($updateData);
 
         $updatedReservation = DB::table('reservation_details')->where('id', $id)->first();
 
@@ -725,12 +972,6 @@ public function UpdateStatus(Request $request, $id)
                 ->value('package_room_type');
             $accommodationIdsAfterUpdate = json_decode($packageRoomsAfterUpdate, true) ?? [];
         }
-
-        /**
-         * 🚫 Removed: Global quantity decrement/increment
-         * The quantity in accomodations table remains fixed.
-         * Availability is now computed dynamically when checking for bookings.
-         */
 
         // Prepare change log for activity record
         $statusChanges = [];
@@ -752,11 +993,7 @@ public function UpdateStatus(Request $request, $id)
         DB::commit();
 
         // Send email to guest about the status update
-        Mail::to($updatedReservation->email)->send(new ReservationStatusUpdated(
-            $updatedReservation,
-            $request->custom_message,
-            $updatedReservation
-        ));
+        Mail::to($updatedReservation->email)->send(new ReservationStatusUpdated($updatedReservation, $request->custom_message));
 
         return redirect()->route('staff.reservation')->with('success', 'Reservation status updated successfully!');
 
@@ -793,6 +1030,12 @@ public function UpdateStatus(Request $request, $id)
 
     public function walkIn()
     {
+        //  Get current staff credentials
+        if (session()->has('StaffLogin')) {
+            $staffCredentials = Staff::where('id', session()->get('StaffLogin'))->first();
+        } else {
+            return redirect()->route('staff.login');
+        }
         // Get all transactions ordered by most recent first
         $transactions = DB::table('transaction')
             ->orderBy('created_at', 'desc')
@@ -824,9 +1067,10 @@ public function UpdateStatus(Request $request, $id)
             ->paginate(5);
 
         // Guest status counts
-        $totalWalkInGuests = $walkinGuest->count();
-        $totalCheckedInGuests = $walkinGuest->where('reservation_status', 'checked-in')->count();
-        $totalCheckedOutGuests = $walkinGuest->where('reservation_status', 'checked-out')->count();
+        $totalWalkInGuests = DB::table('walkin_guests')->count();
+        $totalReservedGuests = DB::table('walkin_guests')->where('reservation_status', 'reserved')->count();
+    $totalCheckedInGuests = DB::table('walkin_guests')->where('reservation_status', 'checked-in')->count();
+    $totalCheckedOutGuests = DB::table('walkin_guests')->where('reservation_status', 'checked-out')->count();
 
         // Get available accommodations
         $accomodations = DB::table('accomodations')
@@ -844,7 +1088,9 @@ public function UpdateStatus(Request $request, $id)
             'start_time', 
             'end_time',
             'adultTransaction',
-            'kidTransaction'
+            'kidTransaction',
+            'staffCredentials',
+            'totalReservedGuests'
         ));
     }
 
@@ -932,7 +1178,7 @@ public function UpdateStatus(Request $request, $id)
                 'reservation_status' => 'required',
                 'payment_method' => 'required|string|in:cash,gcash',
                 'amount' => 'required|numeric|min:0',
-                'quantity' => 'required|integer|min:1'
+                'quantity' => 'required|integer|min:1',
             ]);
             // Get accommodation details
             $accommodation = DB::table('accomodations')
@@ -962,8 +1208,8 @@ public function UpdateStatus(Request $request, $id)
                 'quantity' => $validated['quantity'],
                 'total_guests' => $totalGuests,
                 'payment_status' => $validated['payment_status'],
-                'reservation_status' => $validated['reservation_status'],
-                'accomodation_id' => $validated['accomodation_id'],
+                'reservation_status' => $validated['reservation_status'], 
+                'accomodation_id' => json_encode([$validated['accomodation_id']]), // Ensure it's saved as a JSON array
                 'payment_method' => $validated['payment_method'],
                 'amount' => $validated['amount']
             ]);
@@ -1160,10 +1406,16 @@ public function UpdateStatus(Request $request, $id)
 
     public function DamageReport()
     {
+        // Get current staff credentials
+        if (session()->has('StaffLogin')) {
+            $staffCredentials = Staff::where('id', session()->get('StaffLogin'))->first();
+        } else {
+            return redirect()->route('staff.login');
+        }
         $damageReports = DamageReport::orderBy('created_at', 'desc')
             ->paginate(5);
 
-        return view('StaffSide.StaffDamageReport', compact('damageReports'));
+        return view('StaffSide.StaffDamageReport', compact('damageReports', 'staffCredentials'));
     }
     public function storeDamageReport(Request $request)
     {
@@ -1252,6 +1504,27 @@ public function UpdateStatus(Request $request, $id)
         return redirect()->back()->with('error', 'Error updating damage report: ' . $e->getMessage());
     }
 }
+    public function deleteDamageReport($id)
+    {
+        try {
+            $report = DamageReport::findOrFail($id);
+            
+            // Delete the image if it exists from public storage
+            if ($report->damage_photos) {
+                Storage::disk('public')->delete($report->damage_photos);
+            }
+            
+            $report->delete();
+            
+            // Record activity
+            $this->recordActivity('Deleted damage report #' . $id);
+
+            return redirect()->back()->with('success', 'Damage report deleted successfully');
+        } catch (\Exception $e) {
+            Log::error('Error deleting damage report: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error deleting damage report: ' . $e->getMessage());
+        }
+    }
     
     public function AutoCancellation()
     {
@@ -1278,9 +1551,9 @@ public function UpdateStatus(Request $request, $id)
     {
         try {
             // Validate request
-            $request->validate([
+            $request->validate([ 
                 'new_checkout_date' => 'required|date',
-                'additional_payment' => 'required|numeric|min:0'
+                'additional_payment' => 'required|numeric|min:0',
             ]);
 
             // Get the reservation
@@ -1347,11 +1620,11 @@ public function checkDateAvailability(Request $request)
             'message' => $isAvailable ? 'Available' : 'Not available for selected date'
         ]);
     } catch (\Exception $e) {
-        \Log::error('Availability check error: ' . $e->getMessage());
+        \Log::error('Availability check error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
         return response()->json([
             'available' => false,
-            'message' => 'Error checking availability'
-        ]);
+            'message' => 'Server error while checking availability.'
+        ], 500); // Return a 500 Internal Server Error status
     }
 }
 private function checkAccommodationAvailability($date, $accommodationId, $requestedQuantity)
@@ -1399,5 +1672,51 @@ private function isValidDate($date)
 {
     $d = DateTime::createFromFormat('Y-m-d', $date);
     return $d && $d->format('Y-m-d') === $date;
+}
+
+public function updateGuestCount(Request $request, $id)
+{
+    // 1. Validation
+    $request->validate([
+        'additional_adults' => 'required|integer|min:0',
+        'additional_children' => 'required|integer|min:0',
+        'additional_amount' => 'required|numeric|min:0',
+        'total_guest' => 'required|integer|min:0', // This is the new total, already calculated by JS
+    ]);
+
+    // 2. Find the reservation
+    $reservation = DB::table('reservation_details')->where('id', $id)->first();
+
+    if (!$reservation) {
+        return redirect()->back()->with('error', 'Reservation not found.');
+    }
+
+    // 3. Calculate new totals
+    $newAdults = $reservation->number_of_adults + $request->input('additional_adults');
+    $newChildren = $reservation->number_of_children + $request->input('additional_children');
+    $newTotalGuests = $request->input('total_guest'); // Use the total from the form
+    $additionalAmount = $request->input('additional_amount');
+
+    // 4. Update the reservation
+    DB::table('reservation_details')
+        ->where('id', $id)
+        ->update([
+            'number_of_adults' => $newAdults,
+            'number_of_children' => $newChildren,
+            'total_guest' => $newTotalGuests,
+            'amount' => DB::raw('amount + ' . $additionalAmount),
+            'balance' => DB::raw('balance + ' . $additionalAmount),
+            'updated_at' => now(),
+        ]);
+
+    // 5. Record Activity
+    $staffId = session()->get('StaffLogin');
+    $staff = Staff::find($staffId);
+    if ($staff) {
+        $this->recordActivity($staff->username . " updated guest count for reservation #" . $reservation->reservation_id);
+    }
+
+    // 6. Redirect back with success message
+    return redirect()->back()->with('success', 'Guest count updated successfully!');
 }
 }
